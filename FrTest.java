@@ -73,5 +73,4 @@ public class FrTest {
 
 		System.exit(0);
     }
-// тест1
 }

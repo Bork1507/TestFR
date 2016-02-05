@@ -1,7 +1,7 @@
 # TestFR
-Program in development...
+Program in development.
 
-The program for test fiscal printers
+The program for test fiscal printers.
 
 Supported fiscal printers:
 from the company Service Plus, Russia:
