@@ -1,5 +1,5 @@
 # TestFR
-Program in development
+Program in development...
 
 The program for test fiscal printers
 
