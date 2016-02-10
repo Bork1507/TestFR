@@ -8,3 +8,7 @@ from the company Service Plus, Russia:
 SP101FR-K
 SP402FR-K
 SP601-K
+from the company SHTRIH-M, Russia:
+SHTRIH-M-FR-K
+SHTRIH-MINI-FR-K
+NCR001-K
