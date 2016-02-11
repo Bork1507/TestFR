@@ -52,46 +52,51 @@ public class FrTest {
 		else if (param4.contains("SHTRIH")) fr=new SHTRIH();
 		else return;
 
-
-		fr.openPort(param2, param3);
-		
-		for(int cycle=0;cycle<Integer.parseInt(param0); cycle++)
+		try
 		{
-			fr.Init();
-			for (int i=0; i<Integer.parseInt(param1); i++)
+			fr.openPort(param2, param3);
+			
+			for(int cycle=0;cycle<Integer.parseInt(param0); cycle++)
 			{
-				//fr.ReceiptSale();
-				fr.OpenDocument(FR.ReceiptTypeSale, "0", "Иванова", "");
-				fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
-				fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
-				fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
-				fr.Total();
-				fr.Pay(FR.PayType0, "500.00", "");
-				fr.CloseDocument("");
-
-				if (((i%5)==0)&&(i!=0))
+				fr.Init();
+				for (int i=0; i<Integer.parseInt(param1); i++)
 				{
+					//fr.ReceiptSale();
 					fr.OpenDocument(FR.ReceiptTypeSale, "0", "Иванова", "");
-					fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
-					fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
-					fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
-					fr.CancelDocument();
-
-					fr.OpenDocument(FR.ReceiptTypeReturnSale, "0", "Иванова", "");
 					fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
 					fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
 					fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
 					fr.Total();
 					fr.Pay(FR.PayType0, "500.00", "");
 					fr.CloseDocument("");
-		
-					fr.Xreport("Иванова");
-				}
-			}
-			//fr.Xreport("Иванова");
-			fr.Zreport("Петрова");			
-		}
 
+					if (((i%5)==0)&&(i!=0))
+					{
+						fr.OpenDocument(FR.ReceiptTypeSale, "0", "Иванова", "");
+						fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
+						fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
+						fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
+						fr.CancelDocument();
+
+						fr.OpenDocument(FR.ReceiptTypeReturnSale, "0", "Иванова", "");
+						fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
+						fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
+						fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
+						fr.Total();
+						fr.Pay(FR.PayType0, "500.00", "");
+						fr.CloseDocument("");
+			
+						fr.Xreport("Иванова");
+					}
+				}
+				//fr.Xreport("Иванова");
+				fr.Zreport("Петрова");			
+			}				
+		}
+		catch (FrException frEx)
+		{
+			System.out.println(frEx);
+		}
 		System.exit(0);
     }
 }

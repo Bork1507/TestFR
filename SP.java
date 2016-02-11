@@ -15,8 +15,20 @@ public class SP extends FR
 	private int _gettedBytes=0; 
 	
 
-	private boolean _wrileLog=true;
-	//private boolean _wrileLog=false;
+	//private boolean _wrileLog=true;
+	private boolean _wrileLog=false;
+
+	private ArrayOfBytes bENQ = new ArrayOfBytes();
+	private ArrayOfBytes bACK = new ArrayOfBytes();
+
+
+
+	public SP()
+	{
+		bENQ.append(0x05);
+		bACK.append(0x06);
+	}
+
 
 
 	private String curDate()
@@ -43,7 +55,7 @@ public class SP extends FR
 	{
 		if (_id==0xFD) _id=0x20;
 		else _id++;
-		if (_wrileLog) Log("Id = "+_id);
+//		if (_wrileLog) Log("Id = "+_id);
 		return _id;
 	}
 
@@ -82,6 +94,104 @@ public class SP extends FR
 		return out;
 	}
 
+	public static String getErrorDetails(int error)
+	{
+		String str="";
+
+	    switch (error)
+	    {
+	        case 0:
+	            break;
+	        case 1:
+	            str="Ошибка 01h - Функция невыполнима при данном статусе ККМ";
+	            break;
+	        case 2:
+	            str="Ошибка 02h - В команде указан неверный номер функции";
+	            break;
+	        case 3:
+	            str="Ошибка 03h - В команде указано неверное, больше чем максимально возможное или несоответствующее типу данных значение";
+	            break;
+	        case 4:
+	            str="Ошибка 04h - Переполнение буфера коммуникационного порта";
+	            break;
+	        case 5:
+	            str="Ошибка 05h - Таймаут при передаче байта информации";
+	            break;
+	        case 6:
+	            str="Ошибка 06h - В команде указан неверный пароль";
+	            break;
+	        case 7:
+	            str="Ошибка 07h - Ошибка контрольной суммы в команде";
+	            break;
+	        case 8:
+	            str="Ошибка 08h - Конец бумаги";
+	            break;
+	        case 9:
+	            str="Ошибка 09h - Принтер не готов";
+	            break;
+	        case 10:
+	            str="Ошибка 0Ah - Текущая смена больше 24 часов";
+	            break;
+	        case 11:
+	            str="Ошибка 0Bh - Разница во времени, ККМ и указанной в команде установки времени, больше 8 минут";
+	            break;
+	        case 12:
+	            str="Ошибка 0Ch - Время последнего документа больше нового времени более чем на один час (с учетом летнего/зимнего перехода)";
+	            break;
+	        case 13:
+	            str="Ошибка 0Dh - Не был задан заголовок документа, что делает невозможным формирование фискального документа.";
+	            break;
+	        case 14:
+	            str="Ошибка 0Eh - Отрицательный результат";
+	            break;
+	        case 15:
+	            str="Ошибка 0Fh - Дисплей покупателя не готов";
+	            break;
+	        case 32:
+	            str="Ошибка 20h - Фатальная ошибка ККМ";
+	            break;
+	        case 33:
+	            str="Ошибка 21h - Нет свободного места в фискальной памяти ККМ";
+	            break;
+	        case 65:
+	            str="Ошибка 41h - Некорректный формат или параметр команды";
+	            break;
+	        case 66:
+	            str="Ошибка 42h - Некорректное состояние ЭКЛЗ";
+	            break;
+	        case 67:
+	            str="Ошибка 43h - Авария  ЭКЛЗ";
+	            break;
+	        case 68:
+	            str="Ошибка 44h - Авария  КС  (Криптографического сопроцессора) в составе ЭКЛЗ";
+	            break;
+	        case 69:
+	            str="Ошибка 45h - Исчерпан временной ресурс использования ЭКЛЗ";
+	            break;
+	        case 70:
+	            str="Ошибка 46h - ЭКЛЗ  переполнена";
+	            break;
+	        case 71:
+	            str="Ошибка 47h - Неверные дата или время";
+	            break;
+	        case 72:
+	            str="Ошибка 48h - Нет запрошенных данных";
+	            break;
+	        case 73:
+	            str="Ошибка 49h - Переполнение (отрицательный итог документа, слишком много отделов для клиента)";
+	            break;
+	        case 74:
+	            str="Ошибка 4Ah - Нет ответа от ЭКЛЗ";
+	            break;
+	        case 75:
+	            str="Ошибка 4Bh - Ошибка при обмене данными с ЭКЛЗ";
+	            break;
+	        default:
+	            str=FR.getErrorDetails(error);
+	            break;   
+	    }
+	    return str;
+	}
 
 
     public void openPort(String portName, String baud) 
@@ -121,7 +231,7 @@ public class SP extends FR
 
 		    	serialPort.writeBytes(toPort.getBytes());
 
-		    	String strLog="to port -> ";
+		    	String strLog="to   port -> ";
 		    	for (int j=0;j<toPort.length();j++) strLog+=String.format("%02x", toPort.at(j));
 			    Log(strLog);
 		    	// String strLog="to port -> ";
@@ -130,14 +240,14 @@ public class SP extends FR
 		}
 		catch (SerialPortException ex) 
 		{
-			System.out.println("afassdfasfafasfasfasfas");
-		    System.out.println(ex);
+			// System.out.println("afassdfasfafasfasfasfas");
+		 //    System.out.println(ex);
 		}
 		return true;
 
 	}
 
-	private boolean readPort(ArrayOfBytes fromPort) //throws InterruptedException 
+	private boolean readPort(ArrayOfBytes fromPort)
 	{
 		if (_wrileLog) Log("readPort");
 
@@ -167,6 +277,12 @@ public class SP extends FR
 				break;
 			}
 
+			if(i>20)		
+			{
+				if (_wrileLog) Log("i>20 = " + i);
+				break;
+			}
+
 			try {
 			  Thread.sleep(200);
 			} catch (InterruptedException ie) {
@@ -182,16 +298,70 @@ public class SP extends FR
 	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
 	{
 		if (_wrileLog) Log("transaction");
+		int error=0;
 
+
+		ArrayOfBytes fromPort = new ArrayOfBytes();
+		String tmpError="";
+
+		boolean startByteWasReceived=false;
+		int resultLength=0;
+
+
+		result.clear();
 		writePort(toPort);
-		readPort(result);
 
-		return 0;
+		for (int i=0; ;i++) 
+		{
+				fromPort.clear();
+				readPort(fromPort);
+
+				for (int j=0;j<fromPort.length();j++)
+				{
+					if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
+					if (startByteWasReceived==true)
+					{
+						result.append(fromPort.at(j));
+					}
+					if (fromPort.at(j)==(byte)(0x03)) resultLength=result.length()+2;
+				}
+								
+				if ((result.length()==resultLength)&&(result.length()>0))
+				{
+					tmpError+=(char)(result.at(4));
+					tmpError+=(char)(result.at(5));
+
+					//Log(tmpError);
+
+					error=Integer.parseInt(tmpError, 16);
+					//Log("Integer - "+error);
+
+					break;
+
+				}
+
+				writePort(bENQ);
+
+				fromPort.clear();
+				readPort(fromPort);
+				if (fromPort.at(0)!=bACK.at(0)) 
+				{
+					error=NO_RESPONSE_FR;
+					break;
+				}
+
+				try {Thread.sleep(100);} catch (InterruptedException ie) {}					
+		}
+
+
+		return error;
 	}
 
-	public int Init()
+	public int Init() throws FrException
 	{
 		if (_wrileLog) Log("Init");
+
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -207,15 +377,19 @@ public class SP extends FR
 		commandStr.append(0x03);
 		
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 
 	}
 
-	public int OpenDocument(String docType, String depType, String operName, String docNumber)
+	public int OpenDocument(String docType, String depType, String operName, String docNumber) throws FrException
 	{
 		if (_wrileLog) Log("OpenDocument");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		switch (docType) 
 		{
@@ -229,10 +403,6 @@ public class SP extends FR
 				docType="0";
 				break;
 		}
-
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
@@ -249,16 +419,17 @@ public class SP extends FR
 		commandStr.append(0x03);
 
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 
 	}
 
 
-	public int AddItem(String itemName, String articul, String qantity, String cost, String depType, String taxType)
+	public int AddItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
 		if (_wrileLog) Log("AddItem");
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -281,15 +452,16 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 
 	}
 
-	public int Total()
+	public int Total() throws FrException
 	{
 		if (_wrileLog) Log("Total");
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -301,15 +473,15 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
-
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
-	public int Pay(String payType, String sum, String text)
+	public int Pay(String payType, String sum, String text) throws FrException
 	{
 		if (_wrileLog) Log("Pay");
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -381,15 +553,15 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
-
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
-	public int CancelDocument()
+	public int CancelDocument() throws FrException
 	{
 		if (_wrileLog) Log("CancelDocument");
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -402,15 +574,16 @@ public class SP extends FR
 		commandStr.append(0x03);
 
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 
 	}
 
-	public int CloseDocument(String text)
+	public int CloseDocument(String text) throws FrException
 	{
 		if (_wrileLog) Log("CloseDocument");
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -423,16 +596,16 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
-
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
 
-	public int Xreport(String text)
+	public int Xreport(String text) throws FrException
 	{
 		if (_wrileLog) Log("Xreport");
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -445,15 +618,15 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
-
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
-	public int Zreport(String text)
+	public int Zreport(String text) throws FrException
 	{
 		if (_wrileLog) Log("Zreport");
+		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -466,23 +639,24 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
-		transaction(CRC(commandStr), getStr);
-
-		return 0;
-
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
-	public int ReceiptSale()
+	public int ReceiptSale() throws FrException
 	{
 		if (_wrileLog) Log("ReceiptSale");
+		int error=0;
 
-		OpenDocument("2", "0", "Test", "0");
-		AddItem("тест", "1234567", "1.000", "123.45", "0", "");
-		Total();
-		Pay("0", "1000.00", "");
-		CloseDocument("");
+		if (error==0) error=OpenDocument("2", "0", "Test", "0");
+		if (error==0) error=AddItem("тест", "1234567", "1.000", "123.45", "0", "");
+		if (error==0) error=Total();
+		if (error==0) error=Pay("0", "1000.00", "");
+		if (error==0) error=CloseDocument("");
 
-		return 0;
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
 
