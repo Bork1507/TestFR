@@ -194,7 +194,7 @@ public class SP extends FR
 	}
 
 
-    public void openPort(String portName, String baud) 
+    public void openPort(String portName, String baud) throws FrException
     {
 		//Передаём в конструктор имя порта
 		//serialPort = new SerialPort("/dev/ttyS0");

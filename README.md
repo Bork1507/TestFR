@@ -12,3 +12,4 @@ from the company SHTRIH-M, Russia:
 SHTRIH-M-FR-K
 SHTRIH-MINI-FR-K
 NCR001-K
+Retail-01K

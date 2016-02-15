@@ -298,7 +298,7 @@ public class SHTRIH extends FR
 	}
 
 
-    public void openPort(String portName, String baud) 
+    public void openPort(String portName, String baud) throws FrException
     {
 		if (_wrileLog) Log("openPort");
 

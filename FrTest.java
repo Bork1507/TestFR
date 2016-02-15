@@ -1,8 +1,18 @@
+import java.io.IOException;
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+
 public class FrTest {
 
 
 
-    public static void main(String[] args) 
+    public static void main(String[] args)  throws ClassNotFoundException, SQLException
     {
 		String param0="2",
 			   param1="3",
@@ -26,6 +36,29 @@ public class FrTest {
 	    }
 
 
+	    FR.Log("привет");
+
+		// conn.Conn();
+		// conn.CreateDB();
+		// conn.WriteDB();
+		// conn.ReadDB();
+		// conn.CloseDB();
+
+
+
+		Connection conn=null;
+		Statement statmt=null;
+		ResultSet resSet=null;
+
+
+		Class.forName("org.sqlite.JDBC");
+		conn = DriverManager.getConnection("jdbc:sqlite:FrTest.sqlite");
+		statmt = conn.createStatement();
+
+
+
+
+
 		if (param0.contains("?"))
 		{
 			System.out.println("FrTest [cycle] [receipts in cycle] [COM] [BAUD] [FR]");
@@ -34,17 +67,6 @@ public class FrTest {
 
 			return;
 		}
-
-		// for (int i=0;i<args.length;i++)
-		// {
-		// 	System.out.println(args[i]);
-
-		// }
-		// 	System.out.println(param0);
-		// 	System.out.println(param1);
-		// 	System.out.println(param2);
-		// 	System.out.println(param3);
-		// 	System.out.println(param4);
 	
 		FR fr;
 
@@ -58,45 +80,105 @@ public class FrTest {
 			
 			for(int cycle=0;cycle<Integer.parseInt(param0); cycle++)
 			{
-				fr.Init();
-				for (int i=0; i<Integer.parseInt(param1); i++)
+				try
 				{
-					//fr.ReceiptSale();
-					fr.OpenDocument(FR.ReceiptTypeSale, "0", "Иванова", "");
-					fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
-					fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
-					fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
-					fr.Total();
-					fr.Pay(FR.PayType0, "500.00", "");
-					fr.CloseDocument("");
-
-					if (((i%5)==0)&&(i!=0))
+					fr.Init();
+					for (int i=0; i<Integer.parseInt(param1); i++)
 					{
-						fr.OpenDocument(FR.ReceiptTypeSale, "0", "Иванова", "");
-						fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
-						fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
-						fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
-						fr.CancelDocument();
+						try
+						{
+							//fr.ReceiptSale();
+							fr.OpenDocument(FR.ReceiptTypeSale, "0", "Иванова", "");
 
-						fr.OpenDocument(FR.ReceiptTypeReturnSale, "0", "Иванова", "");
-						fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
-						fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
-						fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
-						fr.Total();
-						fr.Pay(FR.PayType0, "500.00", "");
-						fr.CloseDocument("");
-			
-						fr.Xreport("Иванова");
+							resSet = statmt.executeQuery("SELECT * FROM Items");
+		
+							while(resSet.next())
+							{
+								String  article = resSet.getString("Article");
+								String  itemname = resSet.getString("ItemName");
+								String  cost = resSet.getString("Cost");
+								String  weight = resSet.getString("Weight");
+
+								fr.AddItem(itemname, article, weight, cost, "0", "1");
+							}
+
+							// fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
+							// fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
+							// fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
+
+							fr.Total();
+							fr.Pay(FR.PayType0, "500.00", "");
+							fr.CloseDocument("");
+
+							if (((i%5)==0)&&(i!=0))
+							{
+								fr.OpenDocument(FR.ReceiptTypeSale, "0", "Иванова", "");
+								
+								resSet = statmt.executeQuery("SELECT * FROM Items");
+								while(resSet.next())
+								{
+									String  article = resSet.getString("Article");
+									String  itemname = resSet.getString("ItemName");
+									String  cost = resSet.getString("Cost");
+									String  weight = resSet.getString("Weight");
+
+									fr.AddItem(itemname, article, weight, cost, "0", "1");
+								}
+								fr.CancelDocument();
+
+								fr.OpenDocument(FR.ReceiptTypeReturnSale, "0", "Иванова", "");
+	
+								resSet = statmt.executeQuery("SELECT * FROM Items");
+								while(resSet.next())
+								{
+									String  article = resSet.getString("Article");
+									String  itemname = resSet.getString("ItemName");
+									String  cost = resSet.getString("Cost");
+									String  weight = resSet.getString("Weight");
+
+									fr.AddItem(itemname, article, weight, cost, "0", "1");
+								}
+								fr.Total();
+								fr.Pay(FR.PayType0, "500.00", "");
+								fr.CloseDocument("");
+					
+								fr.Xreport("Иванова");
+							}
+						}
+						catch (FrException frEx)
+						{
+							System.out.println(frEx);
+							try {
+								System.out.print("Press Enter ... ");
+								System.in.read();
+							}
+							catch(IOException e){}
+						}
 					}
+					//fr.Xreport("Иванова");
+					fr.Zreport("Петрова");			
 				}
-				//fr.Xreport("Иванова");
-				fr.Zreport("Петрова");			
-			}				
+				catch (FrException frEx)
+				{
+					System.out.println(frEx);
+					try {
+						System.out.print("Press Enter ... ");
+						System.in.read();
+					}
+					catch(IOException e){}
+				}
+			}
 		}
 		catch (FrException frEx)
 		{
 			System.out.println(frEx);
 		}
+			
+		
+		conn.close();
+		statmt.close();
+		resSet.close();
+
 		System.exit(0);
     }
 }

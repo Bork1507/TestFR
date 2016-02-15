@@ -192,6 +192,19 @@ abstract class FR
 
 	public static void LogConsole(String str)
 	{
+		// String consoleEncoding = System.getProperty("consoleEncoding");
+		// if (consoleEncoding != null) {
+		//     try {
+		//         System.setOut(new PrintStream(System.out, true, consoleEncoding));
+		//     } catch (java.io.UnsupportedEncodingException ex) {
+		//         System.err.println("Unsupported encoding set for console: "+consoleEncoding);
+		//     }
+		// }
+
+		// System.out.println(consoleEncoding);
+
+
+
 		String strDateTime;
 		
 		Date dt= new Date();
@@ -251,7 +264,7 @@ abstract class FR
 	}
 
 
-    abstract public void openPort(String portName, String baud);
+    abstract public void openPort(String portName, String baud) throws FrException;;
 
 	abstract public  int Init() throws FrException;
 
