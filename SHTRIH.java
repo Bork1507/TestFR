@@ -62,48 +62,43 @@ public class SHTRIH extends FR
 		return strOut;
 	}
 
+      private ArrayOfBytes getByteArrayFromString(String str, int radix)
+      {
+            if (_wrileLog) Log("getByteArrayFromString");
 
-	private String rightJustified(String str, char ch, int length)
-	{
-		if (_wrileLog) Log("rightJustified");
+            ArrayOfBytes strOut= new ArrayOfBytes();
+            if ((str.length()%2)>0) str="0"+str;
 
-		String out=str;
-		while (out.length()<length)
-		{
-			out=ch+out;
-		}
-		return out;
-	}
 
-	private String leftJustified(String str, char ch, int length)
-	{
-		String out=str;
-		while (out.length()<length)
-		{
-			out+=ch;
-		}
-		return out;
-	}
+            for(int i=0;i<str.length()-1;i+=2)
+            {
+                  strOut.append(Integer.parseInt(str.substring(i, (i + 2)), radix));
+            }
 
-	private String curDate()
-	{
-		String strDate;
-		
-		Date dt= new Date();
-		strDate = new SimpleDateFormat("ddMMyy").format(dt);
-		
-		return strDate;
-	}
+            return strOut;
+      }
 
-	private String curTime()
-	{
-		String strTime;
 
-		Date dt= new Date();
-		strTime = new SimpleDateFormat("HHmmss").format(dt);
 
-		return strTime;
-	}
+      private ArrayOfBytes curDate()
+      {
+            String strDate;
+            
+            Date dt= new Date();
+            strDate = new SimpleDateFormat("ddMMyy").format(dt);
+            
+            return getByteArrayFromString(strDate, 10);
+      }
+
+      private ArrayOfBytes curTime()
+      {
+            String strTime;
+
+            Date dt= new Date();
+            strTime = new SimpleDateFormat("HHmmss").format(dt);
+
+            return getByteArrayFromString(strTime, 10);
+      }
 
 	private ArrayOfBytes CRC(ArrayOfBytes in)
 	{
@@ -394,102 +389,87 @@ public class SHTRIH extends FR
 
 	}
 
-	private int getEndOfPrinting()
-	{
-		if (_wrileLog) Log("getEndOfPrinting");
-		int error=0;
+      private boolean testConnect()
+      {
+            boolean result=false;
+            ArrayOfBytes fromPort = new ArrayOfBytes();
 
-		ArrayOfBytes state = new ArrayOfBytes();
-		ArrayOfBytes toPort = new ArrayOfBytes(0x02, 0x05, 0x10, 0x1E, 0x00, 0x00, 0x00, 0x0b);
-		ArrayOfBytes fromPort = new ArrayOfBytes();
-		ArrayOfBytes result = new ArrayOfBytes();
-		
-		boolean startByteWasReceived=false;
-		boolean endOfPrinting=false;
-		int resultLength=0;
-		int mode=-1;
-		int submode=-1;
+            writePort(bENQ);
+            for (int i=0;i<3;i++)
+            {
+                  readPort(fromPort);
+                  if (fromPort.length()>0) 
+                  {
+                        if (bNAK.at(0)==fromPort.at(0))
+                        {
+                              result=true;
+                              break;
+                        }
+                        else 
+                        {
+                              writePort(bACK);
+                              writePort(bENQ);
+                        }
+                        
+                  }
 
-		for(int i=0;;i++)
-		{
-			// Main cycle for receve end of printing status
+                  try {Thread.sleep(50);} catch (InterruptedException ie) {}             
+            }
 
-			writePort(bENQ);
-			readPort(state);
+            return result;
 
-			result.clear();
-			startByteWasReceived=false;
-			endOfPrinting=false;
-			resultLength=0;
-			mode=-1;
-			submode=-1;
+      }
 
-			if (state.at(0)==bNAK.at(0))
-			{
-				writePort(toPort);
+      private int getEndOfPrinting()
+      {
+            if (_wrileLog) Log("getEndOfPrinting");
+            int error=0;
 
-				for (int k=0;k<3;k++ ) 
-				{
-					// Cycle for receve current status
+            ArrayOfBytes state = new ArrayOfBytes();
+            ArrayOfBytes toPort = new ArrayOfBytes(0x02, 0x05, 0x10, 0x1E, 0x00, 0x00, 0x00, 0x0b);
+            ArrayOfBytes fromPort = new ArrayOfBytes();
+            ArrayOfBytes result = new ArrayOfBytes();
+            
+            boolean startByteWasReceived=false;
+            boolean endOfPrinting=false;
+            int resultLength=0;
+            int mode=-1;
+            int submode=-1;
 
-					fromPort.clear();
-					readPort(fromPort);
+            for(int i=0;;i++)
+            {
+                  endOfPrinting=false;
+                  mode=-1;
+                  submode=-1;
 
-					for (int j=0;j<fromPort.length();j++)
-					{
-						if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
-						if (startByteWasReceived==true)
-						{
-							result.append(fromPort.at(j));
-						}
-					}
-					
-					if ((result.length()>1)&&(resultLength==0)) 
-					{
-						writePort(bACK);
-						resultLength=result.at(1)+3;
-					}
-					
-					if ((result.length()==resultLength)&&(result.length()>0))
-					{
-						error=result.at(3);
-						if (error!=0) break;
+                  result.clear();
+                  error=transaction(toPort, result);
+                  if (error==0)
+                  {
+                        mode=result.at(7);
+                        submode=result.at(8);
 
-						mode=result.at(7);
-						submode=result.at(8);
-
-						if (_wrileLog) Log("error = "+error);
-						if (_wrileLog) Log("mode = "+mode);
-						if (_wrileLog) Log("submode = "+submode);
+                        if (_wrileLog) Log("error = "+error);
+                        if (_wrileLog) Log("mode = "+mode);
+                        if (_wrileLog) Log("submode = "+submode);
 
 
-						if (submode==0)
-		                {
-		                    if ((mode!=11)&&(mode!=12)) endOfPrinting=true;
-		                }
-		                else if ((submode==1)||(submode==2)||(submode==3))
-		                {
-		                    error=107;
-		                    endOfPrinting=true;
-		                }
+                        if (submode==0)
+                        {
+                          if ((mode!=11)&&(mode!=12)) endOfPrinting=true;
+                        }
+                        else if ((submode==1)||(submode==2)||(submode==3))
+                        {
+                          error=107;
+                          endOfPrinting=true;
+                        }                        
+                  }
+                  else break;
 
-		                break; // current status was receve, bat not end of printing
-					}
+                  if (endOfPrinting) break;
 
-
-					try {Thread.sleep(100);} catch (InterruptedException ie) {}			
-				}				
-			}
-			
-			if ((result.length()!=resultLength)||(result.length()==0)) error=FR.NO_RESPONSE_FR;
-
-			if (endOfPrinting) break;
-			if (error!=0) break;
-			try {Thread.sleep(100);} catch (InterruptedException ie) {}		
-		}
-
-
-
+                  try {Thread.sleep(100);} catch (InterruptedException ie) {}             
+            }
 
 		return error;
 	}
@@ -504,59 +484,133 @@ public class SHTRIH extends FR
 		ArrayOfBytes fromPort = new ArrayOfBytes();
 		
 		boolean startByteWasReceived=false;
-		int resultLength=0;
+		int resultLength=300; // more than byte
 
-		writePort(bENQ);
-		readPort(state);
+		// writePort(bENQ);
+		// readPort(state);
 
 		result.clear();
 
-		if (state.at(0)==bNAK.at(0))
-		{
-			writePort(toPort);
+            int i=0;
+		if (testConnect())
+            {
+                  writePort(toPort);                  
+                  for (;;i++)
+      		{
+      			for (int k=0;k<3;k++ ) 
+      			{
+      				// Cycle for receve current status
 
-			for (int k=0;k<3;k++ ) 
-			{
-				// Cycle for receve current status
+      				fromPort.clear();
+      				readPort(fromPort);
 
-				fromPort.clear();
-				readPort(fromPort);
+      				for (int j=0;j<fromPort.length();j++)
+      				{
+      					if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
+      					if (startByteWasReceived==true)
+      					{
+      						result.append(fromPort.at(j));
+      					}
+      				}
+      				
+      				if ((result.length()>1)&&(resultLength==300)) 
+      				{
+      					resultLength=result.at(1)+3;
+      				}
+      				
+                              // Log("result.length() - "+result.length());
+                              // Log("result.length() - "+resultLength);
 
-				for (int j=0;j<fromPort.length();j++)
-				{
-					if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
-					if (startByteWasReceived==true)
-					{
-						result.append(fromPort.at(j));
-					}
-				}
-				
-				if ((result.length()>1)&&(resultLength==0)) 
-				{
-					writePort(bACK);
-					resultLength=result.at(1)+3;
-				}
-				
-				if ((result.length()==resultLength)&&(result.length()>0))
-				{
-					error=result.at(3);
-					break;
+      				if ((result.length()==resultLength))
+      				{
+                                    writePort(bACK);
+                                    error=result.at(3);
+      					break;
 
-				}
-				try {Thread.sleep(100);} catch (InterruptedException ie) {}		
-			}				
-		}
+      				}
+      				try {Thread.sleep(100);} catch (InterruptedException ie) {}		
+      			}
+                        
+                        if(result.length()==resultLength)
+                        {
+                              break;
+                        }
+                        else	
+                        {
+                              writePort(bENQ);
+                              result.clear();
+                              startByteWasReceived=false;
+                              resultLength=300;
+
+                              if (i>2) break;
+                        }
+      		}
+            }
 		
-		if ((result.length()!=resultLength)||(result.length()==0)) error=FR.NO_RESPONSE_FR;
+		if ((result.length()!=resultLength)) error=FR.NO_RESPONSE_FR;
 
 
 		return error;
 
 	}
 
+      public int SetCurrentDate() throws FrException
+      {
+            if (_wrileLog) Log("SetCurrentDate");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            commandStr.append(0x22);
+            commandStr.append(0x1E);
+            commandStr.append(0x0);
+            commandStr.append(0x0);
+            commandStr.append(0x0);
+            commandStr.append(curDate());
+
+            
+            // set date
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+            if (error==0) 
+            {
+            // confirm date
+                  commandStr.set(0, 0x23);
+                  error=transaction(CRC(commandStr), getStr);
+            }
+
+
+            return error;
+      }
+
+      public int SetCurrentTime() throws FrException
+      {
+            if (_wrileLog) Log("SetCurrentTime");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            commandStr.append(0x21);
+            commandStr.append(0x1E);
+            commandStr.append(0x0);
+            commandStr.append(0x0);
+            commandStr.append(0x0);
+            commandStr.append(curTime());
+                  
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+            return error;
+      }
+
+
 	public int Init() throws FrException
 	{
 		if (_wrileLog) Log("Init");
+            int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -567,11 +621,12 @@ public class SHTRIH extends FR
 		commandStr.append(0x0);
 		commandStr.append(0x0);
 
-		
-
-		int error=0;
 		if (error==0) error=transaction(CRC(commandStr), getStr);
 
+            if (error==0) error=SetCurrentDate();
+            if (error==0) error=SetCurrentTime();
+
+            Log("Error - "+error+" - "+getErrorDetails(error));
 		return error;
 
 	}
@@ -860,7 +915,5 @@ public class SHTRIH extends FR
 		    	_gettedBytes=event.getEventValue();            
         	}
     	}
-    }
-
-	
+    }	
 }

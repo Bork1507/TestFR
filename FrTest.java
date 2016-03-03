@@ -35,17 +35,6 @@ public class FrTest {
 	    		param0=args[0];
 	    }
 
-
-	    FR.Log("привет");
-
-		// conn.Conn();
-		// conn.CreateDB();
-		// conn.WriteDB();
-		// conn.ReadDB();
-		// conn.CloseDB();
-
-
-
 		Connection conn=null;
 		Statement statmt=null;
 		ResultSet resSet=null;
@@ -55,15 +44,13 @@ public class FrTest {
 		conn = DriverManager.getConnection("jdbc:sqlite:FrTest.sqlite");
 		statmt = conn.createStatement();
 
-
-
-
-
 		if (param0.contains("?"))
 		{
 			System.out.println("FrTest [cycle] [receipts in cycle] [COM] [BAUD] [FR]");
 			System.out.println("Default [2] [3] [/dev/ttyS6] [19200] [SP]");
-			System.out.println("FR may be SP or SHTRIH");
+			System.out.println("FR may be SP or SHTRIH or FPRINT");
+			System.out.println("For Windows example: \\>java FrTest 2 4 COM1 19200 SP");
+			System.out.println("For Linux example: \\>java FrTest 2 4 /dev/ttyS0 19200 SP");
 
 			return;
 		}
@@ -72,6 +59,7 @@ public class FrTest {
 
 		if (param4.contains("SP")) fr=new SP();
 		else if (param4.contains("SHTRIH")) fr=new SHTRIH();
+		else if (param4.contains("FPRINT")) fr=new FPRINT();
 		else return;
 
 		try

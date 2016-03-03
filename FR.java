@@ -1,12 +1,14 @@
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.io.*;
+import java.nio.file.*;
 
 class FrException extends Exception
 {
 
 	private String _errorCode;
 	private String _errorDetail;
+
 
 	FrException(String errorCode, String errorDetail)
 	{
@@ -22,6 +24,8 @@ class FrException extends Exception
 
 abstract class FR
 {
+	private boolean _wrileLog=false;
+
 	public static final String PayType0="Cash0";
 	public static final String PayType1="Cash1";
 	public static final String PayType2="Cash2";
@@ -55,34 +59,6 @@ abstract class FR
 	public static final int ERROR_SEND          =1013;
 
 
-
-	public class StringFromPort
-	{
-		private String _str="";
-
-		public void StringFromPort()
-		{
-			_str="";
-		}
-		public void StringFromPort(String str)
-		{
-			_str=str;
-		}
-		public void setStr(String str)
-		{
-			_str=str;
-		}
-		public String getStr()
-		{
-			return _str;
-		}
-
-		public int length()
-		{
-			return _str.length();
-		}
-	}
-
 	public class ArrayOfBytes
 	{
 		private byte bytesArray[]=new byte [0];
@@ -94,14 +70,13 @@ abstract class FR
 
 		ArrayOfBytes(int ... addBytes)
 		{
-			//this.append(addByte);
 			for(int i=0;i<addBytes.length;i++) this.append(addBytes[i]);
+			//for(byte i:addBytes) this.append(i);
 		}
 
 		ArrayOfBytes(byte addByte)
 		{
 			this.append(addByte);
-			//for(byte i:addByte) this.append(i);
 		}
 
 		ArrayOfBytes(byte addBytes[])
@@ -110,6 +85,11 @@ abstract class FR
 		}
 
 		public byte at(int i)
+		{
+			return bytesArray[i];
+		}		
+
+		public int atInt(int i)
 		{
 			return bytesArray[i];
 		}		
@@ -183,11 +163,76 @@ abstract class FR
 			bytesArray=new byte [0];
 		}		
 
+		public boolean equals(ArrayOfBytes anotherBytesArray)
+		{
+			boolean result=true;
+
+			if (this.length()==anotherBytesArray.length())
+			{
+				for(int i=0;i<this.length();i++)
+				{
+					if(this.at(i)!=anotherBytesArray.at(i))
+					{
+						result=false;
+						break;
+					}
+
+			    	//Log(String.format("%02x", this.at(i))+" == "+String.format("%02x", anotherBytesArray.at(i)));
+
+				}
+			}
+			else result=false;
+
+			return result;
+		}		
+
+		public void set(int i, int setByte)
+		{
+			if (i<this.length())
+			{
+				bytesArray[i]=(byte)setByte;
+			}
+		}		
+		public void set(int i, byte setByte)
+		{
+			if (i<this.length())
+			{
+				bytesArray[i]=(byte)setByte;
+			}
+		}		
+
+
 	}
+
+	public String rightJustified(String str, char ch, int length)
+	{
+		if (_wrileLog) Log("rightJustified");
+
+		String out=str;
+		while (out.length()<length)
+		{
+			out=ch+out;
+		}
+		return out;
+	}
+
+	public String leftJustified(String str, char ch, int length)
+	{
+		if (_wrileLog) Log("leftJustified");
+
+		String out=str;
+		while (out.length()<length)
+		{
+			out+=ch;
+		}
+		return out;
+	}
+
 
 	public static void Log(String str)
 	{
 		LogConsole(str);
+		LogFile(str);
 	}
 
 	public static void LogConsole(String str)
@@ -213,6 +258,51 @@ abstract class FR
 		System.out.printf(strDateTime);
 		System.out.println(str);
 	}
+
+	public static void LogFile(String str)
+	{
+		String strDateTime;
+		String strFileName;
+		String strSlash="/";
+		String strPath="Logs";
+
+		try {Files.createDirectory(Paths.get(strPath));}
+		catch(IOException e){}
+
+		
+		Date dt= new Date();
+		strDateTime = new SimpleDateFormat("yyyy.dd.MM HH:mm:ss:SSS - ").format(dt);
+		strFileName = strPath+strSlash;
+		strFileName += new SimpleDateFormat("yyyyddMM").format(dt);;
+		strFileName += ".log";
+
+		File file = new File(strFileName);
+
+		try 
+		{
+			if(!file.exists())
+			{
+				file.createNewFile();
+			}
+
+			FileWriter out = new FileWriter(file.getAbsoluteFile(), true);
+
+			try 
+			{
+				out.write(strDateTime+str+'\n');
+			} 
+			finally 
+			{
+				out.close();
+			}
+		} 
+		catch(IOException e) 
+		{
+			throw new RuntimeException(e);
+	    }
+
+	}
+
 
 
 

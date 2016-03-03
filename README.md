@@ -13,3 +13,6 @@ SHTRIH-M-FR-K
 SHTRIH-MINI-FR-K
 NCR001-K
 Retail-01K
+from the company ATOL, Russia:
+FPrint-22PTK
+
