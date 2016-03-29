@@ -6,13 +6,15 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
+import jssc.SerialPortTimeoutException;
+
 
 
 
 public class FPRINT extends FR
 {
 
-	private SerialPort serialPort;
+	private SerialPort _serialPort;
 	private int _gettedBytes=0; 
 	
 	//private boolean _wrileLog=true;
@@ -20,25 +22,25 @@ public class FPRINT extends FR
 
 	private String ReceiptType="";
 
-      private ArrayOfBytes bEOT = new ArrayOfBytes();
-	private ArrayOfBytes bENQ = new ArrayOfBytes();
-	private ArrayOfBytes bACK = new ArrayOfBytes();
-	private ArrayOfBytes bNAK = new ArrayOfBytes();
+      private ArrayOfBytes _bEOT = new ArrayOfBytes();
+	private ArrayOfBytes _bENQ = new ArrayOfBytes();
+	private ArrayOfBytes _bACK = new ArrayOfBytes();
+	private ArrayOfBytes _bNAK = new ArrayOfBytes();
 
 
 
 	public FPRINT()
 	{
-            bEOT.append(0x04);
-		bENQ.append(0x05);
-		bACK.append(0x06);
-		bNAK.append(0x15);
+            _bEOT.append(0x04);
+		_bENQ.append(0x05);
+		_bACK.append(0x06);
+		_bNAK.append(0x15);
 	}
 
 
 	private ArrayOfBytes turnString(ArrayOfBytes str)
 	{
-		if (_wrileLog) Log("getByteArrayFromString");
+		if (_wrileLog) log("getByteArrayFromString");
 
 		ArrayOfBytes out=new ArrayOfBytes();
 		for(int i=str.length()-1;i>-1;i--)
@@ -50,7 +52,7 @@ public class FPRINT extends FR
 
 	private ArrayOfBytes getByteArrayFromString(String str)
 	{
-		if (_wrileLog) Log("getByteArrayFromString");
+		if (_wrileLog) log("getByteArrayFromString");
 
 		ArrayOfBytes strOut= new ArrayOfBytes();
 		if ((str.length()%2)>0) str="0"+str;
@@ -64,9 +66,9 @@ public class FPRINT extends FR
 		return strOut;
 	}
 
-      private ArrayOfBytes ToAtolCodePage(String str)
+      private ArrayOfBytes toAtolCodePage(String str)
       {
-            if (_wrileLog) Log("ToAtolCodePage");
+            if (_wrileLog) log("ToAtolCodePage");
 
             ArrayOfBytes strOut= new ArrayOfBytes();
             strOut.append(str, "cp866");
@@ -153,7 +155,7 @@ public class FPRINT extends FR
             {
                   String strLog="delEscapeCharacter == ";
                   for (int j=0;j<out.length();j++) strLog+=String.format("%02x", out.at(j));
-                  Log(strLog);
+                  log(strLog);
             }
 
 
@@ -319,18 +321,18 @@ public class FPRINT extends FR
 
     public void openPort(String portName, String baud) throws FrException
     {
-		if (_wrileLog) Log("openPort");
+		if (_wrileLog) log("openPort");
 
 		//Передаём в конструктор имя порта
 
 		//serialPort = new SerialPort("/dev/ttyS0");
-		serialPort = new SerialPort(portName);
+		_serialPort = new SerialPort(portName);
 
 		try {
 		    //Открываем порт
-		    serialPort.openPort();
+		    _serialPort.openPort();
 		    //Выставляем параметры
-		    serialPort.setParams(Integer.parseInt(baud),
+		    _serialPort.setParams(Integer.parseInt(baud),
 			                     SerialPort.DATABITS_8,
 			                     SerialPort.STOPBITS_1,
 			                     SerialPort.PARITY_NONE);
@@ -340,7 +342,7 @@ public class FPRINT extends FR
 			 //                             SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
 		    //Устанавливаем ивент лисенер и маску
-		    serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
+		    //_serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
 
 		}
 		catch (SerialPortException ex) 
@@ -351,13 +353,13 @@ public class FPRINT extends FR
 
 	private boolean writePort(ArrayOfBytes toPort)
 	{
-		if (_wrileLog) Log("writePort");
+		if (_wrileLog) log("writePort");
 		try {
-		    	serialPort.writeBytes(toPort.getBytes());
+		    	_serialPort.writeBytes(toPort.getBytes());
 
 		    	String strLog="to   port -> ";
 		    	for (int i=0;i<toPort.length();i++) strLog+=String.format("%02x", toPort.at(i));
-			    Log(strLog);
+			    log(strLog);
 		}
 		catch (SerialPortException ex) 
 		{
@@ -370,46 +372,30 @@ public class FPRINT extends FR
 
 	private boolean readPort(ArrayOfBytes fromPort) //throws InterruptedException 
 	{
-		if (_wrileLog) Log("readPort");
+            if (_wrileLog) log("readPort");
 
-		fromPort.clear();
+            fromPort.clear();
 
-		for (int i=0;;i++)
-		{
-			
-			if (_gettedBytes>0)
-			{
-				try {
+            try 
+            {
 
-				    fromPort.append(serialPort.readBytes());
+                  fromPort.append(_serialPort.readBytes(1, 1000));
 
-			    	String strLog="from port <- ";
-			    	for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
-				    Log(strLog);
-				}
-				catch (SerialPortException ex) {
-				    System.out.println(ex);
-				}
-				
-				_gettedBytes=0;
-				break;
-			}
-
-			if(i>400)		
-			{
-				Log("i>20" + i);
-				break;
-			}
-
-			try {
-			  Thread.sleep(10);
-			} catch (InterruptedException ie) {
-			    //Handle exception
-			}	
-			
-		}
-		if (_wrileLog) Log("End of readPort");
-		return true;
+                  String strLog="from port <- ";
+                  for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
+                      log(strLog);
+            }
+            catch (SerialPortException ex) 
+            {
+                  System.out.println(ex);
+            }
+            catch (SerialPortTimeoutException ext) 
+            {
+                  return false;
+            }
+                  
+            if (_wrileLog) log("End of readPort");
+            return true;
 
 	}
 
@@ -418,20 +404,20 @@ public class FPRINT extends FR
             boolean result=false;
             ArrayOfBytes fromPort = new ArrayOfBytes();
 
-            writePort(bENQ);
+            writePort(_bENQ);
             for (int i=0;i<3;i++)
             {
                   readPort(fromPort);
-                  if (bACK.equals(fromPort))
+                  if (_bACK.equals(fromPort))
                   {
                         result=true;
                         break;
                   }
-                  if (bENQ.equals(fromPort))
+                  if (_bENQ.equals(fromPort))
                   {
                         getAnswer(fromPort);
                         fromPort.clear();
-                        writePort(bENQ);                       
+                        writePort(_bENQ);                       
                   }
 
 
@@ -445,19 +431,13 @@ public class FPRINT extends FR
 
 	private int getEndOfPrinting()
 	{
-		if (_wrileLog) Log("getEndOfPrinting");
+		if (_wrileLog) log("getEndOfPrinting");
 		int error=0;
 
-		//ArrayOfBytes state = new ArrayOfBytes();
 		ArrayOfBytes toPort = new ArrayOfBytes(0x02, 0x00, 0x00, 0x45, 0x03, 0x46);
 		ArrayOfBytes fromPort = new ArrayOfBytes();
-		//ArrayOfBytes result = new ArrayOfBytes();
-		
-		//boolean startByteWasReceived=false;
+
 		boolean endOfPrinting=false;
-		//int resultLength=0;
-		//int mode=-1;
-		//int submode=-1;
 
 		for(int i=0;;i++)
 		{
@@ -490,7 +470,7 @@ public class FPRINT extends FR
       private int sendToCom(ArrayOfBytes toPort)
       {
 
-            if (_wrileLog) Log("sendToCom");
+            if (_wrileLog) log("sendToCom");
             int error=FR.NO_RESPONSE_FR;
 
             ArrayOfBytes fromPort = new ArrayOfBytes();
@@ -506,14 +486,14 @@ public class FPRINT extends FR
                         fromPort.clear();
                         readPort(fromPort);
                         
-                        if (bACK.equals(fromPort))
+                        if (_bACK.equals(fromPort))
                         {
-                              writePort(bEOT);
+                              writePort(_bEOT);
                               error=0;
                               break;
 
                         }
-                        else if (bNAK.equals(fromPort))
+                        else if (_bNAK.equals(fromPort))
                         {
                               error=FR.ERROR_CONNECT;
                               break;
@@ -531,71 +511,67 @@ public class FPRINT extends FR
       private int getAnswer(ArrayOfBytes result)
       {
 
-            if (_wrileLog) Log("getLastError");
+            if (_wrileLog) log("getLastError");
             int error=FR.NO_RESPONSE_FR;
             int mask=0;
 
             boolean getENQ=false;
 
-            //ArrayOfBytes toPort = new ArrayOfBytes();
             ArrayOfBytes temp = new ArrayOfBytes();
             ArrayOfBytes fromPort = new ArrayOfBytes();
             
             boolean startByteWasReceived=false;
             boolean finishByteWasReceived=false;
 
-            // writePort(bENQ);
-            // readPort(state);
-
             result.clear();
 
-            for (int i=0;i<5;i++)
+            for (int i=0;;i++)
             {
                   if (!getENQ)
                   {
                         fromPort.clear();
                         readPort(fromPort);
-                        if (bENQ.equals(fromPort))
+                        if (_bENQ.equals(fromPort))
                         {
-                              writePort(bACK);
+                              writePort(_bACK);
                               getENQ=true;
                         }                      
                   }
                   else// (getENQ)
                   {
                         fromPort.clear();
-                        readPort(fromPort);
-                        for(int j=0;j<fromPort.length();j++)
+                        if (readPort(fromPort))
                         {
-                              if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
+                              if (temp.length()>0) mask=temp.at(temp.length()-1);
+
+                              if (fromPort.at(0)==(byte)(0x02)) startByteWasReceived=true;
                               if (startByteWasReceived==true)
                               {
-                                    temp.append(fromPort.at(j));
+                                    temp.append(fromPort.at(0));
                               }
-                              if (fromPort.at(j)==(byte)(0x03)) 
+                              if (fromPort.at(0)==(byte)(0x03)) 
                               {
                                     if (mask!=10) finishByteWasReceived=true;
+                                    continue; // get next last byte
                               }
-                              if (fromPort.at(j)==(byte)(0x04))
+                              if (fromPort.at(0)==(byte)(0x04))
                               {
+                                    //break;
+                              }
+
+                              if (finishByteWasReceived)
+                              {
+                                    writePort(_bACK);
+                                    
+                                    result.append(delEscapeCharacter(temp));
+                                    
+                                    error=result.at(2);
+
+                                    readPort(fromPort);
+
                                     break;
                               }
-                              if (j>0) mask=fromPort.at(j-1);
                         }
-                        if (finishByteWasReceived)
-                        {
-                              writePort(bACK);
-                              
-                              result.append(delEscapeCharacter(temp));
-                              
-                              error=result.at(2);
-
-                              readPort(fromPort);
-
-                              break;
-                        }
-
-                        try {Thread.sleep(1000);} catch (InterruptedException ie) {}       
                   }
             }
             
@@ -608,7 +584,7 @@ public class FPRINT extends FR
       private int transactionWithoutAnswer(ArrayOfBytes toPort)
       {
 
-            if (_wrileLog) Log("transactionWithoutAnswer");
+            if (_wrileLog) log("transactionWithoutAnswer");
             int error=0;
 
             if (error==0) error=sendToCom(toPort);
@@ -620,7 +596,7 @@ public class FPRINT extends FR
 	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
 	{
 
-		if (_wrileLog) Log("transaction");
+		if (_wrileLog) log("transaction");
 		int error=0;
 
             if (error==0) error=sendToCom(toPort);
@@ -631,7 +607,7 @@ public class FPRINT extends FR
 
       public int exitMode() throws FrException
       {
-            if (_wrileLog) Log("exitMode");
+            if (_wrileLog) log("exitMode");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -652,7 +628,7 @@ public class FPRINT extends FR
 
        public int setMode(int mode, String pass) throws FrException
       {
-            if (_wrileLog) Log("setMode");
+            if (_wrileLog) log("setMode");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -678,9 +654,9 @@ public class FPRINT extends FR
 
       }
 
-      public int SetCurrentDate() throws FrException
+      public int setCurrentDate() throws FrException
       {
-            if (_wrileLog) Log("SetCurrentDate");
+            if (_wrileLog) log("SetCurrentDate");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -699,9 +675,9 @@ public class FPRINT extends FR
             return error;
       }
 
-      public int SetCurrentTime() throws FrException
+      public int setCurrentTime() throws FrException
       {
-            if (_wrileLog) Log("SetCurrentTime");
+            if (_wrileLog) log("SetCurrentTime");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -721,9 +697,9 @@ public class FPRINT extends FR
       }
 
 
-	public int Init() throws FrException
+	public int init() throws FrException
 	{
-		if (_wrileLog) Log("Init");
+		if (_wrileLog) log("Init");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -736,17 +712,17 @@ public class FPRINT extends FR
 
            	if (error==0) error=transactionWithoutAnswer(CRC(commandStr));
 
-            if (error==0) error=SetCurrentDate();
-            if (error==0) error=SetCurrentTime();
+            if (error==0) error=setCurrentDate();
+            if (error==0) error=setCurrentTime();
 
             if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 
 		return error;
 	}
 
-	public int OpenDocument(String docType, String depType, String operName, String docNumber) throws FrException
+	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
 	{
-		if (_wrileLog) Log("OpenDocument");
+		if (_wrileLog) log("OpenDocument");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -756,10 +732,10 @@ public class FPRINT extends FR
 
             switch (docType) 
             {
-                  case "ReceiptTypeSale" :
+                  case "RECEIPT_TYPE_SALE" :
                         docTypeTMP=1;
                         break;
-                  case "ReceiptTypeReturnSale" :
+                  case "RECEIPT_TYPE_RETURN_SALE" :
                         docTypeTMP=2;
                         break;
                   default: 
@@ -785,9 +761,9 @@ public class FPRINT extends FR
 	}
 
 
-      public int PrintText(String text) throws FrException
+      public int printText(String text) throws FrException
       {
-            if (_wrileLog) Log("AddItem");
+            if (_wrileLog) log("AddItem");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -799,7 +775,7 @@ public class FPRINT extends FR
             commandStr.append(0x00);
             commandStr.append(0x4C);
             commandStr.append(0x02);
-            commandStr.append(ToAtolCodePage(textTMP));
+            commandStr.append(toAtolCodePage(textTMP));
             commandStr.append(0x01);
 
             if (error==0) error=transaction(CRC(commandStr), getStr);
@@ -810,9 +786,9 @@ public class FPRINT extends FR
       }
 
 
-	public int AddItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
+	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
-		if (_wrileLog) Log("AddItem");
+		if (_wrileLog) log("AddItem");
 		int error=0;
 
 		// int intReceiptType=0;
@@ -830,7 +806,7 @@ public class FPRINT extends FR
 		// }
 
             
-            if (error==0) error=PrintText(itemName);
+            if (error==0) error=printText(itemName);
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -856,18 +832,18 @@ public class FPRINT extends FR
 
 	}
 
-	public int Total() throws FrException
+	public int total() throws FrException
 	{
-		if (_wrileLog) Log("Total");
+		if (_wrileLog) log("Total");
             int error=0;
 
 		return error;
 
 	}
 
-	public int Pay(String payType, String sum, String text) throws FrException
+	public int pay(String payType, String sum, String text) throws FrException
 	{
-		if (_wrileLog) Log("Pay");
+		if (_wrileLog) log("Pay");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -883,42 +859,42 @@ public class FPRINT extends FR
 
 		switch (payType) 
 		{
-			case "Cash0" :
+			case "CASH_0" :
 				payTypeTMP=1;
 				break;
-			case "Cash1" :
+			case "CASH_1" :
                         payTypeTMP=2;
                         break;
-			case "Cash2" :
+			case "CASH_2" :
                         payTypeTMP=3;
                         break;
-			case "Cash3" :
+			case "CASH_3" :
                         payTypeTMP=4;
                         break;
-			case "Cash4" :
+			case "CASH_4" :
                         payTypeTMP=5;
                         break;
-			case "Cash5" :
+			case "CASH_5" :
                         payTypeTMP=6;
                         break;
-			case "Cash6" :
+			case "CASH_6" :
                         payTypeTMP=7;
                         break;
-			case "Cash7" :
+			case "CASH_7" :
                         payTypeTMP=8;
                         break;
-			case "Cash8" :
+			case "CASH_8" :
                         payTypeTMP=9;
                         break;
-			case "Cash9" :
+			case "CASH_9" :
                         payTypeTMP=10;
                         break;
-			case "Cash10":
-			case "Cash11":
-			case "Cash12":
-			case "Cash13":
-			case "Cash14":
-			case "Cash15":
+			case "CASH_10":
+			case "CASH_11":
+			case "CASH_12":
+			case "CASH_13":
+			case "CASH_14":
+			case "CASH_15":
 			default: 
                         payTypeTMP=0;
                         break;
@@ -941,9 +917,9 @@ public class FPRINT extends FR
 
 	}
 
-	public int CancelDocument() throws FrException
+	public int cancelDocument() throws FrException
 	{
-		if (_wrileLog) Log("CancelDocument");
+		if (_wrileLog) log("CancelDocument");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -962,9 +938,9 @@ public class FPRINT extends FR
 
 	}
 
-	public int CloseDocument(String text) throws FrException
+	public int closeDocument(String text) throws FrException
 	{
-		if (_wrileLog) Log("CloseDocument");
+		if (_wrileLog) log("CloseDocument");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -992,9 +968,9 @@ public class FPRINT extends FR
 	}
 
 
-	public int Xreport(String text) throws FrException
+	public int xReport(String text) throws FrException
 	{
-		if (_wrileLog) Log("Xreport");
+		if (_wrileLog) log("Xreport");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -1018,9 +994,9 @@ public class FPRINT extends FR
 
 	}
 
-	public int Zreport(String text) throws FrException
+	public int zReport(String text) throws FrException
 	{
-		if (_wrileLog) Log("Zreport");
+		if (_wrileLog) log("Zreport");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -1043,9 +1019,9 @@ public class FPRINT extends FR
 
 	}
 
-	public int ReceiptSale() throws FrException
+	public int receiptSale() throws FrException
 	{
-		if (_wrileLog) Log("ReceiptSale");
+		if (_wrileLog) log("ReceiptSale");
 		int error=0;
 
 		// if (error==0) error=OpenDocument("2", "0", "Test", "0");
@@ -1057,18 +1033,5 @@ public class FPRINT extends FR
 		// if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
-
-
-      private class PortReader implements SerialPortEventListener 
-      {
-            public void serialEvent(SerialPortEvent event) 
-            {
-                  if(event.isRXCHAR() && event.getEventValue() > 0)
-                  {
-                  	_gettedBytes=event.getEventValue();            
-                  }
-            }
-      }
-
 	
 }

@@ -6,11 +6,13 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
+import jssc.SerialPortTimeoutException;
+
 
 
 public class SP extends FR
 {
-	private SerialPort serialPort;
+	private SerialPort _serialPort;
 	private int _id=0x20; 
 	private int _gettedBytes=0; 
 	
@@ -18,15 +20,15 @@ public class SP extends FR
 	//private boolean _wrileLog=true;
 	private boolean _wrileLog=false;
 
-	private ArrayOfBytes bENQ = new ArrayOfBytes();
-	private ArrayOfBytes bACK = new ArrayOfBytes();
+	private ArrayOfBytes _bENQ = new ArrayOfBytes();
+	private ArrayOfBytes _bACK = new ArrayOfBytes();
 
 
 
 	public SP()
 	{
-		bENQ.append(0x05);
-		bACK.append(0x06);
+		_bENQ.append(0x05);
+		_bACK.append(0x06);
 	}
 
 
@@ -51,11 +53,11 @@ public class SP extends FR
 		return strTime;
 	}
 
-	private int Id()
+	private int id()
 	{
 		if (_id==0xFD) _id=0x20;
 		else _id++;
-//		if (_wrileLog) Log("Id = "+_id);
+//		if (_wrileLog) log("Id = "+_id);
 		return _id;
 	}
 
@@ -198,23 +200,23 @@ public class SP extends FR
     {
 		//Передаём в конструктор имя порта
 		//serialPort = new SerialPort("/dev/ttyS0");
-		serialPort = new SerialPort(portName);
+		_serialPort = new SerialPort(portName);
 
 		try {
 		    //Открываем порт
-		    serialPort.openPort();
+		    _serialPort.openPort();
 		    //Выставляем параметры
-		    serialPort.setParams(Integer.parseInt(baud),
+		    _serialPort.setParams(Integer.parseInt(baud),
 			                     SerialPort.DATABITS_8,
 			                     SerialPort.STOPBITS_1,
 			                     SerialPort.PARITY_NONE);
 		    
 		    //Включаем аппаратное управление потоком
-		    serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
-			                              SerialPort.FLOWCONTROL_RTSCTS_OUT);
+		    //_serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
+			//                              SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
 		    //Устанавливаем ивент лисенер и маску
-		    serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
+		    //_serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
 
 		}
 		catch (SerialPortException ex) 
@@ -226,22 +228,22 @@ public class SP extends FR
 	
 	private boolean writePort(ArrayOfBytes toPort)
 	{
-		if (_wrileLog) Log("writePort");
+		if (_wrileLog) log("writePort");
 		try {
 
-		    	serialPort.writeBytes(toPort.getBytes());
+		    	_serialPort.writeBytes(toPort.getBytes());
 
 		    	String strLog="to   port -> ";
 		    	for (int j=0;j<toPort.length();j++) strLog+=String.format("%02x", toPort.at(j));
-			    Log(strLog);
+			    log(strLog);
 		    	// String strLog="to port -> ";
 		    	// for (int j=0;j<toPort.length();j++) strLog+=String.format("%c", toPort.at(j));
-			    // Log(strLog);
+			    // log(strLog);
 		}
 		catch (SerialPortException ex) 
 		{
 			// System.out.println("afassdfasfafasfasfasfas");
-		 //    System.out.println(ex);
+		     System.out.println(ex);
 		}
 		return true;
 
@@ -249,55 +251,56 @@ public class SP extends FR
 
 	private boolean readPort(ArrayOfBytes fromPort)
 	{
-		if (_wrileLog) Log("readPort");
+		if (_wrileLog) log("readPort");
 
 		fromPort.clear();
 
-		for (int i=0;;i++)
+		try 
 		{
-			
-			if (_gettedBytes>0)
-			{
-				try {
 
-				    fromPort.append(serialPort.readBytes());
+		    fromPort.append(_serialPort.readBytes(1, 1000));
 
-			    	String strLog="from port <- ";
-			    	for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
-				    Log(strLog);
-			    	// String strLog="from port <- ";
-			    	// for (int j=0;j<fromPort.length();j++) strLog+=String.format("%c", fromPort.at(j));
-				    // Log(strLog);
-				}
-				catch (SerialPortException ex) {
-				    System.out.println(ex);
-				}
-				
-				_gettedBytes=0;
-				break;
-			}
-
-			if(i>20)		
-			{
-				if (_wrileLog) Log("i>20 = " + i);
-				break;
-			}
-
-			try {
-			  Thread.sleep(200);
-			} catch (InterruptedException ie) {
-			    //Handle exception
-			}	
-	
+	    	String strLog="from port <- ";
+	    	for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
+		    log(strLog);
 		}
-		if (_wrileLog) Log("End of readPort");
+		catch (SerialPortException ex) 
+		{
+		    System.out.println(ex);
+		}
+        catch (SerialPortTimeoutException ext) 
+        {
+            return false;
+        }
+				
+		if (_wrileLog) log("End of readPort");
 		return true;
+	}
+	
+	private boolean testConnect()
+	{
+		boolean result = true;
+
+		ArrayOfBytes fromPort = new ArrayOfBytes();
+		fromPort.clear();
+
+		writePort(_bENQ);
+		if (readPort(fromPort))
+		{
+			if (fromPort.at(0)!=_bACK.at(0)) 
+			{
+				result = false;
+			}			
+		}
+		else result = false;
+		
+		return result;
 	}
 
 	
 	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
 	{
-		if (_wrileLog) Log("transaction");
+		if (_wrileLog) log("transaction");
 		int error=0;
 
 
@@ -313,53 +316,47 @@ public class SP extends FR
 
 		for (int i=0; ;i++) 
 		{
-				fromPort.clear();
-				readPort(fromPort);
-
-				for (int j=0;j<fromPort.length();j++)
+			fromPort.clear();
+			if (readPort(fromPort))
+			{
+				if (fromPort.at(0)==(byte)(0x02)) startByteWasReceived=true;
+				if (startByteWasReceived==true)
 				{
-					if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
-					if (startByteWasReceived==true)
-					{
-						result.append(fromPort.at(j));
-					}
-					if (fromPort.at(j)==(byte)(0x03)) resultLength=result.length()+2;
+					result.append(fromPort.at(0));
 				}
-								
+				if (fromPort.at(0)==(byte)(0x03)) resultLength=result.length()+2;
+
 				if ((result.length()==resultLength)&&(result.length()>0))
 				{
 					tmpError+=(char)(result.at(4));
 					tmpError+=(char)(result.at(5));
 
-					//Log(tmpError);
-
 					error=Integer.parseInt(tmpError, 16);
-					//Log("Integer - "+error);
 
 					break;
 
 				}
 
-				writePort(bENQ);
-
-				fromPort.clear();
-				readPort(fromPort);
-				if (fromPort.at(0)!=bACK.at(0)) 
+			}
+			else
+			{
+				if(!testConnect()) 
 				{
 					error=NO_RESPONSE_FR;
 					break;
 				}
 
-				try {Thread.sleep(100);} catch (InterruptedException ie) {}					
+			}
+								
 		}
 
 
 		return error;
 	}
 
-	public int Init() throws FrException
+	public int init() throws FrException
 	{
-		if (_wrileLog) Log("Init");
+		if (_wrileLog) log("Init");
 
 		int error=0;
 
@@ -368,7 +365,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("00");
 		commandStr.append(curDate());
 		commandStr.append(0x1C);
@@ -383,9 +380,9 @@ public class SP extends FR
 
 	}
 
-	public int OpenDocument(String docType, String depType, String operName, String docNumber) throws FrException
+	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
 	{
-		if (_wrileLog) Log("OpenDocument");
+		if (_wrileLog) log("OpenDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -393,10 +390,10 @@ public class SP extends FR
 
 		switch (docType) 
 		{
-			case "ReceiptTypeSale" :
+			case "RECEIPT_TYPE_SALE" :
 				docType="2";
 				break;
-			case "ReceiptTypeReturnSale" :
+			case "RECEIPT_TYPE_RETURN_SALE" :
 				docType="3";
 				break;
 			default: 
@@ -406,7 +403,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("20");
 		commandStr.append(docType);
 		commandStr.append(0x1C);
@@ -426,9 +423,9 @@ public class SP extends FR
 	}
 
 
-	public int AddItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
+	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
-		if (_wrileLog) Log("AddItem");
+		if (_wrileLog) log("AddItem");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -436,7 +433,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("30");
 		commandStr.append(itemName, "cp866");
 		commandStr.append(0x1C);
@@ -458,9 +455,9 @@ public class SP extends FR
 
 	}
 
-	public int Total() throws FrException
+	public int total() throws FrException
 	{
-		if (_wrileLog) Log("Total");
+		if (_wrileLog) log("Total");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -468,7 +465,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("34");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
@@ -478,9 +475,9 @@ public class SP extends FR
 		return error;
 	}
 
-	public int Pay(String payType, String sum, String text) throws FrException
+	public int pay(String payType, String sum, String text) throws FrException
 	{
-		if (_wrileLog) Log("Pay");
+		if (_wrileLog) log("Pay");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -488,52 +485,52 @@ public class SP extends FR
 
 		switch (payType) 
 		{
-			case "Cash0" :
+			case "CASH_0" :
 				payType="0";
 				break;
-			case "Cash1" :
+			case "CASH_1" :
 				payType="1";
 				break;
-			case "Cash2" :
+			case "CASH_2" :
 				payType="2";
 				break;
-			case "Cash3" :
+			case "CASH_3" :
 				payType="3";
 				break;
-			case "Cash4" :
+			case "CASH_4" :
 				payType="4";
 				break;
-			case "Cash5" :
+			case "CASH_5" :
 				payType="5";
 				break;
-			case "Cash6" :
+			case "CASH_6" :
 				payType="6";
 				break;
-			case "Cash7" :
+			case "CASH_7" :
 				payType="7";
 				break;
-			case "Cash8" :
+			case "CASH_8" :
 				payType="8";
 				break;
-			case "Cash9" :
+			case "CASH_9" :
 				payType="9";
 				break;
-			case "Cash10":
+			case "CASH_10":
 				payType="10";
 				break;
-			case "Cash11":
+			case "CASH_11":
 				payType="11";
 				break;
-			case "Cash12":
+			case "CASH_12":
 				payType="12";
 				break;
-			case "Cash13":
+			case "CASH_13":
 				payType="13";
 				break;
-			case "Cash14":
+			case "CASH_14":
 				payType="14";
 				break;
-			case "Cash15":
+			case "CASH_15":
 				payType="15";
 				break;
 			default: 
@@ -543,7 +540,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("35");
 		commandStr.append(payType);
 		commandStr.append(0x1C);
@@ -558,9 +555,9 @@ public class SP extends FR
 		return error;
 	}
 
-	public int CancelDocument() throws FrException
+	public int cancelDocument() throws FrException
 	{
-		if (_wrileLog) Log("CancelDocument");
+		if (_wrileLog) log("CancelDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -568,7 +565,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("23");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
@@ -580,9 +577,9 @@ public class SP extends FR
 
 	}
 
-	public int CloseDocument(String text) throws FrException
+	public int closeDocument(String text) throws FrException
 	{
-		if (_wrileLog) Log("CloseDocument");
+		if (_wrileLog) log("CloseDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -590,7 +587,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("22");
 		commandStr.append(text, "cp866");
 		commandStr.append(0x1C);
@@ -602,9 +599,9 @@ public class SP extends FR
 	}
 
 
-	public int Xreport(String text) throws FrException
+	public int xReport(String text) throws FrException
 	{
-		if (_wrileLog) Log("Xreport");
+		if (_wrileLog) log("Xreport");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -612,7 +609,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("60");
 		commandStr.append(text, "cp866");
 		commandStr.append(0x1C);
@@ -623,9 +620,9 @@ public class SP extends FR
 		return error;
 	}
 
-	public int Zreport(String text) throws FrException
+	public int zReport(String text) throws FrException
 	{
-		if (_wrileLog) Log("Zreport");
+		if (_wrileLog) log("Zreport");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -633,7 +630,7 @@ public class SP extends FR
 
 		commandStr.append(0x02);
 		commandStr.append("PONE");
-		commandStr.append(Id());
+		commandStr.append(id());
 		commandStr.append("61");
 		commandStr.append(text, "cp866");
 		commandStr.append(0x1C);
@@ -644,33 +641,20 @@ public class SP extends FR
 		return error;
 	}
 
-	public int ReceiptSale() throws FrException
+	public int receiptSale() throws FrException
 	{
-		if (_wrileLog) Log("ReceiptSale");
+		if (_wrileLog) log("ReceiptSale");
 		int error=0;
 
-		if (error==0) error=OpenDocument("2", "0", "Test", "0");
-		if (error==0) error=AddItem("тест", "1234567", "1.000", "123.45", "0", "");
-		if (error==0) error=Total();
-		if (error==0) error=Pay("0", "1000.00", "");
-		if (error==0) error=CloseDocument("");
+		if (error==0) error=openDocument("2", "0", "Test", "0");
+		if (error==0) error=addItem("тест", "1234567", "1.000", "123.45", "0", "");
+		if (error==0) error=total();
+		if (error==0) error=pay("0", "1000.00", "");
+		if (error==0) error=closeDocument("");
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
-
-
-    private class PortReader implements SerialPortEventListener 
-    {
-        public void serialEvent(SerialPortEvent event) 
-        {
-            if(event.isRXCHAR() && event.getEventValue() > 0)
-	    	{
-		    	_gettedBytes=event.getEventValue();            
-        	}
-    	}
-    }
-
 
 }
 

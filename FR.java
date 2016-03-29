@@ -26,25 +26,25 @@ abstract class FR
 {
 	private boolean _wrileLog=false;
 
-	public static final String PayType0="Cash0";
-	public static final String PayType1="Cash1";
-	public static final String PayType2="Cash2";
-	public static final String PayType3="Cash3";
-	public static final String PayType4="Cash4";
-	public static final String PayType5="Cash5";
-	public static final String PayType6="Cash6";
-	public static final String PayType7="Cash7";
-	public static final String PayType8="Cash8";
-	public static final String PayType9="Cash9";
-	public static final String PayType10="Cash10";
-	public static final String PayType11="Cash11";
-	public static final String PayType12="Cash12";
-	public static final String PayType13="Cash13";
-	public static final String PayType14="Cash14";
-	public static final String PayType15="Cash15";
+	public static final String PAY_TYPE_0="CASH_0";
+	public static final String PAY_TYPE_1="CASH_1";
+	public static final String PAY_TYPE_2="CASH_2";
+	public static final String PAY_TYPE_3="CASH_3";
+	public static final String PAY_TYPE_4="CASH_4";
+	public static final String PAY_TYPE_5="CASH_5";
+	public static final String PAY_TYPE_6="CASH_6";
+	public static final String PAY_TYPE_7="CASH_7";
+	public static final String PAY_TYPE_8="CASH_8";
+	public static final String PAY_TYPE_9="CASH_9";
+	public static final String PAY_TYPE_10="CASH_10";
+	public static final String PAY_TYPE_11="CASH_11";
+	public static final String PAY_TYPE_12="CASH_12";
+	public static final String PAY_TYPE_13="CASH_13";
+	public static final String PAY_TYPE_14="CASH_14";
+	public static final String PAY_TYPE_15="CASH_15";
 	
-	public static final String ReceiptTypeSale="ReceiptTypeSale";
-	public static final String ReceiptTypeReturnSale="ReceiptTypeReturnSale";
+	public static final String RECEIPT_TYPE_SALE="RECEIPT_TYPE_SALE";
+	public static final String RECEIPT_TYPE_RETURN_SALE="RECEIPT_TYPE_RETURN_SALE";
 
 	public static final int ERROR_PORT          =1001;
 	public static final int ERROR_CONNECT       =1002;
@@ -177,7 +177,7 @@ abstract class FR
 						break;
 					}
 
-			    	//Log(String.format("%02x", this.at(i))+" == "+String.format("%02x", anotherBytesArray.at(i)));
+			    	//log(String.format("%02x", this.at(i))+" == "+String.format("%02x", anotherBytesArray.at(i)));
 
 				}
 			}
@@ -206,7 +206,7 @@ abstract class FR
 
 	public String rightJustified(String str, char ch, int length)
 	{
-		if (_wrileLog) Log("rightJustified");
+		if (_wrileLog) log("rightJustified");
 
 		String out=str;
 		while (out.length()<length)
@@ -218,7 +218,7 @@ abstract class FR
 
 	public String leftJustified(String str, char ch, int length)
 	{
-		if (_wrileLog) Log("leftJustified");
+		if (_wrileLog) log("leftJustified");
 
 		String out=str;
 		while (out.length()<length)
@@ -229,13 +229,13 @@ abstract class FR
 	}
 
 
-	public static void Log(String str)
+	public static void log(String str)
 	{
-		LogConsole(str);
-		LogFile(str);
+		logConsole(str);
+		logFile(str);
 	}
 
-	public static void LogConsole(String str)
+	public static void logConsole(String str)
 	{
 		// String consoleEncoding = System.getProperty("consoleEncoding");
 		// if (consoleEncoding != null) {
@@ -253,13 +253,13 @@ abstract class FR
 		String strDateTime;
 		
 		Date dt= new Date();
-		strDateTime = new SimpleDateFormat("yyyy.dd.MM HH:mm:ss:SSS - ").format(dt);
+		strDateTime = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS - ").format(dt);
 
 		System.out.printf(strDateTime);
 		System.out.println(str);
 	}
 
-	public static void LogFile(String str)
+	public static void logFile(String str)
 	{
 		String strDateTime;
 		String strFileName;
@@ -271,9 +271,9 @@ abstract class FR
 
 		
 		Date dt= new Date();
-		strDateTime = new SimpleDateFormat("yyyy.dd.MM HH:mm:ss:SSS - ").format(dt);
+		strDateTime = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS - ").format(dt);
 		strFileName = strPath+strSlash;
-		strFileName += new SimpleDateFormat("yyyyddMM").format(dt);;
+		strFileName += new SimpleDateFormat("yyyyMMdd").format(dt);;
 		strFileName += ".log";
 
 		File file = new File(strFileName);
@@ -356,25 +356,25 @@ abstract class FR
 
     abstract public void openPort(String portName, String baud) throws FrException;;
 
-	abstract public  int Init() throws FrException;
+	abstract public  int init() throws FrException;
 
-	abstract public  int OpenDocument(String docType, String depType, String operName, String docNumber) throws FrException;
+	abstract public  int openDocument(String docType, String depType, String operName, String docNumber) throws FrException;
 
-	abstract public  int AddItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException;
+	abstract public  int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException;
 
-	abstract public  int Total() throws FrException;
+	abstract public  int total() throws FrException;
 
-	abstract public  int Pay(String payType, String sum, String text) throws FrException;
+	abstract public  int pay(String payType, String sum, String text) throws FrException;
 
-	abstract public  int CancelDocument() throws FrException;
+	abstract public  int cancelDocument() throws FrException;
 
-	abstract public  int CloseDocument(String text) throws FrException;
+	abstract public  int closeDocument(String text) throws FrException;
 
-	abstract public  int Xreport(String text) throws FrException;
+	abstract public  int xReport(String text) throws FrException;
 
-	abstract public  int Zreport(String text) throws FrException;
+	abstract public  int zReport(String text) throws FrException;
 
-	abstract public  int ReceiptSale() throws FrException;
+	abstract public  int receiptSale() throws FrException;
 
 }
 

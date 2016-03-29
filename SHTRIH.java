@@ -6,37 +6,39 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
+import jssc.SerialPortTimeoutException;
+
 
 
 
 public class SHTRIH extends FR
 {
 
-	private SerialPort serialPort;
+	private SerialPort _serialPort;
 	private int _gettedBytes=0; 
 	
 	//private boolean _wrileLog=true;
 	private boolean _wrileLog=false;
 
-	private String ReceiptType="";
+	private String _receiptType="";
 
-	private ArrayOfBytes bENQ = new ArrayOfBytes();
-	private ArrayOfBytes bACK = new ArrayOfBytes();
-	private ArrayOfBytes bNAK = new ArrayOfBytes();
+	private ArrayOfBytes _bENQ = new ArrayOfBytes();
+	private ArrayOfBytes _bACK = new ArrayOfBytes();
+	private ArrayOfBytes _bNAK = new ArrayOfBytes();
 
 
 
 	public SHTRIH()
 	{
-		bENQ.append(0x05);
-		bACK.append(0x06);
-		bNAK.append(0x15);
+		_bENQ.append(0x05);
+		_bACK.append(0x06);
+		_bNAK.append(0x15);
 	}
 
 
 	private ArrayOfBytes turnString(ArrayOfBytes str)
 	{
-		if (_wrileLog) Log("getByteArrayFromString");
+		if (_wrileLog) log("getByteArrayFromString");
 
 		ArrayOfBytes out=new ArrayOfBytes();
 		for(int i=str.length()-1;i>-1;i--)
@@ -48,7 +50,7 @@ public class SHTRIH extends FR
 
 	private ArrayOfBytes getByteArrayFromString(String str)
 	{
-		if (_wrileLog) Log("getByteArrayFromString");
+		if (_wrileLog) log("getByteArrayFromString");
 
 		ArrayOfBytes strOut= new ArrayOfBytes();
 		if ((str.length()%2)>0) str="0"+str;
@@ -64,7 +66,7 @@ public class SHTRIH extends FR
 
       private ArrayOfBytes getByteArrayFromString(String str, int radix)
       {
-            if (_wrileLog) Log("getByteArrayFromString");
+            if (_wrileLog) log("getByteArrayFromString");
 
             ArrayOfBytes strOut= new ArrayOfBytes();
             if ((str.length()%2)>0) str="0"+str;
@@ -295,18 +297,18 @@ public class SHTRIH extends FR
 
     public void openPort(String portName, String baud) throws FrException
     {
-		if (_wrileLog) Log("openPort");
+		if (_wrileLog) log("openPort");
 
 		//Передаём в конструктор имя порта
 
 		//serialPort = new SerialPort("/dev/ttyS0");
-		serialPort = new SerialPort(portName);
+		_serialPort = new SerialPort(portName);
 
 		try {
 		    //Открываем порт
-		    serialPort.openPort();
+		    _serialPort.openPort();
 		    //Выставляем параметры
-		    serialPort.setParams(Integer.parseInt(baud),
+		    _serialPort.setParams(Integer.parseInt(baud),
 			                     SerialPort.DATABITS_8,
 			                     SerialPort.STOPBITS_1,
 			                     SerialPort.PARITY_NONE);
@@ -316,7 +318,7 @@ public class SHTRIH extends FR
 			 //                             SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
 		    //Устанавливаем ивент лисенер и маску
-		    serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
+		    //_serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
 
 		}
 		catch (SerialPortException ex) 
@@ -327,13 +329,13 @@ public class SHTRIH extends FR
 
 	private boolean writePort(ArrayOfBytes toPort)
 	{
-		if (_wrileLog) Log("writePort");
+		if (_wrileLog) log("writePort");
 		try {
-		    	serialPort.writeBytes(toPort.getBytes());
+		    	_serialPort.writeBytes(toPort.getBytes());
 
 		    	String strLog="to   port -> ";
 		    	for (int i=0;i<toPort.length();i++) strLog+=String.format("%02x", toPort.at(i));
-			    Log(strLog);
+			    log(strLog);
 		}
 		catch (SerialPortException ex) 
 		{
@@ -346,45 +348,30 @@ public class SHTRIH extends FR
 
 	private boolean readPort(ArrayOfBytes fromPort) //throws InterruptedException 
 	{
-		if (_wrileLog) Log("readPort");
+		if (_wrileLog) log("readPort");
 
 		fromPort.clear();
 
-		for (int i=0;;i++)
-		{
+            try 
+            {
+
+                  fromPort.append(_serialPort.readBytes(1, 1000));
+
+                  String strLog="from port <- ";
+                  for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
+                      log(strLog);
+            }
+            catch (SerialPortException ex) 
+            {
+                  System.out.println(ex);
+            }
+            catch (SerialPortTimeoutException ext) 
+            {
+                  return false;
+            }
+                        		
 			
-			if (_gettedBytes>0)
-			{
-				try {
-
-				    fromPort.append(serialPort.readBytes());
-
-			    	String strLog="from port <- ";
-			    	for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
-				    Log(strLog);
-				}
-				catch (SerialPortException ex) {
-				    System.out.println(ex);
-				}
-				
-				_gettedBytes=0;
-				break;
-			}
-
-			if(i>20)		
-			{
-				Log("i>20" + i);
-				break;
-			}
-
-			try {
-			  Thread.sleep(200);
-			} catch (InterruptedException ie) {
-			    //Handle exception
-			}	
-			
-		}
-		if (_wrileLog) Log("End of readPort");
+		if (_wrileLog) log("End of readPort");
 		return true;
 
 	}
@@ -394,21 +381,21 @@ public class SHTRIH extends FR
             boolean result=false;
             ArrayOfBytes fromPort = new ArrayOfBytes();
 
-            writePort(bENQ);
+            writePort(_bENQ);
             for (int i=0;i<3;i++)
             {
                   readPort(fromPort);
                   if (fromPort.length()>0) 
                   {
-                        if (bNAK.at(0)==fromPort.at(0))
+                        if (_bNAK.at(0)==fromPort.at(0))
                         {
                               result=true;
                               break;
                         }
                         else 
                         {
-                              writePort(bACK);
-                              writePort(bENQ);
+                              writePort(_bACK);
+                              writePort(_bENQ);
                         }
                         
                   }
@@ -422,7 +409,7 @@ public class SHTRIH extends FR
 
       private int getEndOfPrinting()
       {
-            if (_wrileLog) Log("getEndOfPrinting");
+            if (_wrileLog) log("getEndOfPrinting");
             int error=0;
 
             ArrayOfBytes state = new ArrayOfBytes();
@@ -449,9 +436,9 @@ public class SHTRIH extends FR
                         mode=result.at(7);
                         submode=result.at(8);
 
-                        if (_wrileLog) Log("error = "+error);
-                        if (_wrileLog) Log("mode = "+mode);
-                        if (_wrileLog) Log("submode = "+submode);
+                        if (_wrileLog) log("error = "+error);
+                        if (_wrileLog) log("mode = "+mode);
+                        if (_wrileLog) log("submode = "+submode);
 
 
                         if (submode==0)
@@ -477,7 +464,7 @@ public class SHTRIH extends FR
 	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
 	{
 
-		if (_wrileLog) Log("getEndOfPrinting");
+		if (_wrileLog) log("getEndOfPrinting");
 		int error=0;
 
 		ArrayOfBytes state = new ArrayOfBytes();
@@ -497,7 +484,7 @@ public class SHTRIH extends FR
                   writePort(toPort);                  
                   for (;;i++)
       		{
-      			for (int k=0;k<3;k++ ) 
+      			for (int k=0;k<100;k++ ) 
       			{
       				// Cycle for receve current status
 
@@ -518,18 +505,18 @@ public class SHTRIH extends FR
       					resultLength=result.at(1)+3;
       				}
       				
-                              // Log("result.length() - "+result.length());
-                              // Log("result.length() - "+resultLength);
+                              // log("result.length() - "+result.length());
+                              // log("result.length() - "+resultLength);
 
       				if ((result.length()==resultLength))
       				{
-                                    writePort(bACK);
+                                    writePort(_bACK);
                                     error=result.at(3);
       					break;
 
       				}
-      				try {Thread.sleep(100);} catch (InterruptedException ie) {}		
-      			}
+      				//try {Thread.sleep(100);} catch (InterruptedException ie) {}		
+           			}
                         
                         if(result.length()==resultLength)
                         {
@@ -537,7 +524,7 @@ public class SHTRIH extends FR
                         }
                         else	
                         {
-                              writePort(bENQ);
+                              writePort(_bENQ);
                               result.clear();
                               startByteWasReceived=false;
                               resultLength=300;
@@ -554,9 +541,9 @@ public class SHTRIH extends FR
 
 	}
 
-      public int SetCurrentDate() throws FrException
+      public int setCurrentDate() throws FrException
       {
-            if (_wrileLog) Log("SetCurrentDate");
+            if (_wrileLog) log("SetCurrentDate");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -583,9 +570,9 @@ public class SHTRIH extends FR
             return error;
       }
 
-      public int SetCurrentTime() throws FrException
+      public int setCurrentTime() throws FrException
       {
-            if (_wrileLog) Log("SetCurrentTime");
+            if (_wrileLog) log("SetCurrentTime");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -607,9 +594,9 @@ public class SHTRIH extends FR
       }
 
 
-	public int Init() throws FrException
+	public int init() throws FrException
 	{
-		if (_wrileLog) Log("Init");
+		if (_wrileLog) log("Init");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -623,37 +610,37 @@ public class SHTRIH extends FR
 
 		if (error==0) error=transaction(CRC(commandStr), getStr);
 
-            if (error==0) error=SetCurrentDate();
-            if (error==0) error=SetCurrentTime();
+            if (error==0) error=setCurrentDate();
+            if (error==0) error=setCurrentTime();
 
-            Log("Error - "+error+" - "+getErrorDetails(error));
+            log("Error - "+error+" - "+getErrorDetails(error));
 		return error;
 
 	}
 
-	public int OpenDocument(String docType, String depType, String operName, String docNumber) throws FrException
+	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
 	{
-		if (_wrileLog) Log("OpenDocument");
+		if (_wrileLog) log("OpenDocument");
 
-		ReceiptType=docType;
+		_receiptType=docType;
 
 		return 0;
 
 	}
 
 
-	public int AddItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
+	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
-		if (_wrileLog) Log("AddItem");
+		if (_wrileLog) log("AddItem");
 		int error=0;
 
 		int intReceiptType=0;
-		switch (ReceiptType) 
+		switch (_receiptType) 
 		{
-			case "ReceiptTypeSale" :
+			case "RECEIPT_TYPE_SALE" :
 				intReceiptType=0x80;
 				break;
-			case "ReceiptTypeReturnSale" :
+			case "RECEIPT_TYPE_RETURN_SALE" :
 				intReceiptType=0x82;
 				break;
 			default: 
@@ -693,9 +680,9 @@ public class SHTRIH extends FR
 
 	}
 
-	public int Total() throws FrException
+	public int total() throws FrException
 	{
-		if (_wrileLog) Log("Total");
+		if (_wrileLog) log("Total");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -718,9 +705,9 @@ public class SHTRIH extends FR
 
 	}
 
-	public int Pay(String payType, String sum, String text) throws FrException
+	public int pay(String payType, String sum, String text) throws FrException
 	{
-		if (_wrileLog) Log("Pay");
+		if (_wrileLog) log("Pay");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -734,42 +721,42 @@ public class SHTRIH extends FR
 
 		switch (payType) 
 		{
-			case "Cash0" :
+			case "CASH_0" :
 				pay1=sum;
 				pay2="0";
 				pay3="0";
 				pay4="0";
 				break;
-			case "Cash1" :
+			case "CASH_1" :
 				pay1="0";
 				pay2=sum;
 				pay3="0";
 				pay4="0";
 				break;
-			case "Cash2" :
+			case "CASH_2" :
 				pay1="0";
 				pay2="0";
 				pay3=sum;
 				pay4="0";
 				break;
-			case "Cash3" :
+			case "CASH_3" :
 				pay1="0";
 				pay2="0";
 				pay3="0";
 				pay4=sum;
 				break;
-			case "Cash4" :
-			case "Cash5" :
-			case "Cash6" :
-			case "Cash7" :
-			case "Cash8" :
-			case "Cash9" :
-			case "Cash10":
-			case "Cash11":
-			case "Cash12":
-			case "Cash13":
-			case "Cash14":
-			case "Cash15":
+			case "CASH_4" :
+			case "CASH_5" :
+			case "CASH_6" :
+			case "CASH_7" :
+			case "CASH_8" :
+			case "CASH_9" :
+			case "CASH_10":
+			case "CASH_11":
+			case "CASH_12":
+			case "CASH_13":
+			case "CASH_14":
+			case "CASH_15":
 			default: 
 				pay1=sum;
 				pay2="0";
@@ -807,9 +794,9 @@ public class SHTRIH extends FR
 
 	}
 
-	public int CancelDocument() throws FrException
+	public int cancelDocument() throws FrException
 	{
-		if (_wrileLog) Log("CancelDocument");
+		if (_wrileLog) log("CancelDocument");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -831,20 +818,20 @@ public class SHTRIH extends FR
 
 	}
 
-	public int CloseDocument(String text) throws FrException
+	public int closeDocument(String text) throws FrException
 	{
-		if (_wrileLog) Log("CloseDocument");
+		if (_wrileLog) log("CloseDocument");
 
-		ReceiptType="";
+		_receiptType="";
 
 		return 0;
 
 	}
 
 
-	public int Xreport(String text) throws FrException
+	public int xReport(String text) throws FrException
 	{
-		if (_wrileLog) Log("Xreport");
+		if (_wrileLog) log("Xreport");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -866,9 +853,9 @@ public class SHTRIH extends FR
 
 	}
 
-	public int Zreport(String text) throws FrException
+	public int zReport(String text) throws FrException
 	{
-		if (_wrileLog) Log("Zreport");
+		if (_wrileLog) log("Zreport");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -890,30 +877,19 @@ public class SHTRIH extends FR
 
 	}
 
-	public int ReceiptSale() throws FrException
+	public int receiptSale() throws FrException
 	{
-		if (_wrileLog) Log("ReceiptSale");
+		if (_wrileLog) log("ReceiptSale");
 		int error=0;
 
-		if (error==0) error=OpenDocument("2", "0", "Test", "0");
-		if (error==0) error=AddItem("тест", "1234567", "1.000", "123.45", "0", "");
-		if (error==0) error=Total();
-		if (error==0) error=Pay("0", "1000.00", "");
-		if (error==0) error=CloseDocument("");
+		if (error==0) error=openDocument("2", "0", "Test", "0");
+		if (error==0) error=addItem("тест", "1234567", "1.000", "123.45", "0", "");
+		if (error==0) error=total();
+		if (error==0) error=pay("0", "1000.00", "");
+		if (error==0) error=closeDocument("");
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
 
-
-    private class PortReader implements SerialPortEventListener 
-    {
-        public void serialEvent(SerialPortEvent event) 
-        {
-            if(event.isRXCHAR() && event.getEventValue() > 0)
-	    	{
-		    	_gettedBytes=event.getEventValue();            
-        	}
-    	}
-    }	
 }
