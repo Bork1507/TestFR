@@ -143,22 +143,21 @@ public class FrTest {
 						}
 						catch (FrException frEx)
 						{
-							System.out.println(frEx);
+							_fr.log(frEx.toString());
 							try {
-								System.out.print("Press Enter ... ");
+								_fr.log("Press Enter ... ");
 								System.in.read();
 							}
 							catch(IOException e){}
 						}
 					}
-					//_fr.Xreport("Иванова");
 					_fr.zReport("Петрова");			
 				}
 				catch (FrException frEx)
 				{
-					System.out.println(frEx);
+					_fr.log(frEx.toString());
 					try {
-						System.out.print("Press Enter ... ");
+						_fr.log("Press Enter ... ");
 						System.in.read();
 					}
 					catch(IOException e){}
@@ -167,7 +166,7 @@ public class FrTest {
 		}
 		catch (FrException frEx)
 		{
-			System.out.println(frEx);
+			_fr.log(frEx.toString());
 		}
 			
 		
