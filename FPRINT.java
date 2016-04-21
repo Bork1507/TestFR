@@ -8,17 +8,23 @@ import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortTimeoutException;
 
+//import org.apache.commons.codec.binary.Hex;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+
 
 
 
 public class FPRINT extends FR
 {
 
+      public static final int REMOVE_FFFFFF_WHEN_TYPE_CAST=256;
+
 	private SerialPort _serialPort;
 	private int _gettedBytes=0; 
 	
-	//private boolean _wrileLog=true;
-	private boolean _wrileLog=false;
+	//private boolean _writeLog=true;
+	private boolean _writeLog=false;
 
 	private String ReceiptType="";
 
@@ -40,7 +46,7 @@ public class FPRINT extends FR
 
 	private ArrayOfBytes turnString(ArrayOfBytes str)
 	{
-		if (_wrileLog) log("getByteArrayFromString");
+		if (_writeLog) Common.log("getByteArrayFromString");
 
 		ArrayOfBytes out=new ArrayOfBytes();
 		for(int i=str.length()-1;i>-1;i--)
@@ -52,7 +58,7 @@ public class FPRINT extends FR
 
 	private ArrayOfBytes getByteArrayFromString(String str)
 	{
-		if (_wrileLog) log("getByteArrayFromString");
+		if (_writeLog) Common.log("getByteArrayFromString");
 
 		ArrayOfBytes strOut= new ArrayOfBytes();
 		if ((str.length()%2)>0) str="0"+str;
@@ -68,7 +74,7 @@ public class FPRINT extends FR
 
       private ArrayOfBytes toAtolCodePage(String str)
       {
-            if (_wrileLog) log("ToAtolCodePage");
+            if (_writeLog) Common.log("ToAtolCodePage");
 
             ArrayOfBytes strOut= new ArrayOfBytes();
             strOut.append(str, "cp866");
@@ -143,19 +149,20 @@ public class FPRINT extends FR
             int i=0;
             for (;i<in.length()-1;i++)
             {
-                  if(in.at(i)==0x0A)
+                  if(in.at(i)==0x10)
                   {
-                        if ((in.at(i+1)!=0x0A) && (in.at(i+1)!=0x03)) out.append(in.at(i));
+                        if ((in.at(i+1)==0x10) || (in.at(i+1)==0x03)); // do nothing
+                        else out.append(in.at(i));
                   }
                   else  out.append(in.at(i));
             }
             out.append(in.at(i));
 
-            if (_wrileLog)
+            if (_writeLog)
             {
                   String strLog="delEscapeCharacter == ";
                   for (int j=0;j<out.length();j++) strLog+=String.format("%02x", out.at(j));
-                  log(strLog);
+                  Common.log(strLog);
             }
 
 
@@ -172,7 +179,6 @@ public class FPRINT extends FR
             switch (error)
             {
                   case 0:
-                  //ShowMessage("Ошибка 00h  Ошибок нет");
                   break;
                   case 1:    str="Ошибка 01h  Контрольная лента обработана без ошибок"; break;
                   case 8:    str="Ошибка 08h  Неверная цена (сумма)"; break;
@@ -321,7 +327,7 @@ public class FPRINT extends FR
 
     public void openPort(String portName, String baud) throws FrException
     {
-		if (_wrileLog) log("openPort");
+		if (_writeLog) Common.log("openPort");
 
 		//Передаём в конструктор имя порта
 
@@ -353,13 +359,13 @@ public class FPRINT extends FR
 
 	private boolean writePort(ArrayOfBytes toPort)
 	{
-		if (_wrileLog) log("writePort");
+		if (_writeLog) Common.log("writePort");
 		try {
 		    	_serialPort.writeBytes(toPort.getBytes());
 
 		    	String strLog="to   port -> ";
 		    	for (int i=0;i<toPort.length();i++) strLog+=String.format("%02x", toPort.at(i));
-			    log(strLog);
+			    Common.log(strLog);
 		}
 		catch (SerialPortException ex) 
 		{
@@ -372,7 +378,7 @@ public class FPRINT extends FR
 
 	private boolean readPort(ArrayOfBytes fromPort) //throws InterruptedException 
 	{
-            if (_wrileLog) log("readPort");
+            if (_writeLog) Common.log("readPort");
 
             fromPort.clear();
 
@@ -383,7 +389,7 @@ public class FPRINT extends FR
 
                   String strLog="from port <- ";
                   for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
-                      log(strLog);
+                      Common.log(strLog);
             }
             catch (SerialPortException ex) 
             {
@@ -394,7 +400,7 @@ public class FPRINT extends FR
                   return false;
             }
                   
-            if (_wrileLog) log("End of readPort");
+            if (_writeLog) Common.log("End of readPort");
             return true;
 
 	}
@@ -415,7 +421,8 @@ public class FPRINT extends FR
                   }
                   if (_bENQ.equals(fromPort))
                   {
-                        getAnswer(fromPort);
+                        try {Thread.sleep(500);} catch (InterruptedException ie) {}
+                        //getAnswer(fromPort);
                         fromPort.clear();
                         writePort(_bENQ);                       
                   }
@@ -431,7 +438,7 @@ public class FPRINT extends FR
 
 	private int getEndOfPrinting()
 	{
-		if (_wrileLog) log("getEndOfPrinting");
+		if (_writeLog) Common.log("getEndOfPrinting");
 		int error=0;
 
 		ArrayOfBytes toPort = new ArrayOfBytes(0x02, 0x00, 0x00, 0x45, 0x03, 0x46);
@@ -470,7 +477,7 @@ public class FPRINT extends FR
       private int sendToCom(ArrayOfBytes toPort)
       {
 
-            if (_wrileLog) log("sendToCom");
+            if (_writeLog) Common.log("sendToCom");
             int error=FR.NO_RESPONSE_FR;
 
             ArrayOfBytes fromPort = new ArrayOfBytes();
@@ -511,7 +518,7 @@ public class FPRINT extends FR
       private int getAnswer(ArrayOfBytes result)
       {
 
-            if (_wrileLog) log("getLastError");
+            if (_writeLog) Common.log("getLastError");
             int error=FR.NO_RESPONSE_FR;
             int mask=0;
 
@@ -551,7 +558,7 @@ public class FPRINT extends FR
                               }
                               if (fromPort.at(0)==(byte)(0x03)) 
                               {
-                                    if (mask!=10) finishByteWasReceived=true;
+                                    if (mask!=0x10) finishByteWasReceived=true;
                                     continue; // get next last byte
                               }
                               if (fromPort.at(0)==(byte)(0x04))
@@ -565,9 +572,9 @@ public class FPRINT extends FR
                                     
                                     result.append(delEscapeCharacter(temp));
                                     
-                                    error=result.at(2);
+                                    error=result.atUnsignedInt(2);
 
-                                    readPort(fromPort);
+                                    readPort(fromPort); //read last byte
 
                                     break;
                               }
@@ -584,7 +591,7 @@ public class FPRINT extends FR
       private int transactionWithoutAnswer(ArrayOfBytes toPort)
       {
 
-            if (_wrileLog) log("transactionWithoutAnswer");
+            if (_writeLog) Common.log("transactionWithoutAnswer");
             int error=0;
 
             if (error==0) error=sendToCom(toPort);
@@ -596,7 +603,7 @@ public class FPRINT extends FR
 	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
 	{
 
-		if (_wrileLog) log("transaction");
+		if (_writeLog) Common.log("transaction");
 		int error=0;
 
             if (error==0) error=sendToCom(toPort);
@@ -607,7 +614,7 @@ public class FPRINT extends FR
 
       public int exitMode() throws FrException
       {
-            if (_wrileLog) log("exitMode");
+            if (_writeLog) Common.log("exitMode");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -621,6 +628,9 @@ public class FPRINT extends FR
             
             if (error==0) error=transaction(CRC(commandStr), getStr);
 
+            Common.log(""+error);
+            Common.log(""+Integer.toString(error));
+
             if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
             return error;
 
@@ -628,7 +638,7 @@ public class FPRINT extends FR
 
        public int setMode(int mode, String pass) throws FrException
       {
-            if (_wrileLog) log("setMode");
+            if (_writeLog) Common.log("setMode");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -656,7 +666,7 @@ public class FPRINT extends FR
 
       public int setCurrentDate() throws FrException
       {
-            if (_wrileLog) log("SetCurrentDate");
+            if (_writeLog) Common.log("SetCurrentDate");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -667,8 +677,7 @@ public class FPRINT extends FR
             commandStr.append(0x64);
             commandStr.append(curDate());
                   
-
-            if (error==0) error=transactionWithoutAnswer(CRC(commandStr));
+            if (error==0) error=transaction(CRC(commandStr), getStr);
 
             if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 
@@ -677,7 +686,7 @@ public class FPRINT extends FR
 
       public int setCurrentTime() throws FrException
       {
-            if (_wrileLog) log("SetCurrentTime");
+            if (_writeLog) Common.log("SetCurrentTime");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -688,18 +697,83 @@ public class FPRINT extends FR
             commandStr.append(0x4B);
             commandStr.append(curTime());
                   
-
-            if (error==0) error=transactionWithoutAnswer(CRC(commandStr));
+            if (error==0) error=transaction(CRC(commandStr), getStr);
 
             if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 
             return error;
       }
 
+      public String getKkmType() throws FrException
+      {
+            if (_writeLog) Common.log("getKkmType");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+            String result="";
+
+            commandStr.append(0x00);
+            commandStr.append(0x00);
+            commandStr.append(0xA5);
+                  
+            if (error==0) error=transactionWithoutAnswer(CRC(commandStr));
+            if (error==0) 
+            {
+                  getAnswer(getStr);
+                  if (getStr.at(1)!=0) error=getStr.at(1);
+            }
+            if (error==0) 
+            {
+                  ArrayOfBytes tmp = new ArrayOfBytes();
+                  tmp=getStr.mid(12);
+                  result=tmp.mid(0, tmp.indexOf(0x03)).toString("CP866");
+      
+                  if (_writeLog) Common.log(result);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+            return result;
+      }
+      public String getKkmVersion() throws FrException
+      {
+            if (_writeLog) Common.log("getKkmVersion");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+            String result="";
+
+            commandStr.append(0x00);
+            commandStr.append(0x00);
+            commandStr.append(0xA5);
+                  
+            if (error==0) error=transactionWithoutAnswer(CRC(commandStr));
+            if (error==0) 
+            {
+                  getAnswer(getStr);
+                  if (getStr.at(1)!=0) error=getStr.at(1);
+            }
+            if (error==0) 
+            {
+                  result=String.valueOf(getStr.at(7));
+                  result+=".";
+                  result+=String.valueOf(getStr.at(8));
+                  result+=".";
+                  result+=javax.xml.bind.DatatypeConverter.printHexBinary(getStr.mid(10, 2).getBytes());
+
+                  if (_writeLog) Common.log(result);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+            return result;
+      }
 
 	public int init() throws FrException
 	{
-		if (_wrileLog) log("Init");
+		if (_writeLog) Common.log("Init");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -722,7 +796,7 @@ public class FPRINT extends FR
 
 	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
 	{
-		if (_wrileLog) log("OpenDocument");
+		if (_writeLog) Common.log("OpenDocument");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -763,7 +837,7 @@ public class FPRINT extends FR
 
       public int printText(String text) throws FrException
       {
-            if (_wrileLog) log("AddItem");
+            if (_writeLog) Common.log("AddItem");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -788,7 +862,7 @@ public class FPRINT extends FR
 
 	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
-		if (_wrileLog) log("AddItem");
+		if (_writeLog) Common.log("AddItem");
 		int error=0;
 
 		// int intReceiptType=0;
@@ -834,7 +908,7 @@ public class FPRINT extends FR
 
 	public int total() throws FrException
 	{
-		if (_wrileLog) log("Total");
+		if (_writeLog) Common.log("Total");
             int error=0;
 
 		return error;
@@ -843,7 +917,7 @@ public class FPRINT extends FR
 
 	public int pay(String payType, String sum, String text) throws FrException
 	{
-		if (_wrileLog) log("Pay");
+		if (_writeLog) Common.log("Pay");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -919,7 +993,7 @@ public class FPRINT extends FR
 
 	public int cancelDocument() throws FrException
 	{
-		if (_wrileLog) log("CancelDocument");
+		if (_writeLog) Common.log("CancelDocument");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -940,7 +1014,7 @@ public class FPRINT extends FR
 
 	public int closeDocument(String text) throws FrException
 	{
-		if (_wrileLog) log("CloseDocument");
+		if (_writeLog) Common.log("CloseDocument");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -970,7 +1044,7 @@ public class FPRINT extends FR
 
 	public int xReport(String text) throws FrException
 	{
-		if (_wrileLog) log("Xreport");
+		if (_writeLog) Common.log("Xreport");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -996,7 +1070,7 @@ public class FPRINT extends FR
 
 	public int zReport(String text) throws FrException
 	{
-		if (_wrileLog) log("Zreport");
+		if (_writeLog) Common.log("Zreport");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -1019,9 +1093,193 @@ public class FPRINT extends FR
 
 	}
 
+      public  int printImage(BufferedImage image) throws FrException
+      {
+            if (_writeLog) Common.log("printImage");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            ArrayOfBytes imageArray=new ArrayOfBytes();
+
+            int imageWidthInBytes=image.getWidth()/8;
+            int imageHeight=image.getHeight();
+            int imageSize=imageWidthInBytes*imageHeight;
+            int imageWidthInBytesReal=imageWidthInBytes;
+            while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+            {
+                  imageWidthInBytesReal++;
+            }
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try 
+            {
+                  ImageIO.write(image, "bmp", baos);
+                  baos.flush();
+                  baos.close();
+            } 
+            catch (IOException ex) 
+            {
+                  ex.printStackTrace();
+                  error=ANY_LOGICAL_ERROR;
+            }
+
+            if (error==0)
+            {
+
+                  byte[] bmpArray = baos.toByteArray();
+
+                  int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+                  for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+                  {
+                        for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+                        {
+                              if (k<imageWidthInBytes) imageArray.append(~bmpArray[j]);
+                        }
+                  }
+            }
+
+
+            int startByteOfPacketImage=0;
+            int packetOfImage=1;
+
+            int indexImageInKkt=0;
+
+            if (error==0)error=setMode(4, "30"); //Programming
+
+            while (error==0)
+            {
+                  // write array in kkt
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x8B);
+                  commandStr.append(imageArray.mid(startByteOfPacketImage, imageWidthInBytes));
+
+                  error=transaction(CRC(commandStr), getStr);
+
+                  startByteOfPacketImage+=imageWidthInBytes;
+                  
+                  packetOfImage++;
+                  if (packetOfImage>imageHeight) break;
+            }
+
+            if (error==0)
+            {
+                  // close image in kkt and get index of it
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x9E);
+
+                  error=transaction(CRC(commandStr), getStr);
+                  indexImageInKkt=getStr.at(3);
+            }
+
+            if (error==0)
+            {
+                  // printing image by index
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x8D);
+                  commandStr.append(0x01);
+                  commandStr.append(indexImageInKkt);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+
+                  error=transaction(CRC(commandStr), getStr);
+            }
+
+            if (error==0)
+            {
+                  // delete image from kkt
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x8A);
+                  commandStr.append(indexImageInKkt);
+
+                  error=transaction(CRC(commandStr), getStr);
+            }
+
+
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;           
+      }
+
+      public  int printQrCodeFast(String codeText) throws FrException
+      {
+            if (_writeLog) Common.log("printQrCode");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            if (error==0)
+            {
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0xc1);
+                  commandStr.append(0x00);
+                  commandStr.append(0x01);
+                  commandStr.append(0x06);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(codeText);
+            }
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+            if (error==0) error=getEndOfPrinting();
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;            
+      }
+
+      public  int printQrCode(String codeText) throws FrException
+      {
+            if (_writeLog) Common.log("printQrCode");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            if (error==0) error=printText("  ");
+
+            //if (error==0) error=printQrCodeFast(codeText);
+            if (error==0) error=cancelDocument();
+            if (error==0) error=printImage(QrCode.getQrImage(codeText, 250, 250));
+
+            if (error==0) error=printText("  ");
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;            
+      }
+
+
 	public int receiptSale() throws FrException
 	{
-		if (_wrileLog) log("ReceiptSale");
+		if (_writeLog) Common.log("ReceiptSale");
 		int error=0;
 
 		// if (error==0) error=OpenDocument("2", "0", "Test", "0");

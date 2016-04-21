@@ -8,7 +8,10 @@ import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortTimeoutException;
 
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
+import java.nio.ByteBuffer;
 
 
 public class SHTRIH extends FR
@@ -17,8 +20,8 @@ public class SHTRIH extends FR
 	private SerialPort _serialPort;
 	private int _gettedBytes=0; 
 	
-	//private boolean _wrileLog=true;
-	private boolean _wrileLog=false;
+	//private boolean _writeLog=true;
+	private boolean _writeLog=false;
 
 	private String _receiptType="";
 
@@ -38,7 +41,7 @@ public class SHTRIH extends FR
 
 	private ArrayOfBytes turnString(ArrayOfBytes str)
 	{
-		if (_wrileLog) log("getByteArrayFromString");
+		if (_writeLog) Common.log("turnString");
 
 		ArrayOfBytes out=new ArrayOfBytes();
 		for(int i=str.length()-1;i>-1;i--)
@@ -50,7 +53,7 @@ public class SHTRIH extends FR
 
 	private ArrayOfBytes getByteArrayFromString(String str)
 	{
-		if (_wrileLog) log("getByteArrayFromString");
+		if (_writeLog) Common.log("getByteArrayFromString");
 
 		ArrayOfBytes strOut= new ArrayOfBytes();
 		if ((str.length()%2)>0) str="0"+str;
@@ -66,7 +69,7 @@ public class SHTRIH extends FR
 
       private ArrayOfBytes getByteArrayFromString(String str, int radix)
       {
-            if (_wrileLog) log("getByteArrayFromString");
+            if (_writeLog) Common.log("getByteArrayFromString");
 
             ArrayOfBytes strOut= new ArrayOfBytes();
             if ((str.length()%2)>0) str="0"+str;
@@ -295,47 +298,47 @@ public class SHTRIH extends FR
 	}
 
 
-    public void openPort(String portName, String baud) throws FrException
-    {
-		if (_wrileLog) log("openPort");
+      public void openPort(String portName, String baud) throws FrException
+      {
+      	if (_writeLog) Common.log("openPort");
 
-		//Передаём в конструктор имя порта
+      	//Передаём в конструктор имя порта
 
-		//serialPort = new SerialPort("/dev/ttyS0");
-		_serialPort = new SerialPort(portName);
+      	//serialPort = new SerialPort("/dev/ttyS0");
+      	_serialPort = new SerialPort(portName);
 
-		try {
-		    //Открываем порт
-		    _serialPort.openPort();
-		    //Выставляем параметры
-		    _serialPort.setParams(Integer.parseInt(baud),
-			                     SerialPort.DATABITS_8,
-			                     SerialPort.STOPBITS_1,
-			                     SerialPort.PARITY_NONE);
-		    
-		    //Включаем аппаратное управление потоком
-		    //serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
-			 //                             SerialPort.FLOWCONTROL_RTSCTS_OUT);
+      	try {
+      	    //Открываем порт
+      	    _serialPort.openPort();
+      	    //Выставляем параметры
+      	    _serialPort.setParams(Integer.parseInt(baud),
+      		                     SerialPort.DATABITS_8,
+      		                     SerialPort.STOPBITS_1,
+      		                     SerialPort.PARITY_NONE);
+      	    
+      	    //Включаем аппаратное управление потоком
+      	    //serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
+      		 //                             SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
-		    //Устанавливаем ивент лисенер и маску
-		    //_serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
+      	    //Устанавливаем ивент лисенер и маску
+      	    //_serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
 
-		}
-		catch (SerialPortException ex) 
-		{
-		    System.out.println(ex);
-		}
-    }
+      	}
+      	catch (SerialPortException ex) 
+      	{
+      	    System.out.println(ex);
+      	}
+      }
 
 	private boolean writePort(ArrayOfBytes toPort)
 	{
-		if (_wrileLog) log("writePort");
+		if (_writeLog) Common.log("writePort");
 		try {
 		    	_serialPort.writeBytes(toPort.getBytes());
 
 		    	String strLog="to   port -> ";
 		    	for (int i=0;i<toPort.length();i++) strLog+=String.format("%02x", toPort.at(i));
-			    log(strLog);
+			    Common.log(strLog);
 		}
 		catch (SerialPortException ex) 
 		{
@@ -348,7 +351,7 @@ public class SHTRIH extends FR
 
 	private boolean readPort(ArrayOfBytes fromPort) //throws InterruptedException 
 	{
-		if (_wrileLog) log("readPort");
+		if (_writeLog) Common.log("readPort");
 
 		fromPort.clear();
 
@@ -359,7 +362,7 @@ public class SHTRIH extends FR
 
                   String strLog="from port <- ";
                   for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
-                      log(strLog);
+                      Common.log(strLog);
             }
             catch (SerialPortException ex) 
             {
@@ -371,7 +374,7 @@ public class SHTRIH extends FR
             }
                         		
 			
-		if (_wrileLog) log("End of readPort");
+		if (_writeLog) Common.log("End of readPort");
 		return true;
 
 	}
@@ -409,7 +412,7 @@ public class SHTRIH extends FR
 
       private int getEndOfPrinting()
       {
-            if (_wrileLog) log("getEndOfPrinting");
+            if (_writeLog) Common.log("getEndOfPrinting");
             int error=0;
 
             ArrayOfBytes state = new ArrayOfBytes();
@@ -436,9 +439,9 @@ public class SHTRIH extends FR
                         mode=result.at(7);
                         submode=result.at(8);
 
-                        if (_wrileLog) log("error = "+error);
-                        if (_wrileLog) log("mode = "+mode);
-                        if (_wrileLog) log("submode = "+submode);
+                        if (_writeLog) Common.log("error = "+error);
+                        if (_writeLog) Common.log("mode = "+mode);
+                        if (_writeLog) Common.log("submode = "+submode);
 
 
                         if (submode==0)
@@ -464,7 +467,7 @@ public class SHTRIH extends FR
 	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
 	{
 
-		if (_wrileLog) log("getEndOfPrinting");
+		if (_writeLog) Common.log("getEndOfPrinting");
 		int error=0;
 
 		ArrayOfBytes state = new ArrayOfBytes();
@@ -472,9 +475,6 @@ public class SHTRIH extends FR
 		
 		boolean startByteWasReceived=false;
 		int resultLength=300; // more than byte
-
-		// writePort(bENQ);
-		// readPort(state);
 
 		result.clear();
 
@@ -505,17 +505,13 @@ public class SHTRIH extends FR
       					resultLength=result.at(1)+3;
       				}
       				
-                              // log("result.length() - "+result.length());
-                              // log("result.length() - "+resultLength);
-
       				if ((result.length()==resultLength))
       				{
                                     writePort(_bACK);
-                                    error=result.at(3);
+                                    error=result.atUnsignedInt(3);
       					break;
 
       				}
-      				//try {Thread.sleep(100);} catch (InterruptedException ie) {}		
            			}
                         
                         if(result.length()==resultLength)
@@ -543,7 +539,7 @@ public class SHTRIH extends FR
 
       public int setCurrentDate() throws FrException
       {
-            if (_wrileLog) log("SetCurrentDate");
+            if (_writeLog) Common.log("SetCurrentDate");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -572,7 +568,7 @@ public class SHTRIH extends FR
 
       public int setCurrentTime() throws FrException
       {
-            if (_wrileLog) log("SetCurrentTime");
+            if (_writeLog) Common.log("SetCurrentTime");
             int error=0;
 
             ArrayOfBytes getStr=new ArrayOfBytes();
@@ -593,10 +589,86 @@ public class SHTRIH extends FR
             return error;
       }
 
+      public String getKkmType() throws FrException
+      {
+            if (_writeLog) Common.log("getKkmType");
+            int error=0;
+            String result="";
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            commandStr.append(0xFC);
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+
+            if (error==0)
+            {
+                  result=getStr.mid(10, getStr.length()-11).toString("CP1251");
+
+                  if (_writeLog) Common.log(result);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+            return result;
+      }
+      public String getKkmVersion() throws FrException
+      {
+            if (_writeLog) Common.log("getKkmVersion");
+            int error=0;
+            String result="";
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            commandStr.append(0x11);
+            commandStr.append(0x1E);
+            commandStr.append(0x0);
+            commandStr.append(0x0);
+            commandStr.append(0x0);                 
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+
+
+            if (error==0)                  
+            {
+                  result="ПО_ФР ";
+                  result+=String.format("%c", getStr.at(5));
+                  result+=".";
+                  result+=String.format("%c", getStr.at(6));
+                  result+="-";
+                  result+=Integer.valueOf(getStr.atHex(8)+getStr.atHex(7), 16).toString();
+                  result+="-";
+                  result+=String.format("%02d", getStr.at(9));
+                  result+=".";
+                  result+=String.format("%02d", getStr.at(10));
+                  result+=".";
+                  result+=String.format("%02d", getStr.at(11));
+                  result+=" /ПО_ФП ";
+                  result+=String.format("%c", getStr.at(20));
+                  result+=".";
+                  result+=String.format("%c", getStr.at(21));
+                  result+="-";
+                  result+=Integer.valueOf(getStr.atHex(23)+getStr.atHex(22), 16);
+                  result+="-";
+                  result+=String.format("%02d", getStr.at(24));
+                  result+=".";
+                  result+=String.format("%02d", getStr.at(25));
+                  result+=".";
+                  result+=String.format("%02d", getStr.at(26));
+
+                  if (_writeLog) Common.log(result);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+            return result;
+      }
 
 	public int init() throws FrException
 	{
-		if (_wrileLog) log("Init");
+		if (_writeLog) Common.log("Init");
             int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -613,14 +685,17 @@ public class SHTRIH extends FR
             if (error==0) error=setCurrentDate();
             if (error==0) error=setCurrentTime();
 
-            log("Error - "+error+" - "+getErrorDetails(error));
+            Common.log("Error - "+error+" - "+getErrorDetails(error));
+
+getKkmVersion();
+
 		return error;
 
 	}
 
 	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
 	{
-		if (_wrileLog) log("OpenDocument");
+		if (_writeLog) Common.log("OpenDocument");
 
 		_receiptType=docType;
 
@@ -631,7 +706,7 @@ public class SHTRIH extends FR
 
 	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
-		if (_wrileLog) log("AddItem");
+		if (_writeLog) Common.log("AddItem");
 		int error=0;
 
 		int intReceiptType=0;
@@ -682,7 +757,7 @@ public class SHTRIH extends FR
 
 	public int total() throws FrException
 	{
-		if (_wrileLog) log("Total");
+		if (_writeLog) Common.log("Total");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -707,7 +782,7 @@ public class SHTRIH extends FR
 
 	public int pay(String payType, String sum, String text) throws FrException
 	{
-		if (_wrileLog) log("Pay");
+		if (_writeLog) Common.log("Pay");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -796,7 +871,7 @@ public class SHTRIH extends FR
 
 	public int cancelDocument() throws FrException
 	{
-		if (_wrileLog) log("CancelDocument");
+		if (_writeLog) Common.log("CancelDocument");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -820,7 +895,7 @@ public class SHTRIH extends FR
 
 	public int closeDocument(String text) throws FrException
 	{
-		if (_wrileLog) log("CloseDocument");
+		if (_writeLog) Common.log("CloseDocument");
 
 		_receiptType="";
 
@@ -831,7 +906,7 @@ public class SHTRIH extends FR
 
 	public int xReport(String text) throws FrException
 	{
-		if (_wrileLog) log("Xreport");
+		if (_writeLog) Common.log("Xreport");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -855,7 +930,7 @@ public class SHTRIH extends FR
 
 	public int zReport(String text) throws FrException
 	{
-		if (_wrileLog) log("Zreport");
+		if (_writeLog) Common.log("Zreport");
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
@@ -877,9 +952,369 @@ public class SHTRIH extends FR
 
 	}
 
+      public int printImage(BufferedImage image) throws FrException
+      {
+            if (_writeLog) Common.log("printImage");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            ArrayOfBytes imageArray=new ArrayOfBytes();
+
+            int imageWidthInBytes=image.getWidth()/8;
+            int imageHeight=image.getHeight();
+            int imageSize=imageWidthInBytes*imageHeight;
+            int imageWidthInBytesReal=imageWidthInBytes;
+            while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+            {
+                  imageWidthInBytesReal++;
+            }
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try 
+            {
+                  ImageIO.write(image, "bmp", baos);
+                  baos.flush();
+                  baos.close();
+            } 
+            catch (IOException ex) 
+            {
+                  ex.printStackTrace();
+                  error=ANY_LOGICAL_ERROR;
+            }
+
+            if (error==0)
+            {
+
+                  byte[] bmpArray = baos.toByteArray();
+
+                  int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+                  for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+                  {
+                        for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+                        {
+                              // String bin=String.format("%32s", Integer.toBinaryString(~bmpArray[j])).replace(' ', '0');
+                              // String revers="";
+                              // for (int l=31;l>23; l--)
+                              // {
+                              //       revers+=bin.charAt(l);
+                              // }
+                              // Common.log(revers);
+                              // if (k<dataBytesInLine) imageArray.append(Integer.valueOf(revers, 2));
+
+                              byte bitsRev = (byte) (Integer.reverse(~bmpArray[j]) >>> (Integer.SIZE - Byte.SIZE)); //reverse bits
+                              if (k<imageWidthInBytes) imageArray.append(bitsRev);
+                        }
+                  }
+            }
+
+
+            int startByteOfPacketImage=0;
+            int packetOfImage=0;
+            while (error==0)
+            {
+                  // write array in kkt
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0xC0);
+                  commandStr.append(0x1E);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(packetOfImage);
+                  commandStr.append(imageArray.mid(startByteOfPacketImage, imageWidthInBytes));
+
+                  for (int i=commandStr.length();i<46;i++) commandStr.append(0x00);
+
+                  error=transaction(CRC(commandStr), getStr);
+
+                  startByteOfPacketImage+=imageWidthInBytes;
+                  
+                  packetOfImage++;
+                  if (packetOfImage>imageHeight-1) break;
+            }
+
+            if (error==0)
+            {
+                  // printing image
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0xC1);
+                  commandStr.append(0x1E);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x01);
+                  commandStr.append(imageHeight);
+
+                  error=transaction(CRC(commandStr), getStr);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;           
+      }
+
+      public int printImageExt(BufferedImage image) throws FrException
+      {
+            if (_writeLog) Common.log("printImage");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            ArrayOfBytes imageArray=new ArrayOfBytes();
+
+            int imageWidthInBytes=image.getWidth()/8;
+            int imageHeight=image.getHeight();
+            int imageSize=imageWidthInBytes*imageHeight;
+            int imageWidthInBytesReal=imageWidthInBytes;
+            while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+            {
+                  imageWidthInBytesReal++;
+            }
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try 
+            {
+                  ImageIO.write(image, "bmp", baos);
+                  baos.flush();
+                  baos.close();
+            } 
+            catch (IOException ex) 
+            {
+                  ex.printStackTrace();
+                  error=ANY_LOGICAL_ERROR;
+            }
+
+            if (error==0)
+            {
+
+                  byte[] bmpArray = baos.toByteArray();
+
+                  int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+                  for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+                  {
+                        for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+                        {
+                              byte bitsRev = (byte) (Integer.reverse(~bmpArray[j]) >>> (Integer.SIZE - Byte.SIZE)); //reverse bits
+                              if (k<imageWidthInBytes) imageArray.append(bitsRev);
+                        }
+                  }
+            }
+
+
+            int startByteOfPacketImage=0;
+            int packetOfImage=0;
+            while (error==0)
+            {
+                  // write array in kkt
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0xC4);
+                  commandStr.append(0x1E);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(packetOfImage), '0', 4))));
+                  commandStr.append(imageArray.mid(startByteOfPacketImage, imageWidthInBytes));
+
+                  for (int i=commandStr.length();i<47;i++) commandStr.append(0x00);
+
+                  error=transaction(CRC(commandStr), getStr);
+
+                  startByteOfPacketImage+=imageWidthInBytes;
+                  
+                  packetOfImage++;
+                  if (packetOfImage>imageHeight-1) break;
+            }
+
+            if (error==0)
+            {
+                  // printing image
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0xC3);
+                  commandStr.append(0x1E);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x01);
+                  commandStr.append(0x0);
+                  commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(imageHeight), '0', 4))));
+
+                  error=transaction(CRC(commandStr), getStr);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;           
+      }
+
+
+      public int printImageSpecialFor(BufferedImage image) throws FrException
+      {
+            if (_writeLog) Common.log("printImage");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            ArrayOfBytes imageArray=new ArrayOfBytes();
+
+            int imageWidthInBytes=image.getWidth()/8;
+            int imageHeight=image.getHeight();
+            int imageSize=imageWidthInBytes*imageHeight;
+            int imageWidthInBytesReal=imageWidthInBytes;
+            while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+            {
+                  imageWidthInBytesReal++;
+            }
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try 
+            {
+                  ImageIO.write(image, "bmp", baos);
+                  baos.flush();
+                  baos.close();
+            } 
+            catch (IOException ex) 
+            {
+                  ex.printStackTrace();
+                  error=ANY_LOGICAL_ERROR;
+            }
+
+            int uniqueRowsCount=0;
+            ArrayOfBytes imageArrayRow=new ArrayOfBytes();
+            ArrayOfBytes imageArrayTmp=new ArrayOfBytes();
+
+            if (error==0)
+            {
+
+                  byte[] bmpArray = baos.toByteArray();
+
+                  int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+                  for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+                  {
+                        imageArrayTmp.clear();
+                        for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+                        {
+                              byte bitsRev = (byte) (Integer.reverse(~bmpArray[j]) >>> (Integer.SIZE - Byte.SIZE)); //reverse bits
+                              if (k<imageWidthInBytes) imageArrayTmp.append(bitsRev);
+                        }
+                        if (!imageArrayRow.equals(imageArrayTmp))
+                        { // add to image array only unique rows
+                              imageArray.append(imageArrayTmp);
+                              imageArrayRow.clear();
+                              imageArrayRow.append(imageArrayTmp);
+                              uniqueRowsCount++;
+                        }
+                  }
+            }
+
+
+            int startByteOfPacketImage=0;
+            int packetOfImage=0;
+            while (error==0)
+            {
+                  // write array in kkt
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0xC4);
+                  commandStr.append(0x1E);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(packetOfImage);
+                  commandStr.append(0x0);
+
+                  commandStr.append(imageArray.mid(startByteOfPacketImage, imageWidthInBytes));
+
+                  for (int i=commandStr.length();i<47;i++) commandStr.append(0x00);
+
+                  error=transaction(CRC(commandStr), getStr);
+
+                  startByteOfPacketImage+=imageWidthInBytes;
+                  
+                  packetOfImage++;
+                  if (packetOfImage>uniqueRowsCount) break;
+            }
+
+            if (error==0)
+            {
+                  // printing image
+                  commandStr.clear();
+                  getStr.clear();
+
+                  commandStr.append(0x4F);
+                  commandStr.append(0x1E);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x0);
+                  commandStr.append(0x01);
+                  commandStr.append(uniqueRowsCount);
+                  commandStr.append(0x7);
+                  commandStr.append(0x0);
+
+                  error=transaction(CRC(commandStr), getStr);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;           
+      }
+
+      public  int printQrCode(String codeText) throws FrException
+      {
+            if (_writeLog) Common.log("printQrCode");
+            int error=0;
+
+            String kkmType="";
+            String kkmVersion="";
+
+            int imageWidth=300;
+            int imageHeight=300;
+
+            try
+            {
+                  kkmVersion=getKkmVersion();
+                  kkmType=getKkmType();
+            }
+            catch (FrException frEx)
+            {
+                  error=frEx.getErrorCodeAsInt();
+            }
+
+            if ((kkmVersion.indexOf("57693")>-1)||(kkmVersion.indexOf("59693")>-1)) 
+            {
+                  imageWidth=300;
+                  imageHeight=300;
+            
+                  if (error==0) error=printImageSpecialFor(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+            }
+            else
+            {
+                  //if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+                  if (error==0) error=printImageExt(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+            }
+            // QrCode image = new QrCode();
+            // image.setImageWidth(imageWidth);
+            // image.setImageHeight(imageWidth);
+            // image.getQrImageFile(url, "QrFile.bmp");
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;
+      }
+
 	public int receiptSale() throws FrException
 	{
-		if (_wrileLog) log("ReceiptSale");
+		if (_writeLog) Common.log("ReceiptSale");
 		int error=0;
 
 		if (error==0) error=openDocument("2", "0", "Test", "0");

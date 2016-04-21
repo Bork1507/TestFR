@@ -1,7 +1,4 @@
-import java.util.*;
-import java.text.SimpleDateFormat;
 import java.io.*;
-import java.nio.file.*;
 
 class FrException extends Exception
 {
@@ -14,6 +11,16 @@ class FrException extends Exception
 	{
 		_errorCode=errorCode;
 		_errorDetail=errorDetail;
+	}
+
+	public int getErrorCodeAsInt()
+	{
+		return Integer.parseInt(_errorCode);
+	}
+
+	public String getErrorCodeAsString()
+	{
+		return _errorCode;
 	}
 
 	public String toString()
@@ -92,6 +99,19 @@ abstract class FR
 		public int atInt(int i)
 		{
 			return bytesArray[i];
+		}		
+
+		public int atUnsignedInt(int i)
+		{
+			return bytesArray[i]&0xFF;
+		}		
+
+		public String atHex(int i)
+		{
+			int localInt=0;
+			if(bytesArray[i]>0) localInt=bytesArray[i];
+			else localInt=bytesArray[i]&0xFF;
+			return Integer.toHexString(localInt);
 		}		
 
 		public void append(byte addBytes[])
@@ -201,12 +221,80 @@ abstract class FR
 			}
 		}		
 
+		public ArrayOfBytes mid(int startByte, int length)
+		{
+			if ((this.length()-1)<startByte) return new ArrayOfBytes();
+			if (length<1) return new ArrayOfBytes();
+			
+			int localStart=startByte;
+			int localLength=length;
+			if (startByte<0) localStart=0;	
+			if ((this.length()-localStart)<length) localLength=this.length()-localStart;
+
+
+			return new ArrayOfBytes(java.util.Arrays.copyOfRange(bytesArray, localStart, localStart+localLength));        	
+		}
+
+		public ArrayOfBytes mid(int startByte)
+		{
+			if ((this.length()-1)<startByte) return new ArrayOfBytes();
+			
+			int localStart=startByte;
+			if (startByte<0) localStart=0;	
+
+			return new ArrayOfBytes(java.util.Arrays.copyOfRange(bytesArray, localStart, this.length()-1));        	
+		}
+
+		public String toHex()
+		{
+			int localInt=0;
+			String result="";
+			for (int i=0;i<length();i++) 
+			{
+				if(bytesArray[i]>0) localInt=bytesArray[i];
+				else localInt=bytesArray[i]&0xFF;
+				result+=Integer.toHexString(localInt);
+			}
+			return result;
+		}		
+
+		public String toString()
+		{
+			return new String(bytesArray);      	
+		}
+		public String toString(String charsetName)
+		{
+			String result="";
+			try
+			{
+				result = new String(bytesArray, charsetName);
+			}
+			catch(UnsupportedEncodingException ex)
+			{
+				result = new String(bytesArray);
+			}
+			return result;
+		}
+
+		public int indexOf(byte key)
+		{
+			for (int i=0; i<this.length();i++)
+			{
+				if (this.at(i)==key) return i;
+			}
+			return -1; //java.util.Arrays.binarySearch(bytesArray, key);
+		}
+
+		public int indexOf(int key)
+		{
+			return this.indexOf((byte) key);
+		}
 
 	}
 
 	public String rightJustified(String str, char ch, int length)
 	{
-		if (_wrileLog) log("rightJustified");
+		if (_wrileLog) Common.log("rightJustified");
 
 		String out=str;
 		while (out.length()<length)
@@ -218,7 +306,7 @@ abstract class FR
 
 	public String leftJustified(String str, char ch, int length)
 	{
-		if (_wrileLog) log("leftJustified");
+		if (_wrileLog) Common.log("leftJustified");
 
 		String out=str;
 		while (out.length()<length)
@@ -227,84 +315,6 @@ abstract class FR
 		}
 		return out;
 	}
-
-
-	public static void log(String str)
-	{
-		logConsole(str);
-		logFile(str);
-	}
-
-	public static void logConsole(String str)
-	{
-		// String consoleEncoding = System.getProperty("consoleEncoding");
-		// if (consoleEncoding != null) {
-		//     try {
-		//         System.setOut(new PrintStream(System.out, true, consoleEncoding));
-		//     } catch (java.io.UnsupportedEncodingException ex) {
-		//         System.err.println("Unsupported encoding set for console: "+consoleEncoding);
-		//     }
-		// }
-
-		// System.out.println(consoleEncoding);
-
-
-
-		String strDateTime;
-		
-		Date dt= new Date();
-		strDateTime = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS - ").format(dt);
-
-		System.out.printf(strDateTime);
-		System.out.println(str);
-	}
-
-	public static void logFile(String str)
-	{
-		String strDateTime;
-		String strFileName;
-		String strSlash="/";
-		String strPath="Logs";
-
-		try {Files.createDirectory(Paths.get(strPath));}
-		catch(IOException e){}
-
-		
-		Date dt= new Date();
-		strDateTime = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss:SSS - ").format(dt);
-		strFileName = strPath+strSlash;
-		strFileName += new SimpleDateFormat("yyyyMMdd").format(dt);;
-		strFileName += ".log";
-
-		File file = new File(strFileName);
-
-		try 
-		{
-			if(!file.exists())
-			{
-				file.createNewFile();
-			}
-
-			FileWriter out = new FileWriter(file.getAbsoluteFile(), true);
-
-			try 
-			{
-				out.write(strDateTime+str+'\n');
-			} 
-			finally 
-			{
-				out.close();
-			}
-		} 
-		catch(IOException e) 
-		{
-			throw new RuntimeException(e);
-	    }
-
-	}
-
-
-
 
 	public static String getErrorDetails(int error)
 	{
@@ -354,27 +364,33 @@ abstract class FR
 	}
 
 
-    abstract public void openPort(String portName, String baud) throws FrException;;
+    abstract public void openPort(String portName, String baud) throws FrException;
 
-	abstract public  int init() throws FrException;
+    abstract public String getKkmType() throws FrException;
 
-	abstract public  int openDocument(String docType, String depType, String operName, String docNumber) throws FrException;
+    abstract public String getKkmVersion() throws FrException;
 
-	abstract public  int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException;
+	abstract public int init() throws FrException;
 
-	abstract public  int total() throws FrException;
+	abstract public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException;
 
-	abstract public  int pay(String payType, String sum, String text) throws FrException;
+	abstract public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException;
 
-	abstract public  int cancelDocument() throws FrException;
+	abstract public int total() throws FrException;
 
-	abstract public  int closeDocument(String text) throws FrException;
+	abstract public int pay(String payType, String sum, String text) throws FrException;
 
-	abstract public  int xReport(String text) throws FrException;
+	abstract public int cancelDocument() throws FrException;
 
-	abstract public  int zReport(String text) throws FrException;
+	abstract public int closeDocument(String text) throws FrException;
 
-	abstract public  int receiptSale() throws FrException;
+	abstract public int xReport(String text) throws FrException;
+
+	abstract public int zReport(String text) throws FrException;
+
+	abstract public int printQrCode(String url) throws FrException;
+
+	abstract public int receiptSale() throws FrException;
 
 }
 

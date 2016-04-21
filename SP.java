@@ -8,6 +8,11 @@ import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortTimeoutException;
 
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
+
+
 
 
 public class SP extends FR
@@ -17,8 +22,8 @@ public class SP extends FR
 	private int _gettedBytes=0; 
 	
 
-	//private boolean _wrileLog=true;
-	private boolean _wrileLog=false;
+	private boolean _writeLog=true;
+	//private boolean _writeLog=false;
 
 	private ArrayOfBytes _bENQ = new ArrayOfBytes();
 	private ArrayOfBytes _bACK = new ArrayOfBytes();
@@ -57,7 +62,7 @@ public class SP extends FR
 	{
 		if (_id==0xFD) _id=0x20;
 		else _id++;
-//		if (_wrileLog) log("Id = "+_id);
+//		if (_writeLog) Common.log("Id = "+_id);
 		return _id;
 	}
 
@@ -228,17 +233,17 @@ public class SP extends FR
 	
 	private boolean writePort(ArrayOfBytes toPort)
 	{
-		if (_wrileLog) log("writePort");
+		if (_writeLog) Common.log("writePort");
 		try {
 
 		    	_serialPort.writeBytes(toPort.getBytes());
 
 		    	String strLog="to   port -> ";
 		    	for (int j=0;j<toPort.length();j++) strLog+=String.format("%02x", toPort.at(j));
-			    log(strLog);
+			    Common.log(strLog);
 		    	// String strLog="to port -> ";
 		    	// for (int j=0;j<toPort.length();j++) strLog+=String.format("%c", toPort.at(j));
-			    // log(strLog);
+			    // Common.log(strLog);
 		}
 		catch (SerialPortException ex) 
 		{
@@ -251,7 +256,7 @@ public class SP extends FR
 
 	private boolean readPort(ArrayOfBytes fromPort)
 	{
-		if (_wrileLog) log("readPort");
+		if (_writeLog) Common.log("readPort");
 
 		fromPort.clear();
 
@@ -262,7 +267,7 @@ public class SP extends FR
 
 	    	String strLog="from port <- ";
 	    	for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
-		    log(strLog);
+		    Common.log(strLog);
 		}
 		catch (SerialPortException ex) 
 		{
@@ -273,7 +278,7 @@ public class SP extends FR
             return false;
         }
 				
-		if (_wrileLog) log("End of readPort");
+		if (_writeLog) Common.log("End of readPort");
 		return true;
 	}
 	
@@ -297,22 +302,33 @@ public class SP extends FR
 		return result;
 	}
 
-	
-	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
+	private int errorAnalisis(ArrayOfBytes response)
 	{
-		if (_wrileLog) log("transaction");
+		if (_writeLog) Common.log("errorAnalisis");
+
 		int error=0;
-
-
-		ArrayOfBytes fromPort = new ArrayOfBytes();
 		String tmpError="";
 
+		tmpError+=(char)(response.at(4));
+		tmpError+=(char)(response.at(5));
+
+		error=Integer.parseInt(tmpError, 16);
+
+		return error;
+	}
+
+	private int getResponse(ArrayOfBytes response)
+	{
+		if (_writeLog) Common.log("getResponse");
+
+		int error=0;
+
+		ArrayOfBytes fromPort = new ArrayOfBytes();
 		boolean startByteWasReceived=false;
 		int resultLength=0;
 
 
-		result.clear();
-		writePort(toPort);
+		response.clear();
 
 		for (int i=0; ;i++) 
 		{
@@ -322,16 +338,14 @@ public class SP extends FR
 				if (fromPort.at(0)==(byte)(0x02)) startByteWasReceived=true;
 				if (startByteWasReceived==true)
 				{
-					result.append(fromPort.at(0));
+					response.append(fromPort.at(0));
 				}
-				if (fromPort.at(0)==(byte)(0x03)) resultLength=result.length()+2;
+				if (fromPort.at(0)==(byte)(0x03)) resultLength=response.length()+2;
 
-				if ((result.length()==resultLength)&&(result.length()>0))
+				if ((response.length()==resultLength)&&(response.length()>0))
 				{
-					tmpError+=(char)(result.at(4));
-					tmpError+=(char)(result.at(5));
-
-					error=Integer.parseInt(tmpError, 16);
+					
+					error=errorAnalisis(response);
 
 					break;
 
@@ -353,10 +367,163 @@ public class SP extends FR
 
 		return error;
 	}
+	
+	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
+	{
+		if (_writeLog) Common.log("transaction");
+		int error=0;
+
+		writePort(toPort);
+
+		error=getResponse(result);
+
+		return error;
+	}
+
+	public String getKkmType() throws FrException
+	{
+	    if (_writeLog) Common.log("getKkmType");
+	    int error=0;
+	    String result="";
+	    String version="";
+
+		try
+		{
+			version=getKkmVersion();
+			switch(version)
+			{
+				case "128": 
+					result="СП101ФР-К";
+					break;
+				case "130": 
+					result="СП101ФР-К";
+					break;
+				case "132": 
+					result="СП101ФР-К";
+					break;
+				case "402": 
+					result="СП402ФР-К";
+					break;
+				case "403": 
+					result="СП402ФР-К";
+					break;
+				case "404": 
+					result="СП402ФР-К";
+					break;
+				case "601": 
+					result="СП601-К";
+					break;
+			}
+		}
+		catch (FrException frEx)
+		{
+			error=frEx.getErrorCodeAsInt();
+		}
+
+		if (_writeLog) Common.log(result);
+
+	    if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+	    return result;
+	}
+	public String getKkmVersion() throws FrException
+	{
+	    if (_writeLog) Common.log("getKkmVersion");
+	    int error=0;
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("A5");
+		commandStr.append("0");
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+		
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+
+        String result="";
+		if (error==0)
+		{
+			ArrayOfBytes tmp = new ArrayOfBytes();
+			tmp=getStr.mid(6);
+			result=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
+
+			if (_writeLog) Common.log(result);
+		}
+
+
+	    if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+	    return result;
+	}
+
+	public String getPrinterInfo() throws FrException
+	{
+	    if (_writeLog) Common.log("getPrinterInfo");
+	    int error=0;
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("AF");
+		commandStr.append("6");
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+		
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+
+        String result="";
+		if (error==0)
+		{
+			ArrayOfBytes tmp = new ArrayOfBytes();
+			tmp=getStr.mid(6);
+			result+="boot-";
+			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
+
+			if (_writeLog) Common.log(result);
+		}
+
+		if (error==0)
+		{
+			commandStr.clear();
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("AF");
+			commandStr.append("7");
+			commandStr.append(0x1C);
+			commandStr.append(0x03);
+
+			error=transaction(CRC(commandStr), getStr);
+		}
+
+		if (error==0)
+		{
+			ArrayOfBytes tmp = new ArrayOfBytes();
+			tmp=getStr.mid(6);
+			result+=" flash-";
+			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
+
+			if (_writeLog) Common.log(result);
+		}
+
+
+	    if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+	    return result;
+	}
+
 
 	public int init() throws FrException
 	{
-		if (_wrileLog) log("Init");
+		if (_writeLog) Common.log("Init");
 
 		int error=0;
 
@@ -382,7 +549,7 @@ public class SP extends FR
 
 	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
 	{
-		if (_wrileLog) log("OpenDocument");
+		if (_writeLog) Common.log("OpenDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -422,10 +589,35 @@ public class SP extends FR
 
 	}
 
+	public int printText(String text) throws FrException
+	{
+		if (_writeLog) Common.log("Init");
+
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("21");
+		commandStr.append(text, "CP866");
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+		
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+
+	}
+
+
 
 	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
-		if (_wrileLog) log("AddItem");
+		if (_writeLog) Common.log("AddItem");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -457,7 +649,7 @@ public class SP extends FR
 
 	public int total() throws FrException
 	{
-		if (_wrileLog) log("Total");
+		if (_writeLog) Common.log("Total");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -477,7 +669,7 @@ public class SP extends FR
 
 	public int pay(String payType, String sum, String text) throws FrException
 	{
-		if (_wrileLog) log("Pay");
+		if (_writeLog) Common.log("Pay");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -557,7 +749,7 @@ public class SP extends FR
 
 	public int cancelDocument() throws FrException
 	{
-		if (_wrileLog) log("CancelDocument");
+		if (_writeLog) Common.log("CancelDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -579,7 +771,7 @@ public class SP extends FR
 
 	public int closeDocument(String text) throws FrException
 	{
-		if (_wrileLog) log("CloseDocument");
+		if (_writeLog) Common.log("CloseDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -601,7 +793,7 @@ public class SP extends FR
 
 	public int xReport(String text) throws FrException
 	{
-		if (_wrileLog) log("Xreport");
+		if (_writeLog) Common.log("Xreport");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -622,7 +814,7 @@ public class SP extends FR
 
 	public int zReport(String text) throws FrException
 	{
-		if (_wrileLog) log("Zreport");
+		if (_writeLog) Common.log("Zreport");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -641,9 +833,297 @@ public class SP extends FR
 		return error;
 	}
 
+	// private BufferedImage getQrImage(String codeText, int imageWidth, int imageHeight)
+	// {
+	// 	// QrCode image = new QrCode();
+	// 	// image.setImageWidth(imageWidth);
+	// 	// image.setImageHeight(imageHeight);
+	// 	// image.getQrImageFile(codeText, "QrFile.bmp");
+
+	// 	return QrCode.getQrImage(codeText, imageWidth, imageHeight);
+	// }
+
+	public int printImage(BufferedImage image) throws FrException
+	{
+		if (_writeLog) Common.log("printImage");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		ArrayOfBytes imageArray=new ArrayOfBytes();
+
+		int imageWidthInBytes=image.getWidth()/8;
+		int imageHeight=image.getHeight();
+		int imageSize=imageWidthInBytes*imageHeight;
+        int imageWidthInBytesReal=imageWidthInBytes;
+        while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+        {
+              imageWidthInBytesReal++;
+        }
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try 
+        {
+            ImageIO.write(image, "bmp", baos);
+            baos.flush();
+            baos.close();
+        } 
+        catch (IOException ex) 
+        {
+            ex.printStackTrace();
+            error=ANY_LOGICAL_ERROR;
+        }
+
+		if (error==0)
+		{
+
+	        byte[] bmpArray = baos.toByteArray();
+			int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+			for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+			{
+				// for(int j=i*imageWidthInBytes+startByteOfImageData, k=0;k<imageWidthInBytes;j++, k++)
+				// {
+				// 	imageArray.append(~bmpArray[j]);
+				// }
+
+                for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+                {
+                      if (k<imageWidthInBytes) imageArray.append(~bmpArray[j]);
+                }
+			}
+
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("28");
+			commandStr.append(Integer.toString(imageSize));
+			commandStr.append(0x1C);
+			commandStr.append(0x03);
+
+			if (writePort(CRC(commandStr)))
+			{
+				for(int i=0;i<100; i++)
+				{
+					if (readPort(getStr))
+					{
+						if (getStr.at(0)==_bACK.at(0)) break;
+					}
+					if (i==99) error=NO_RESPONSE_FR;
+				}
+			}
+			else error=ERROR_SEND;
+		}
+
+
+
+		if (error==0)
+		{
+			commandStr.clear();
+			getStr.clear();
+
+			commandStr.append(imageArray);
+
+			if (writePort(commandStr))
+			{
+
+				// int count=0;
+				// while(!testConnect())
+				// {
+				// 	if (count>20)
+				// 	{
+				// 		error=NO_RESPONSE_FR;
+				// 		break;
+				// 	}
+				// 	count++;
+				// }
+
+
+				try 
+				{
+					Common.log("Pause "+5000+" ms ...");
+					Thread.sleep(5000);
+				} catch (InterruptedException ie) {}	
+				
+			}
+			else error=ERROR_SEND;
+		}
+		if (error==0)
+		{
+			error=getResponse(getStr);
+		}
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;		
+	}
+
+	public int printBarCode(int width, int height, String codeType, String codeText) throws FrException
+	{
+		if (_writeLog) Common.log("printBarCode");
+		int error=0;
+
+		String localWidth=Integer.valueOf(width).toString();
+		String localHight=Integer.valueOf(height).toString();
+		String localCodeType="";
+		switch(codeType)
+		{
+			case "UPC-A":
+				localCodeType="0";
+				break;
+			case "UPC-E":
+				localCodeType="1";
+				break;
+			case "EAN-13":
+				localCodeType="2";
+				break;
+			case "EAN-8":
+				localCodeType="3";
+				break;
+			case "Code 39":
+				localCodeType="4";
+				break;
+			case "Interleaved 2 of 5":
+				localCodeType="5";
+				break;
+			case "Codabar":
+				localCodeType="6";
+				break;
+
+		}
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("24");
+		commandStr.append("2");
+		commandStr.append(0x1C);
+		commandStr.append(localWidth);
+		commandStr.append(0x1C);
+		commandStr.append(localHight);
+		commandStr.append(0x1C);
+		commandStr.append(localCodeType);
+		commandStr.append(0x1C);
+		commandStr.append(codeText);
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error; // Example: printBarCode(2, 40, "Code 39", "1234567890");
+
+	}
+
+
+
+	public int printQrCodeFast(String codeText) throws FrException
+	{
+		if (_writeLog) Common.log("printQrCodeFast");
+		int error=0;
+
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("29");
+		commandStr.append("5");
+		commandStr.append(0x1C);
+		commandStr.append("2");
+		commandStr.append(0x1C);
+		commandStr.append(codeText);
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;		
+	}
+
+
+	public int printQrCode(String codeText) throws FrException
+	{
+		if (_writeLog) Common.log("printQrCode");
+		int error=0;
+
+		String kkmType="";
+		String kkmVersion="";
+
+		boolean printFast=false;
+
+		try
+		{
+			kkmVersion=getKkmVersion();
+			kkmType=getKkmType();
+		}
+		catch (FrException frEx)
+		{
+			error=frEx.getErrorCodeAsInt();
+		}
+
+
+
+		int imageWidth=0;
+		int imageHeight=250;
+
+		switch(kkmType)
+		{
+			case "СП101ФР-К": 
+				imageWidth=576;
+				break;
+			case "СП402ФР-К": 
+				imageWidth=448;
+				break;
+			case "СП601-К": 
+				imageWidth=576;
+				break;
+		}
+
+		// QrCode image = new QrCode();
+		// image.setImageWidth(imageWidth);
+		// image.setImageHeight(imageHeight);
+		// image.getQrImageFile(codeText, "QrFile.bmp");
+
+		if (kkmVersion.indexOf("130")>-1) 
+		{
+			String printerInfo="";
+			try
+			{
+				printerInfo=getPrinterInfo();
+
+				if ((printerInfo.indexOf("3.04")>1)&&(printerInfo.indexOf("3.01")>1)) printFast=true;
+			}
+			catch (FrException frEx)
+			{
+				error=frEx.getErrorCodeAsInt();
+			}
+
+		}
+		
+		if (printFast)
+		{
+			if (error==0) error=printQrCodeFast(codeText);
+			if (error==0) error=printText("");
+		}
+		else
+		{
+        	if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+		}
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
+
 	public int receiptSale() throws FrException
 	{
-		if (_wrileLog) log("ReceiptSale");
+		if (_writeLog) Common.log("ReceiptSale");
 		int error=0;
 
 		if (error==0) error=openDocument("2", "0", "Test", "0");
