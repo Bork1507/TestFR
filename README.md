@@ -18,7 +18,7 @@ from the company [SHTRIH-M](http://www.shtrih-m.ru/), Russia:
 * [SHTRIH-FR-K](http://www.shtrih-m.ru/catalog/programmno-tekhnicheskie-kompleksy-fr-i-aspd/shtrikh-fr-k/)
 * [SHTRIH-M-FR-K](http://www.shtrih-m.ru/catalog/programmno-tekhnicheskie-kompleksy-fr-i-aspd/shtrikh-m-fr-k/)
 * [SHTRIH-MINI-FR-K](http://www.shtrih-m.ru/catalog/programmno-tekhnicheskie-kompleksy-fr-i-aspd/shtrikh-mini-fr-k/)
-* [NCR001-K](http://www.shtrih-m.ru/catalog/programmno-tekhnicheskie-kompleksy-fr-i-aspd/-ncr-001k/)
+* [NCR-001K](http://www.shtrih-m.ru/catalog/programmno-tekhnicheskie-kompleksy-fr-i-aspd/-ncr-001k/)
 * [Retail-01K](http://www.shtrih-m.ru/catalog/programmno-tekhnicheskie-kompleksy-fr-i-aspd/retail-01k/)
 
 from the company [ATOL](http://atol.ru/), Russia:
