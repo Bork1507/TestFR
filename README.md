@@ -3,7 +3,7 @@ Program in development.
 
 The program for test fiscal printers.
 In program has module for test UTM servers.
-Progect [EGAIS](http://egais.ru/), Russia.
+Project [EGAIS](http://egais.ru/), Russia.
 
 ##### Supported fiscal printers:
 
