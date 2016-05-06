@@ -1,4 +1,6 @@
 import java.io.*;
+import java.nio.*;
+import java.util.Date;
 
 class FrException extends Exception
 {
@@ -109,9 +111,14 @@ abstract class FR
 		public String atHex(int i)
 		{
 			int localInt=0;
+			
 			if(bytesArray[i]>0) localInt=bytesArray[i];
 			else localInt=bytesArray[i]&0xFF;
-			return Integer.toHexString(localInt);
+			
+			String result=Integer.toHexString(localInt);
+			if (result.length()==1) result="0"+result;
+			
+			return result;
 		}		
 
 		public void append(byte addBytes[])
@@ -167,6 +174,21 @@ abstract class FR
 			    System.out.println("Unsupported character set");
 			}			
 		}
+
+		public void appendIntAsByteArray(int addInt)
+		{
+		    ByteBuffer bb = ByteBuffer.allocate(4); 
+		    bb.putInt(addInt); 
+    		this.append(bb.array());
+		}
+
+		public void appendCharAsByteArray(char addChar)
+		{
+		    ByteBuffer bb = ByteBuffer.allocate(2); 
+		    bb.putChar(addChar); 
+    		this.append(bb.array());
+		}
+
 
 		public byte[] getBytes()
 		{
@@ -370,6 +392,8 @@ abstract class FR
 
     abstract public String getKkmVersion() throws FrException;
 
+    abstract public String getLastShiftInFiscalMemory() throws FrException;
+
 	abstract public int init() throws FrException;
 
 	abstract public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException;
@@ -391,6 +415,13 @@ abstract class FR
 	abstract public int printQrCode(String url) throws FrException;
 
 	abstract public int receiptSale() throws FrException;
+
+	abstract public int printEklzReportFullByDate(Date from, Date to) throws FrException;
+	abstract public int printEklzReportShortByDate(Date from, Date to) throws FrException;
+	abstract public int printEklzReportFullByShift(int from, int to) throws FrException;
+	abstract public int printEklzReportShortByShift(int from, int to) throws FrException; 
+	abstract public int printEklzReportControlTape(int shift) throws FrException;
+
 
 }
 

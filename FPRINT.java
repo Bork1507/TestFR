@@ -771,6 +771,37 @@ public class FPRINT extends FR
             return result;
       }
 
+      public String getLastShiftInFiscalMemory() throws FrException{
+            if (_writeLog) Common.log("getLastShiftInFiscalMemory");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+            String result="";
+
+            commandStr.append(0x00);
+            commandStr.append(0x00);
+            commandStr.append(0x91);
+            commandStr.append(0x15);
+            commandStr.append(0x00);
+            commandStr.append(0x00);
+                  
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+
+            if (error==0){
+                  result=getStr.atHex(3);
+                  result+=getStr.atHex(4);
+
+                  // remove leading zero
+                  result=Integer.valueOf(result).toString();
+      
+                  if (_writeLog) Common.log(result);
+            }
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return result;
+      }
+
 	public int init() throws FrException
 	{
 		if (_writeLog) Common.log("Init");
@@ -1266,9 +1297,9 @@ public class FPRINT extends FR
 
             if (error==0) error=printText("  ");
 
-            //if (error==0) error=printQrCodeFast(codeText);
-            if (error==0) error=cancelDocument();
-            if (error==0) error=printImage(QrCode.getQrImage(codeText, 250, 250));
+            if (error==0) error=printQrCodeFast(codeText);
+            // if (error==0) error=cancelDocument();
+            // if (error==0) error=printImage(QrCode.getQrImage(codeText, 250, 250));
 
             if (error==0) error=printText("  ");
 
@@ -1291,5 +1322,176 @@ public class FPRINT extends FR
 		// if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
+
+      public int printEklzReportFullByDate(Date from, Date to) throws FrException{
+            if (_writeLog) Common.log("printEklzReportFullByDate");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            if (error==0) error=setMode(6, "30");
+
+            if (to.compareTo(from)<0) error=ANY_LOGICAL_ERROR;
+
+            if (error==0){
+                  Calendar calendarFrom = new GregorianCalendar();
+                  calendarFrom.setTime(from);
+                  Calendar calendarTo = new GregorianCalendar();
+                  calendarTo.setTime(to);
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0xAC);
+                  commandStr.append(0x03);
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarFrom.get(Calendar.DAY_OF_MONTH)), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarFrom.get(Calendar.MONTH)+1), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarFrom.get(Calendar.YEAR)-2000), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarTo.get(Calendar.DAY_OF_MONTH)), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarTo.get(Calendar.MONTH)+1), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarTo.get(Calendar.YEAR)-2000), 16));
+            }
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+            if (error==0) error=getEndOfPrinting();
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;
+      }
+      public int printEklzReportShortByDate(Date from, Date to) throws FrException{
+            if (_writeLog) Common.log("printEklzReportShortByDate");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            if (error==0) error=setMode(6, "30");
+
+            if (to.compareTo(from)<0) error=ANY_LOGICAL_ERROR;
+
+            if (error==0){
+                  Calendar calendarFrom = new GregorianCalendar();
+                  calendarFrom.setTime(from);
+                  Calendar calendarTo = new GregorianCalendar();
+                  calendarTo.setTime(to);
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0xAC);
+                  commandStr.append(0x02);
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarFrom.get(Calendar.DAY_OF_MONTH)), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarFrom.get(Calendar.MONTH)+1), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarFrom.get(Calendar.YEAR)-2000), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarTo.get(Calendar.DAY_OF_MONTH)), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarTo.get(Calendar.MONTH)+1), 16));
+                  commandStr.append(Integer.valueOf(String.format("%02d", calendarTo.get(Calendar.YEAR)-2000), 16));
+            }
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+            if (error==0) error=getEndOfPrinting();
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;
+      }
+      public int printEklzReportFullByShift(int from, int to) throws FrException{
+            if (_writeLog) Common.log("printEklzReportFullByShift");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            if (error==0) error=setMode(6, "30");
+
+            if (to<from) error=ANY_LOGICAL_ERROR;
+
+            if (error==0){
+                  String strFrom = String.format("%d", from);
+                  while(strFrom.length()<4)
+                        strFrom="0"+strFrom;
+                  String strTo = String.format("%d", to);
+                  while(strTo.length()<4)
+                        strTo="0"+strTo;
+
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0xAD);
+                  commandStr.append(0x03);
+                  commandStr.append(Integer.valueOf(strFrom.substring(0, 2), 16));
+                  commandStr.append(Integer.valueOf(strFrom.substring(2, 4), 16));
+                  commandStr.append(Integer.valueOf(strTo.substring(0, 2), 16));
+                  commandStr.append(Integer.valueOf(strTo.substring(2, 4), 16));
+            }
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+            if (error==0) error=getEndOfPrinting();
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;
+      }
+      public int printEklzReportShortByShift(int from, int to) throws FrException{
+            if (_writeLog) Common.log("printEklzReportShortByShift");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            if (error==0) error=setMode(6, "30");
+
+            if (to<from) error=ANY_LOGICAL_ERROR;
+
+            if (error==0){
+                  String strFrom = String.format("%d", from);
+                  while(strFrom.length()<4)
+                        strFrom="0"+strFrom;
+                  String strTo = String.format("%d", to);
+                  while(strTo.length()<4)
+                        strTo="0"+strTo;
+
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0xAD);
+                  commandStr.append(0x02);
+                  commandStr.append(Integer.valueOf(strFrom.substring(0, 2), 16));
+                  commandStr.append(Integer.valueOf(strFrom.substring(2, 4), 16));
+                  commandStr.append(Integer.valueOf(strTo.substring(0, 2), 16));
+                  commandStr.append(Integer.valueOf(strTo.substring(2, 4), 16));
+            }
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+            if (error==0) error=getEndOfPrinting();
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;
+      }
+      public int printEklzReportControlTape(int shift) throws FrException{
+            if (_writeLog) Common.log("printEklzReportControlTape");
+            int error=0;
+
+            ArrayOfBytes getStr=new ArrayOfBytes();
+            ArrayOfBytes commandStr=new ArrayOfBytes();
+
+            if (error==0) error=setMode(6, "30");
+
+            if (error==0){
+                  String strShift = String.format("%d", shift);
+                  while(strShift.length()<4)
+                        strShift="0"+strShift;
+
+                  commandStr.append(0x00);
+                  commandStr.append(0x00);
+                  commandStr.append(0xAA);
+                  commandStr.append(Integer.valueOf(strShift.substring(0, 2), 16));
+                  commandStr.append(Integer.valueOf(strShift.substring(2, 4), 16));
+            }
+
+            if (error==0) error=transaction(CRC(commandStr), getStr);
+            if (error==0) error=getEndOfPrinting();
+
+            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+            return error;
+      }
+
 	
 }

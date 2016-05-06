@@ -11,14 +11,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import java.util.Properties;
-import java.util.InvalidPropertiesFormatException;
+import java.util.*;
 
-
-public class TestFr
+/* Стив Макконнелл (Steven C. McConnell) убедил меня, что мой стиль расположения скобочек:
+if (...)
 {
-    public static void main(String[] args)  throws ClassNotFoundException, SQLException
-    {
+	...	
+}
+не очень правильный.
+По этому, я решил попробовать располагать скобочки в более "правильном" стиле:
+if (...){
+	...	
+}
+В связи с этим, я прошу с пониманием отнестись к тому, что в коде проекта будет несколько стилей расположения.
+Со временем я надеюсь прийти к какому-то однообразию.
+*/
+
+public class TestFr{
+    public static void main(String[] args)  throws ClassNotFoundException, SQLException{
     	String configurationFileName="TestFr.xml";
     	String databaseFileName="TestFr.sqlite";
 
@@ -38,8 +48,7 @@ public class TestFr
 		String _timeoutBetweenReceipts="0";
 
 
-	    switch (args.length-1)
-	    {
+	    switch (args.length-1){
 	    	case 4: 
 	    		_param4=args[4];
 	    	case 3: 
@@ -61,8 +70,7 @@ public class TestFr
 		_conn = DriverManager.getConnection("jdbc:sqlite:"+databaseFileName);
 		_statmt = _conn.createStatement();
 
-		if (_param0.contains("?"))
-		{
+		if (_param0.contains("?")){
 			System.out.println("TestFr [cycle] [receipts in cycle] [COM] [BAUD] [FR]");
 			System.out.println("Default [1] [2] [/dev/ttyS6] [19200] [SP]");
 			System.out.println("FR may be SP or SHTRIH or FPRINT");
@@ -71,19 +79,15 @@ public class TestFr
 
 			return;
 		}
-		else if (_param0.contains("LOAD"))
-		{
+		else if (_param0.contains("LOAD")){
 			SeparatedText separatedText = new SeparatedText();
 			
 			return;
 		}
-		else if (_param0.isEmpty())
-		{
-			try
-			{
+		else if (_param0.isEmpty()){
+			try{
 				File file = new File(configurationFileName);
-				if(!file.exists())
-				{
+				if(!file.exists()){
 					file.createNewFile();
 
 					_programProperties.setProperty("CYCLE", "1");
@@ -116,27 +120,21 @@ public class TestFr
 		    	egaisUserKpp= _programProperties.getProperty("EGAIS_USER_KPP", "773322110");
 
 		    }
-            catch(InvalidPropertiesFormatException ex)
-	        {
+            catch(InvalidPropertiesFormatException ex){
 				System.out.printf(ex.toString());
 	        }
-		    catch (FileNotFoundException ex)
-		    {
+		    catch (FileNotFoundException ex){
 				System.out.printf(ex.toString());
 		    }
-		    catch (IOException ex)
-		    {
+		    catch (IOException ex){
 				System.out.printf(ex.toString());
 		    }
 
 		}
-		else
-		{
-			try
-			{
+		else{
+			try{
 				File file = new File(configurationFileName);
-				if(!file.exists())
-				{
+				if(!file.exists()){
 					file.createNewFile();
 				}
 
@@ -151,16 +149,13 @@ public class TestFr
 				_programProperties.storeToXML(out, null);
 				out.close();   
 			}
-            catch(InvalidPropertiesFormatException ex)
-	        {
+            catch(InvalidPropertiesFormatException ex){
 				System.out.printf(ex.toString());
 	        }
-		    catch (FileNotFoundException ex)
-		    {
+		    catch (FileNotFoundException ex){
 				System.out.printf(ex.toString());
 		    }
-		    catch (IOException ex)
-		    {
+		    catch (IOException ex){
 				System.out.printf(ex.toString());
 		    }
 
@@ -174,22 +169,16 @@ public class TestFr
 		else if (_param4.contains("FPRINT")) _fr=new FPRINT();
 		else return;
 
-		try
-		{
+		try{
 			_fr.openPort(_param2, _param3);
 			
-			for(int cycle=0;cycle<Integer.parseInt(_param0); cycle++)
-			{
-				try
-				{
+			for(int cycle=0;cycle<Integer.parseInt(_param0); cycle++){
+				try{
 					_fr.init();
 					Common.log(_fr.getKkmType()+" "+_fr.getKkmVersion());
-					for (int i=0; i<Integer.parseInt(_param1); i++)
-					{
-						try
-						{
-							try 
-							{
+					for (int i=0; i<Integer.parseInt(_param1); i++){
+						try{
+							try{
 								Common.log("Pause "+Integer.parseInt(_timeoutBetweenReceipts)+" ms ...");
 								Thread.sleep(Integer.parseInt(_timeoutBetweenReceipts));
 							} catch (InterruptedException ie) {}	
@@ -199,8 +188,7 @@ public class TestFr
 
 							_resSet = _statmt.executeQuery("SELECT * FROM testitems");
 		
-							while(_resSet.next())
-							{
+							while(_resSet.next()){
 								String  article = _resSet.getString("Article");
 								String  itemname = _resSet.getString("ItemName");
 								String  cost = _resSet.getString("Cost");
@@ -218,17 +206,16 @@ public class TestFr
 							String egaisUrl=egaisEx.executeChequeExchange();
 							_fr.printQrCode(egaisUrl);
 							Common.log(egaisUrl);
+							
 							_fr.pay(FR.PAY_TYPE_0, "500.00", "");
 							_fr.closeDocument("");
 
 
-							if (((i%5)==0)&&(i!=0))
-							{
+							if (((i%5)==0)&&(i!=0)){
 								_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "");
 								
 								_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-								while(_resSet.next())
-								{
+								while(_resSet.next()){
 									String  article = _resSet.getString("Article");
 									String  itemname = _resSet.getString("ItemName");
 									String  cost = _resSet.getString("Cost");
@@ -241,8 +228,7 @@ public class TestFr
 								_fr.openDocument(FR.RECEIPT_TYPE_RETURN_SALE, "0", "Иванова", "");
 	
 								_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-								while(_resSet.next())
-								{
+								while(_resSet.next()){
 									String  article = _resSet.getString("Article");
 									String  itemname = _resSet.getString("ItemName");
 									String  cost = _resSet.getString("Cost");
@@ -257,8 +243,7 @@ public class TestFr
 								_fr.xReport("Иванова");
 							}
 						}
-						catch (FrException frEx)
-						{
+						catch (FrException frEx){
 							Common.log(frEx.toString());
 							try {
 								Common.log("Press Enter ... ");
@@ -268,9 +253,15 @@ public class TestFr
 						}
 					}
 					_fr.zReport("Петрова");			
+
+					String lastShift = _fr.getLastShiftInFiscalMemory();
+					_fr.printEklzReportFullByDate(new Date(), new Date());
+					_fr.printEklzReportShortByDate(new Date(), new Date());
+					_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
+					_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift)); 
+					_fr.printEklzReportControlTape(Integer.valueOf(lastShift));
 				}
-				catch (FrException frEx)
-				{
+				catch (FrException frEx){
 					Common.log(frEx.toString());
 					try {
 						Common.log("Press Enter ... ");
@@ -280,8 +271,7 @@ public class TestFr
 				}
 			}
 		}
-		catch (FrException frEx)
-		{
+		catch (FrException frEx){
 			Common.log(frEx.toString());
 		}
 			

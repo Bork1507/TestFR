@@ -22,8 +22,8 @@ public class SP extends FR
 	private int _gettedBytes=0; 
 	
 
-	private boolean _writeLog=true;
-	//private boolean _writeLog=false;
+	//private boolean _writeLog=true;
+	private boolean _writeLog=false;
 
 	private ArrayOfBytes _bENQ = new ArrayOfBytes();
 	private ArrayOfBytes _bACK = new ArrayOfBytes();
@@ -520,6 +520,85 @@ public class SP extends FR
 	    return result;
 	}
 
+	public String getCurrentStatus() throws FrException
+	{
+	    if (_writeLog) Common.log("getCurrentStatus");
+	    int error=0;
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("A0");
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+		
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+
+        String result="";
+		if (error==0)
+		{
+			result=getStr.mid(6, 1).toString();
+			result+=getStr.mid(8, 1).toString();
+			result+=getStr.mid(10, 1).toString();
+
+			if (_writeLog) Common.log(result);
+		}
+
+
+	    if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+	    return result;
+	}
+
+	public String getLastShiftInFiscalMemory() throws FrException
+	{
+	    if (_writeLog) Common.log("getLastShiftInFiscalMemory");
+	    int error=0;
+
+	    String status="";
+		try
+		{
+	    	status=getCurrentStatus();
+		}
+		catch (FrException frEx)
+		{
+			error=frEx.getErrorCodeAsInt();
+		}
+
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("A5");
+		commandStr.append("1");
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+		
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+
+        String result="";
+		if (error==0)
+		{
+			ArrayOfBytes tmp = new ArrayOfBytes();
+			tmp=getStr.mid(6);
+			result=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
+
+			result=String.valueOf(Integer.valueOf(result)-1);
+			if (_writeLog) Common.log(result);
+		}
+
+
+	    if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+	    return result;
+	}
 
 	public int init() throws FrException
 	{
@@ -1070,7 +1149,7 @@ public class SP extends FR
 
 
 		int imageWidth=0;
-		int imageHeight=250;
+		int imageHeight=200;
 
 		switch(kkmType)
 		{
@@ -1121,8 +1200,7 @@ public class SP extends FR
 	}
 
 
-	public int receiptSale() throws FrException
-	{
+	public int receiptSale() throws FrException{
 		if (_writeLog) Common.log("ReceiptSale");
 		int error=0;
 
@@ -1135,6 +1213,156 @@ public class SP extends FR
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
+
+	public int printEklzReportFullByDate(Date from, Date to) throws FrException{
+		if (_writeLog) Common.log("printEklzReportFullByDate");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		if (to.compareTo(from)<0) error=ANY_LOGICAL_ERROR;
+
+		if (error==0){
+			String strFrom = new SimpleDateFormat("ddMMyy").format(from);
+			String strTo = new SimpleDateFormat("ddMMyy").format(to);
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("67");
+			commandStr.append("1");
+			commandStr.append(0x1C);
+			commandStr.append(strFrom);
+			commandStr.append(0x1C);
+			commandStr.append(strTo);
+			commandStr.append(0x1C);
+			commandStr.append(0x03);			
+		}
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return error;
+	}
+	public int printEklzReportShortByDate(Date from, Date to) throws FrException{
+		if (_writeLog) Common.log("printEklzReportShortByDate");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		if (to.compareTo(from)<0) error=ANY_LOGICAL_ERROR;
+
+		if (error==0){
+			String strFrom = new SimpleDateFormat("ddMMyy").format(from);
+			String strTo = new SimpleDateFormat("ddMMyy").format(to);
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("67");
+			commandStr.append("0");
+			commandStr.append(0x1C);
+			commandStr.append(strFrom);
+			commandStr.append(0x1C);
+			commandStr.append(strTo);
+			commandStr.append(0x1C);
+			commandStr.append(0x03);			
+		}
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return error;
+	}
+	public int printEklzReportFullByShift(int from, int to) throws FrException{
+		if (_writeLog) Common.log("printEklzReportFullByShift");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		if (to<from) error=ANY_LOGICAL_ERROR;
+
+		if (error==0){
+			String strFrom = String.format("%d", from);
+			String strTo = String.format("%d", to);
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("66");
+			commandStr.append("1");
+			commandStr.append(0x1C);
+			commandStr.append(strFrom);
+			commandStr.append(0x1C);
+			commandStr.append(strTo);
+			commandStr.append(0x1C);
+			commandStr.append(0x03);			
+		}
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return error;
+	}
+	public int printEklzReportShortByShift(int from, int to) throws FrException{
+		if (_writeLog) Common.log("printEklzReportShortByShift");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		if (to<from) error=ANY_LOGICAL_ERROR;
+
+		if (error==0){
+			String strFrom = String.format("%d", from);
+			String strTo = String.format("%d", to);
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("66");
+			commandStr.append("0");
+			commandStr.append(0x1C);
+			commandStr.append(strFrom);
+			commandStr.append(0x1C);
+			commandStr.append(strTo);
+			commandStr.append(0x1C);
+			commandStr.append(0x03);			
+		}
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return error;
+	}
+	public int printEklzReportControlTape(int shift) throws FrException{
+		if (_writeLog) Common.log("printEklzReportControlTape");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		if (error==0){
+			String strShift = String.format("%d", shift);
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("64");
+			commandStr.append(strShift);
+			commandStr.append(0x1C);
+			commandStr.append(0x03);			
+		}
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return error;
+	}
+
 
 }
 
