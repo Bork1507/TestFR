@@ -82,4 +82,19 @@ class Common
 	    }
 
 	}
+
+	public static String[] cutString(String bigString, int cutLength){
+
+		int arrayLength = bigString.length()/cutLength;
+		if (bigString.length()%cutLength>0) arrayLength+=1;
+
+		String cuttedString[] = new String[arrayLength];
+		int i=0;
+		for(; i<arrayLength-1; i++){
+			cuttedString[i]=bigString.substring(i*cutLength, (i+1)*cutLength);
+		}
+		cuttedString[i]=bigString.substring(i*cutLength, bigString.length());
+
+		return cuttedString;
+	}
 }

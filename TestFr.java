@@ -73,7 +73,7 @@ public class TestFr{
 		if (_param0.contains("?")){
 			System.out.println("TestFr [cycle] [receipts in cycle] [COM] [BAUD] [FR]");
 			System.out.println("Default [1] [2] [/dev/ttyS6] [19200] [SP]");
-			System.out.println("FR may be SP or SHTRIH or FPRINT");
+			System.out.println("FR may be SP or SHTRIH or FPRINT or PYRITE or WINCOR");
 			System.out.println("For Windows example: \\>java FrTest 2 4 COM1 19200 SP");
 			System.out.println("For Linux example: $>java FrTest 2 4 /dev/ttyS0 19200 SP");
 
@@ -167,6 +167,8 @@ public class TestFr{
 		if (_param4.contains("SP")) _fr=new SP();
 		else if (_param4.contains("SHTRIH")) _fr=new SHTRIH();
 		else if (_param4.contains("FPRINT")) _fr=new FPRINT();
+		else if (_param4.contains("PYRITE")) _fr=new PYRITE();
+		else if (_param4.contains("WINCOR")) _fr=new WINCOR();
 		else return;
 
 		try{

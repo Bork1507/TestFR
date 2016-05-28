@@ -54,6 +54,7 @@ abstract class FR
 	
 	public static final String RECEIPT_TYPE_SALE="RECEIPT_TYPE_SALE";
 	public static final String RECEIPT_TYPE_RETURN_SALE="RECEIPT_TYPE_RETURN_SALE";
+	public static final String RECEIPT_TYPE_NON_FISCAL_DOCUMENT="RECEIPT_TYPE_NON_FISCAL_DOCUMENT";
 
 	public static final int ERROR_PORT          =1001;
 	public static final int ERROR_CONNECT       =1002;
