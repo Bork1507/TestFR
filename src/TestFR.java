@@ -27,10 +27,10 @@ if (...){
 Со временем я надеюсь прийти к какому-то однообразию.
 */
 
-public class TestFr{
+public class TestFR {
     public static void main(String[] args)  throws ClassNotFoundException, SQLException{
-    	String configurationFileName="TestFr.xml";
-    	String databaseFileName="TestFr.sqlite";
+    	String configurationFileName="TestFR.xml";
+    	String databaseFileName="TestFR.sqlite";
 
     	String egaisHost="";
     	String egaisUserFsRarId="";
@@ -71,7 +71,7 @@ public class TestFr{
 		_statmt = _conn.createStatement();
 
 		if (_param0.contains("?")){
-			System.out.println("TestFr [cycle] [receipts in cycle] [COM] [BAUD] [FR]");
+			System.out.println("TestFR [cycle] [receipts in cycle] [COM] [BAUD] [FR]");
 			System.out.println("Default [1] [2] [/dev/ttyS6] [19200] [SP]");
 			System.out.println("FR may be SP or SHTRIH or FPRINT or PYRITE or WINCOR");
 			System.out.println("For Windows example: \\>java FrTest 2 4 COM1 19200 SP");
