@@ -711,10 +711,10 @@ public class SHTRIH extends FR
 
 		if (error==0) error=transaction(CRC(commandStr), getStr);
 
-            if (error==0) error=setCurrentDate();
-            if (error==0) error=setCurrentTime();
+        if (error==0) error=setCurrentDate();
+        if (error==0) error=setCurrentTime();
 
-            Common.log("Error - "+error+" - "+getErrorDetails(error));
+        //Common.log("Error - "+error+" - "+getErrorDetails(error));
 
 		return error;
 
