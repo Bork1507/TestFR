@@ -1169,18 +1169,20 @@ public class SP extends FR
 		// image.setImageHeight(imageHeight);
 		// image.getQrImageFile(codeText, "QrFile.bmp");
 
-		if ((kkmVersion.indexOf("130")>-1) || (Integer.valueOf(kkmVersion)>131))
-		{
-			String printerInfo="";
-			try
+		if (kkmType=="СП101ФР-К"){
+			if ((kkmVersion.indexOf("130")>-1) || (Integer.valueOf(kkmVersion)>131))
 			{
-				printerInfo=getPrinterInfo();
+				String printerInfo="";
+				try
+				{
+					printerInfo=getPrinterInfo();
 
-				if ((printerInfo.indexOf("3.04")>1)&&(printerInfo.indexOf("3.01")>1)) printFast=true;
-			}
-			catch (FrException frEx)
-			{
-				error=frEx.getErrorCodeAsInt();
+					if ((printerInfo.indexOf("3.04")>1)&&(printerInfo.indexOf("3.01")>1)) printFast=true;
+				}
+				catch (FrException frEx)
+				{
+					error=frEx.getErrorCodeAsInt();
+				}
 			}
 
 		}
