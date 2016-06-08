@@ -257,7 +257,7 @@ public class TestFR {
 					_fr.zReport("Петрова");			
 
 					String lastShift = _fr.getLastShiftInFiscalMemory();
-					_fr.printEklzReportFullByDate(new Date(), new Date());
+					//_fr.printEklzReportFullByDate(new Date(), new Date()); Report is very big sometimes
 					_fr.printEklzReportShortByDate(new Date(), new Date());
 					_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
 					_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift)); 
