@@ -1,1 +1,0 @@
-javac -d . -sourcepath ./src -classpath ./lib/sqlite-jdbc-3.7.2.jar:./lib/crunchify.jar:./lib/jssc.jar ./src/TestFR.java
