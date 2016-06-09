@@ -537,162 +537,187 @@ public class SHTRIH extends FR
 
 	}
 
-      public int setCurrentDate() throws FrException
-      {
-            if (_writeLog) Common.log("SetCurrentDate");
-            int error=0;
+    public int getShortStatus() throws FrException
+    {
+        if (_writeLog) Common.log("getShortStatus");
+        int error=0;
 
-            ArrayOfBytes getStr=new ArrayOfBytes();
-            ArrayOfBytes commandStr=new ArrayOfBytes();
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
 
-            commandStr.append(0x22);
-            commandStr.append(0x1E);
-            commandStr.append(0x0);
-            commandStr.append(0x0);
-            commandStr.append(0x0);
-            commandStr.append(curDate());
+        commandStr.append(0x10);
+        commandStr.append(0x1E);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
 
-            
-            // set date
-            if (error==0) error=transaction(CRC(commandStr), getStr);
-            if (error==0) 
-            {
-            // confirm date
-                  commandStr.set(0, 0x23);
-                  error=transaction(CRC(commandStr), getStr);
-            }
+        if (error==0) error=transaction(CRC(commandStr), getStr);
+
+        return error;
+    }
 
 
-            return error;
-      }
+    public int setCurrentDate() throws FrException
+    {
+        if (_writeLog) Common.log("SetCurrentDate");
+        int error=0;
 
-      public int setCurrentTime() throws FrException
-      {
-            if (_writeLog) Common.log("SetCurrentTime");
-            int error=0;
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
 
-            ArrayOfBytes getStr=new ArrayOfBytes();
-            ArrayOfBytes commandStr=new ArrayOfBytes();
-
-            commandStr.append(0x21);
-            commandStr.append(0x1E);
-            commandStr.append(0x0);
-            commandStr.append(0x0);
-            commandStr.append(0x0);
-            commandStr.append(curTime());
-                  
-
-            if (error==0) error=transaction(CRC(commandStr), getStr);
-
-            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-
-            return error;
-      }
-
-      public String getKkmType() throws FrException
-      {
-            if (_writeLog) Common.log("getKkmType");
-            int error=0;
-            String result="";
-
-            ArrayOfBytes getStr=new ArrayOfBytes();
-            ArrayOfBytes commandStr=new ArrayOfBytes();
-
-            commandStr.append(0xFC);
-
-            if (error==0) error=transaction(CRC(commandStr), getStr);
-
-            if (error==0)
-            {
-                  result=getStr.mid(10, getStr.length()-11).toString("CP1251");
-
-                  if (_writeLog) Common.log(result);
-            }
-
-            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-
-            return result;
-      }
-      public String getKkmVersion() throws FrException
-      {
-            if (_writeLog) Common.log("getKkmVersion");
-            int error=0;
-            String result="";
-
-            ArrayOfBytes getStr=new ArrayOfBytes();
-            ArrayOfBytes commandStr=new ArrayOfBytes();
-
-            commandStr.append(0x11);
-            commandStr.append(0x1E);
-            commandStr.append(0x0);
-            commandStr.append(0x0);
-            commandStr.append(0x0);                 
-
-            if (error==0) error=transaction(CRC(commandStr), getStr);
+        commandStr.append(0x22);
+        commandStr.append(0x1E);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(curDate());
 
 
-            if (error==0)                  
-            {
-                  result="ПО_ФР ";
-                  result+=String.format("%c", getStr.at(5));
-                  result+=".";
-                  result+=String.format("%c", getStr.at(6));
-                  result+="-";
-                  result+=Integer.valueOf(getStr.atHex(8)+getStr.atHex(7), 16).toString();
-                  result+="-";
-                  result+=String.format("%02d", getStr.at(9));
-                  result+=".";
-                  result+=String.format("%02d", getStr.at(10));
-                  result+=".";
-                  result+=String.format("%02d", getStr.at(11));
-                  result+=" /ПО_ФП ";
-                  result+=String.format("%c", getStr.at(20));
-                  result+=".";
-                  result+=String.format("%c", getStr.at(21));
-                  result+="-";
-                  result+=Integer.valueOf(getStr.atHex(23)+getStr.atHex(22), 16);
-                  result+="-";
-                  result+=String.format("%02d", getStr.at(24));
-                  result+=".";
-                  result+=String.format("%02d", getStr.at(25));
-                  result+=".";
-                  result+=String.format("%02d", getStr.at(26));
+        try{
+            //"Special for RETAIL-01K. Bugs in switching status!"
+            Common.log("Pause "+Integer.parseInt("1000")+" ms ...");
+            Thread.sleep(Integer.parseInt("1000"));
+        } catch (InterruptedException ie) {}
 
-                  if (_writeLog) Common.log(result);
-            }
+        // set date
+        if (error==0) error=transaction(CRC(commandStr), getStr);
 
-            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        if (error==0){
+        // confirm date
+              commandStr.set(0, 0x23);
+              error=transaction(CRC(commandStr), getStr);
+        }
 
-            return result;
-      }
+        return error;
+    }
 
-      public String getLastShiftInFiscalMemory() throws FrException
-      {
-            if (_writeLog) Common.log("getLastShiftInFiscalMemory");
-            int error=0;
-            String result="";
+    public int setCurrentTime() throws FrException
+    {
+        if (_writeLog) Common.log("SetCurrentTime");
+        int error=0;
 
-            ArrayOfBytes getStr=new ArrayOfBytes();
-            ArrayOfBytes commandStr=new ArrayOfBytes();
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
 
-            commandStr.append(0x11);
-            commandStr.append(0x1E);
-            commandStr.append(0x0);
-            commandStr.append(0x0);
-            commandStr.append(0x0);                 
-
-            if (error==0) error=transaction(CRC(commandStr), getStr);
+        commandStr.append(0x21);
+        commandStr.append(0x1E);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(curTime());
 
 
-            if (error==0)                  
-            {
-                  result+=Integer.valueOf(getStr.atHex(39)+getStr.atHex(38), 16).toString();
+        if (error==0) error=transaction(CRC(commandStr), getStr);
 
-                  if (_writeLog) Common.log(result);
-            }
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 
-            return result;
-      }
+        return error;
+    }
+
+    public String getKkmType() throws FrException
+    {
+        if (_writeLog) Common.log("getKkmType");
+        int error=0;
+        String result="";
+
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
+
+        commandStr.append(0xFC);
+
+        if (error==0) error=transaction(CRC(commandStr), getStr);
+
+        if (error==0)
+        {
+              result=getStr.mid(10, getStr.length()-11).toString("CP1251");
+
+              if (_writeLog) Common.log(result);
+        }
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+        return result;
+    }
+    public String getKkmVersion() throws FrException
+    {
+        if (_writeLog) Common.log("getKkmVersion");
+        int error=0;
+        String result="";
+
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
+
+        commandStr.append(0x11);
+        commandStr.append(0x1E);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+
+        if (error==0) error=transaction(CRC(commandStr), getStr);
+
+
+        if (error==0)
+        {
+              result="ПО_ФР ";
+              result+=String.format("%c", getStr.at(5));
+              result+=".";
+              result+=String.format("%c", getStr.at(6));
+              result+="-";
+              result+=Integer.valueOf(getStr.atHex(8)+getStr.atHex(7), 16).toString();
+              result+="-";
+              result+=String.format("%02d", getStr.at(9));
+              result+=".";
+              result+=String.format("%02d", getStr.at(10));
+              result+=".";
+              result+=String.format("%02d", getStr.at(11));
+              result+=" /ПО_ФП ";
+              result+=String.format("%c", getStr.at(20));
+              result+=".";
+              result+=String.format("%c", getStr.at(21));
+              result+="-";
+              result+=Integer.valueOf(getStr.atHex(23)+getStr.atHex(22), 16);
+              result+="-";
+              result+=String.format("%02d", getStr.at(24));
+              result+=".";
+              result+=String.format("%02d", getStr.at(25));
+              result+=".";
+              result+=String.format("%02d", getStr.at(26));
+
+              if (_writeLog) Common.log(result);
+        }
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+        return result;
+    }
+
+    public String getLastShiftInFiscalMemory() throws FrException
+    {
+        if (_writeLog) Common.log("getLastShiftInFiscalMemory");
+        int error=0;
+        String result="";
+
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
+
+        commandStr.append(0x11);
+        commandStr.append(0x1E);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+
+        if (error==0) error=transaction(CRC(commandStr), getStr);
+
+
+        if (error==0)
+        {
+              result+=Integer.valueOf(getStr.atHex(39)+getStr.atHex(38), 16).toString();
+
+              if (_writeLog) Common.log(result);
+        }
+
+        return result;
+    }
 
 
 	public int init() throws FrException
@@ -716,6 +741,7 @@ public class SHTRIH extends FR
 
         //Common.log("Error - "+error+" - "+getErrorDetails(error));
 
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 
 	}
@@ -773,9 +799,11 @@ public class SHTRIH extends FR
 		commandStr.append(leftJustified(itemName, (char)(0x00), 40), "cp1251");
 
 
-		
+
 		if (error==0) error=transaction(CRC(commandStr), getStr);
 		if (error==0) error=getEndOfPrinting();
+
+        getShortStatus();
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
@@ -1359,8 +1387,8 @@ public class SHTRIH extends FR
                   if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
             }
             else{
-                  imageWidth=300;
-                  imageHeight=300;
+                  imageWidth=200;
+                  imageHeight=200;
 
                   //if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
                   if (error==0) error=printImageExt(QrCode.getQrImage(codeText, imageWidth, imageHeight));
