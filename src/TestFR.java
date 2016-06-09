@@ -173,9 +173,15 @@ public class TestFR {
 
 		try{
 			_fr.openPort(_param2, _param3);
-			
+			Common.log(" ");
+			Common.log(" ");
+			Common.log("!!!Start program!!!");
+
 			for(int cycle=0;cycle<Integer.parseInt(_param0); cycle++){
 				try{
+					Common.log(" ");
+					Common.log("!!!Start cycle number - "+cycle);
+
 					_fr.init();
 					Common.log(_fr.getKkmType()+" "+_fr.getKkmVersion());
 					for (int i=0; i<Integer.parseInt(_param1); i++){
@@ -260,7 +266,7 @@ public class TestFR {
 					//_fr.printEklzReportFullByDate(new Date(), new Date()); Report is very big sometimes
 					_fr.printEklzReportShortByDate(new Date(), new Date());
 					_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
-					_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift)); 
+					_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
 					_fr.printEklzReportControlTape(Integer.valueOf(lastShift));
 				}
 				catch (FrException frEx){
