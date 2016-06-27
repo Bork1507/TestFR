@@ -330,7 +330,21 @@ public class SHTRIH extends FR
       	}
       }
 
-	private boolean writePort(ArrayOfBytes toPort)
+    public void closePort()
+    {
+        if (_writeLog) Common.log("closePort");
+
+        try {
+            //Закрываем порт
+            _serialPort.closePort();
+        }
+        catch (SerialPortException ex)
+        {
+            Common.log(ex.toString());
+        }
+    }
+
+    private boolean writePort(ArrayOfBytes toPort)
 	{
 		if (_writeLog) Common.log("writePort");
 		try {

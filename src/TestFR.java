@@ -182,7 +182,12 @@ public class TestFR {
 					Common.log(" ");
 					Common.log("!!!Start cycle number - "+cycle);
 
-					_fr.init();
+					try
+					{
+						_fr.init();
+					}
+					catch(FrException frEx){}
+
 					Common.log(_fr.getKkmType()+" "+_fr.getKkmVersion());
 					for (int i=0; i<Integer.parseInt(_param1); i++){
 						try{
@@ -193,6 +198,8 @@ public class TestFR {
 
 
 							_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "");
+							//_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
+
 
 							_resSet = _statmt.executeQuery("SELECT * FROM testitems");
 		
@@ -204,10 +211,6 @@ public class TestFR {
 
 								_fr.addItem(itemname, article, weight, cost, "0", "1");
 							}
-
-							// _fr.AddItem("Сыр", "сыр12345", "0.123", "100.11", "0", "1");
-							// _fr.AddItem("Молоко", "мол67890", "1.000", "40.05", "0", "1");
-							// _fr.AddItem("Хлеб", "хл3412", "1.000", "23.50", "0", "1");
 
 							_fr.total();
 
@@ -282,8 +285,9 @@ public class TestFR {
 		catch (FrException frEx){
 			Common.log(frEx.toString());
 		}
-			
-		
+
+		_fr.closePort();
+
 		_conn.close();
 		_statmt.close();
 		_resSet.close();

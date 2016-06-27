@@ -389,7 +389,9 @@ abstract class FR
 
     abstract public void openPort(String portName, String baud) throws FrException;
 
-    abstract public String getKkmType() throws FrException;
+	abstract public void closePort();
+
+	abstract public String getKkmType() throws FrException;
 
     abstract public String getKkmVersion() throws FrException;
 

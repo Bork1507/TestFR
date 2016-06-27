@@ -165,6 +165,12 @@ public class EgaisExchange
 		String myRequestBody="";
 		String myRequestEnd="";
 
+		Date dt= new Date();
+		String strDate = new SimpleDateFormat("ddMMyy").format(dt);
+
+		String strTime = new SimpleDateFormat("HHmmss").format(dt);
+
+
 
 		byte byteOrderMark[] = {(byte)0xEF, (byte)0xBB, (byte)0xBF};
 
@@ -180,8 +186,8 @@ public class EgaisExchange
 		myRequestBody+=" kassa=\"45664\"";
 		myRequestBody+=" address=\"г. Москва, ул. Никопольская,4\"";
 		myRequestBody+=" name=\"Гармония\"";
-		myRequestBody+=" number=\"45\"";
-		myRequestBody+=" shift=\"1\"";
+		myRequestBody+=" number=\"1"+strTime+"\"";
+		myRequestBody+=" shift=\"1"+strDate+"\"";
 		myRequestBody+=">";
 		myRequestBody+="<Bottle";
 		myRequestBody+=" barcode=\"22N0000154KNI68VP9Z380V50907004002565F9THBEKKU58NAF3EVCM832M84VW9KDS\"";

@@ -230,7 +230,20 @@ public class SP extends FR
 		}
     }
 
-	
+	public void closePort()
+	{
+		if (_writeLog) Common.log("closePort");
+
+		try {
+			//Закрываем порт
+			_serialPort.closePort();
+		}
+		catch (SerialPortException ex)
+		{
+			Common.log(ex.toString());
+		}
+	}
+
 	private boolean writePort(ArrayOfBytes toPort)
 	{
 		if (_writeLog) Common.log("writePort");
@@ -282,9 +295,16 @@ public class SP extends FR
 		return true;
 	}
 	
-	private boolean testConnect()
+	private int testConnect(ArrayOfBytes out)
 	{
-		boolean result = true;
+		// timeout = -1
+		// ok      = 0
+		// another = 1
+
+
+		int result = -1;
+
+		out.clear();
 
 		ArrayOfBytes fromPort = new ArrayOfBytes();
 		fromPort.clear();
@@ -292,12 +312,17 @@ public class SP extends FR
 		writePort(_bENQ);
 		if (readPort(fromPort))
 		{
-			if (fromPort.at(0)!=_bACK.at(0)) 
+			if (fromPort.at(0)==_bACK.at(0))
 			{
-				result = false;
-			}			
+				result = 0;
+			}
+			else
+			{
+				out.append(fromPort.at(0));
+				result = 1;
+			}
 		}
-		else result = false;
+		else result = -1;
 		
 		return result;
 	}
@@ -354,7 +379,15 @@ public class SP extends FR
 			}
 			else
 			{
-				if(!testConnect()) 
+				ArrayOfBytes out = new ArrayOfBytes();
+				int resultTestConnect = testConnect(out);
+
+				if(resultTestConnect==1)
+				{
+					response.append(out);
+					Common.log("!!!!! get another byte on test connect!!!");
+				}
+				else if(resultTestConnect==-1)
 				{
 					error=NO_RESPONSE_FR;
 					break;
@@ -511,7 +544,8 @@ public class SP extends FR
 			result+=" flash-";
 			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
 
-			if (_writeLog) Common.log(result);
+			//if (_writeLog)
+				Common.log("result = "+result);
 		}
 
 
@@ -519,6 +553,43 @@ public class SP extends FR
 
 	    return result;
 	}
+
+	public String getParameter(int rowNumber, int columnNumber) throws FrException
+	{
+		if (_writeLog) Common.log("getParameter");
+		int error=0;
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("A1");
+		commandStr.append(String.valueOf(rowNumber));
+		commandStr.append(0x1C);
+		commandStr.append(String.valueOf(columnNumber));
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+
+		String result="";
+		if (error==0)
+		{
+			ArrayOfBytes tmp = new ArrayOfBytes();
+			tmp=getStr.mid(6);
+			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
+
+			//if (_writeLog)
+				Common.log("result = "+result);
+		}
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return result;
+	}
+
 
 	public String getCurrentStatus() throws FrException
 	{
@@ -636,13 +707,16 @@ public class SP extends FR
 
 		switch (docType) 
 		{
+			case "RECEIPT_TYPE_NON_FISCAL_DOCUMENT" :
+				docType="1";
+				break;
 			case "RECEIPT_TYPE_SALE" :
 				docType="2";
 				break;
 			case "RECEIPT_TYPE_RETURN_SALE" :
 				docType="3";
 				break;
-			default: 
+			default:
 				docType="0";
 				break;
 		}
@@ -1022,8 +1096,8 @@ public class SP extends FR
 
 				try 
 				{
-					Common.log("Pause "+5000+" ms ...");
-					Thread.sleep(5000);
+					Common.log("Pause "+1000+" ms ...");
+					Thread.sleep(1000);
 				} catch (InterruptedException ie) {}	
 				
 			}
@@ -1170,30 +1244,48 @@ public class SP extends FR
 		// image.getQrImageFile(codeText, "QrFile.bmp");
 
 		if (kkmType=="СП101ФР-К"){
-			if ((kkmVersion.indexOf("130")>-1) || (Integer.valueOf(kkmVersion)>131))
-			{
-				String printerInfo="";
-				try
-				{
+			try{
+				if ((Integer.valueOf(kkmVersion)==130)){
+					String printerInfo="";
 					printerInfo=getPrinterInfo();
 
-					if ((printerInfo.indexOf("3.04")>1)&&(printerInfo.indexOf("3.01")>1)) printFast=true;
+					if ((printerInfo.indexOf("3.04")>1)&&(printerInfo.indexOf("3.01")>1)){
+						printFast=true;
+					}
+					else{
+//						Common.log("printFast=false");
+//						printFast=true;
+					}
+
 				}
-				catch (FrException frEx)
-				{
-					error=frEx.getErrorCodeAsInt();
+				else if ((Integer.valueOf(kkmVersion)>=132)){
+					String printerInfo="";
+					printerInfo=getParameter(33, 0);
+
+					switch (Integer.valueOf(printerInfo)){
+						case 0: printFast=false;
+							break;
+						case 1: printFast=false;
+							break;
+						case 2: printFast=false;
+							break;
+						default: printFast=false;
+							break;
+
+					}
 				}
+			}
+			catch (FrException frEx){
+				error=frEx.getErrorCodeAsInt();
 			}
 
 		}
 		
-		if (printFast)
-		{
+		if (printFast){
 			if (error==0) error=printQrCodeFast(codeText);
 			if (error==0) error=printText("");
 		}
-		else
-		{
+		else{
         	if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
 		}
 
