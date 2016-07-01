@@ -3,8 +3,6 @@ import java.text.SimpleDateFormat;
 import java.io.*;
 
 import jssc.SerialPort;
-import jssc.SerialPortEvent;
-import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortTimeoutException;
 

@@ -1,22 +1,12 @@
 import java.util.*;
 import java.text.SimpleDateFormat;
-import java.io.*;
 
 import jssc.SerialPort;
-import jssc.SerialPortEvent;
-import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortTimeoutException;
 
-import java.awt.image.BufferedImage;
 
-import javax.imageio.ImageIO;
-
-
-
-
-public class SP extends FR
-{
+public class WINCOR extends FR{
 	private SerialPort _serialPort;
 	private int _id=0x20; 
 	private int _gettedBytes=0; 
@@ -28,18 +18,27 @@ public class SP extends FR
 	private ArrayOfBytes _bENQ = new ArrayOfBytes();
 	private ArrayOfBytes _bACK = new ArrayOfBytes();
 
+	private InfoReceipt _infoReceipt = new InfoReceipt();
 
+	private class InfoReceipt{
+		public boolean _printInfoReceipt=false;
+		public boolean _printTextAsBarcode=false;
+		public String _infoText="";
+	}
 
-	public SP()
-	{
+	public WINCOR(){
 		_bENQ.append(0x05);
 		_bACK.append(0x06);
 	}
 
+	private String _passOfConnect="PIRI";
+
+	private String getPassOfConnect(){		
+		return _passOfConnect;
+	}
 
 
-	private String curDate()
-	{
+	private String curDate(){
 		String strDate;
 		
 		Date dt= new Date();
@@ -48,8 +47,7 @@ public class SP extends FR
 		return strDate;
 	}
 
-	private String curTime()
-	{
+	private String curTime(){
 		String strTime;
 
 		Date dt= new Date();
@@ -58,36 +56,13 @@ public class SP extends FR
 		return strTime;
 	}
 
-	private int id()
-	{
+	private int id(){
 		if (_id==0xFD) _id=0x20;
 		else _id++;
-//		if (_writeLog) Common.log("Id = "+_id);
 		return _id;
 	}
 
-	// private String CRC(String in)
-	// {
-	// 	String out=in;
-
-	// 	byte res=0;
-	// 	for(int i=1; i<in.length(); i++)
-	// 	{
-	// 		try 
-	// 		{
-	// 			res=(byte)(res^in.getBytes("cp866")[i]);
-	// 			//System.out.println(i+" - "+String.format("%02x", in.getBytes("cp866")[i]));
-	// 		}
-	// 		catch (UnsupportedEncodingException ie) 
-	// 		{}
-	// 	}
-	// 	out+=String.format("%02x", res);
-		
-	// 	return out;
-	// }
-
-	private ArrayOfBytes CRC(ArrayOfBytes in)
-	{
+	private ArrayOfBytes CRC(ArrayOfBytes in){
 		ArrayOfBytes out=new ArrayOfBytes();
 		out.append(in);
 
@@ -101,12 +76,10 @@ public class SP extends FR
 		return out;
 	}
 
-	public static String getErrorDetails(int error)
-	{
+	public static String getErrorDetails(int error){
 		String str="";
 
-	    switch (error)
-	    {
+	    switch (error){
 	        case 0:
 	            break;
 	        case 1:
@@ -116,7 +89,7 @@ public class SP extends FR
 	            str="Ошибка 02h - В команде указан неверный номер функции";
 	            break;
 	        case 3:
-	            str="Ошибка 03h - В команде указано неверное, больше чем максимально возможное или несоответствующее типу данных значение";
+	            str="Ошибка 03h - Некорректный формат или параметр команды";
 	            break;
 	        case 4:
 	            str="Ошибка 04h - Переполнение буфера коммуникационного порта";
@@ -134,25 +107,25 @@ public class SP extends FR
 	            str="Ошибка 08h - Конец бумаги";
 	            break;
 	        case 9:
-	            str="Ошибка 09h - Принтер не готов";
+	            str="Ошибка 09h - Принтер/дисплей не готов";
 	            break;
 	        case 10:
-	            str="Ошибка 0Ah - Текущая смена больше 24 часов";
+	            str="Ошибка 0Ah - Текущая смена больше 24 часов. Установка даты времени больше чем на 24 часа.";
 	            break;
 	        case 11:
 	            str="Ошибка 0Bh - Разница во времени, ККМ и указанной в команде установки времени, больше 8 минут";
 	            break;
 	        case 12:
-	            str="Ошибка 0Ch - Время последнего документа больше нового времени более чем на один час (с учетом летнего/зимнего перехода)";
+	            str="Ошибка 0Ch - Вводимая дата более ранняя, чем дата последней фискальной операции";
 	            break;
 	        case 13:
-	            str="Ошибка 0Dh - Не был задан заголовок документа, что делает невозможным формирование фискального документа.";
+	            str="Ошибка 0Dh - Неверный пароль доступа к ФП";
 	            break;
 	        case 14:
 	            str="Ошибка 0Eh - Отрицательный результат";
 	            break;
 	        case 15:
-	            str="Ошибка 0Fh - Дисплей покупателя не готов";
+	            str="Ошибка 0Fh - Для выполнения команды необходимо закрыть смену";
 	            break;
 	        case 32:
 	            str="Ошибка 20h - Фатальная ошибка ККМ";
@@ -161,7 +134,7 @@ public class SP extends FR
 	            str="Ошибка 21h - Нет свободного места в фискальной памяти ККМ";
 	            break;
 	        case 65:
-	            str="Ошибка 41h - Некорректный формат или параметр команды";
+	            str="Ошибка 41h - Некорректный формат или параметр команды ЭКЛЗ";
 	            break;
 	        case 66:
 	            str="Ошибка 42h - Некорректное состояние ЭКЛЗ";
@@ -201,8 +174,7 @@ public class SP extends FR
 	}
 
 
-    public void openPort(String portName, String baud) throws FrException
-    {
+    public void openPort(String portName, String baud) throws FrException{
 		//Передаём в конструктор имя порта
 		//serialPort = new SerialPort("/dev/ttyS0");
 		_serialPort = new SerialPort(portName);
@@ -224,8 +196,7 @@ public class SP extends FR
 		    //_serialPort.addEventListener(new PortReader(), SerialPort.MASK_RXCHAR);
 
 		}
-		catch (SerialPortException ex) 
-		{
+		catch (SerialPortException ex){
 		    System.out.println(ex);
 		}
     }
@@ -244,8 +215,7 @@ public class SP extends FR
 		}
 	}
 
-	private boolean writePort(ArrayOfBytes toPort)
-	{
+	private boolean writePort(ArrayOfBytes toPort){
 		if (_writeLog) Common.log("writePort");
 		try {
 
@@ -254,27 +224,20 @@ public class SP extends FR
 		    	String strLog="to   port -> ";
 		    	for (int j=0;j<toPort.length();j++) strLog+=String.format("%02x", toPort.at(j));
 			    Common.log(strLog);
-		    	// String strLog="to port -> ";
-		    	// for (int j=0;j<toPort.length();j++) strLog+=String.format("%c", toPort.at(j));
-			    // Common.log(strLog);
 		}
-		catch (SerialPortException ex) 
-		{
-			// System.out.println("afassdfasfafasfasfasfas");
+		catch (SerialPortException ex){
 		     System.out.println(ex);
 		}
 		return true;
 
 	}
 
-	private boolean readPort(ArrayOfBytes fromPort)
-	{
+	private boolean readPort(ArrayOfBytes fromPort){
 		if (_writeLog) Common.log("readPort");
 
 		fromPort.clear();
 
-		try 
-		{
+		try {
 
 		    fromPort.append(_serialPort.readBytes(1, 1000));
 
@@ -282,12 +245,10 @@ public class SP extends FR
 	    	for (int j=0;j<fromPort.length();j++) strLog+=String.format("%02x", fromPort.at(j));
 		    Common.log(strLog);
 		}
-		catch (SerialPortException ex) 
-		{
+		catch (SerialPortException ex){
 		    System.out.println(ex);
 		}
-        catch (SerialPortTimeoutException ext) 
-        {
+        catch (SerialPortTimeoutException ext){
             return false;
         }
 				
@@ -295,40 +256,24 @@ public class SP extends FR
 		return true;
 	}
 	
-	private int testConnect(ArrayOfBytes out)
-	{
-		// timeout = -1
-		// ok      = 0
-		// another = 1
-
-
-		int result = -1;
-
-		out.clear();
+	private boolean testConnect(){
+		boolean result = true;
 
 		ArrayOfBytes fromPort = new ArrayOfBytes();
 		fromPort.clear();
 
 		writePort(_bENQ);
-		if (readPort(fromPort))
-		{
-			if (fromPort.at(0)==_bACK.at(0))
-			{
-				result = 0;
-			}
-			else
-			{
-				out.append(fromPort.at(0));
-				result = 1;
-			}
+		if (readPort(fromPort)){
+			if (fromPort.at(0)!=_bACK.at(0)){
+				result = false;
+			}			
 		}
-		else result = -1;
+		else result = false;
 		
 		return result;
 	}
 
-	private int errorAnalisis(ArrayOfBytes response)
-	{
+	private int errorAnalisis(ArrayOfBytes response){
 		if (_writeLog) Common.log("errorAnalisis");
 
 		int error=0;
@@ -342,8 +287,7 @@ public class SP extends FR
 		return error;
 	}
 
-	private int getResponse(ArrayOfBytes response)
-	{
+	private int getResponse(ArrayOfBytes response){
 		if (_writeLog) Common.log("getResponse");
 
 		int error=0;
@@ -355,20 +299,16 @@ public class SP extends FR
 
 		response.clear();
 
-		for (int i=0; ;i++) 
-		{
+		for (int i=0; ;i++){
 			fromPort.clear();
-			if (readPort(fromPort))
-			{
+			if (readPort(fromPort)){
 				if (fromPort.at(0)==(byte)(0x02)) startByteWasReceived=true;
-				if (startByteWasReceived==true)
-				{
+				if (startByteWasReceived==true){
 					response.append(fromPort.at(0));
 				}
 				if (fromPort.at(0)==(byte)(0x03)) resultLength=response.length()+2;
 
-				if ((response.length()==resultLength)&&(response.length()>0))
-				{
+				if ((response.length()==resultLength)&&(response.length()>0)){
 					
 					error=errorAnalisis(response);
 
@@ -377,18 +317,8 @@ public class SP extends FR
 				}
 
 			}
-			else
-			{
-				ArrayOfBytes out = new ArrayOfBytes();
-				int resultTestConnect = testConnect(out);
-
-				if(resultTestConnect==1)
-				{
-					response.append(out);
-					Common.log("!!!!! get another byte on test connect!!!");
-				}
-				else if(resultTestConnect==-1)
-				{
+			else{
+				if(!testConnect()){
 					error=NO_RESPONSE_FR;
 					break;
 				}
@@ -401,8 +331,7 @@ public class SP extends FR
 		return error;
 	}
 	
-	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
-	{
+	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result){
 		if (_writeLog) Common.log("transaction");
 		int error=0;
 
@@ -413,43 +342,46 @@ public class SP extends FR
 		return error;
 	}
 
-	public String getKkmType() throws FrException
-	{
+	public int printInfoReceipt() throws FrException{
+		if (_writeLog) Common.log("printInfoReceipt");
+		int error=0;
+
+		if (error==0) error=openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "", "");
+
+		if (_infoReceipt._printTextAsBarcode){
+			if (error==0) printBarCode(2, 200, "PDF 417", _infoReceipt._infoText);
+		}
+
+		String cuttedString[]=Common.cutString(_infoReceipt._infoText, 40);
+		for(int i=0; ((i<cuttedString.length)&&(error==0)); i++){
+			error=printText(cuttedString[i]);			
+		}
+
+		_infoReceipt._printInfoReceipt=false;
+
+		if (error==0) error=closeDocument("");
+
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
+
+	public String getKkmType() throws FrException{
 	    if (_writeLog) Common.log("getKkmType");
 	    int error=0;
 	    String result="";
 	    String version="";
 
-		try
-		{
+		try{
 			version=getKkmVersion();
-			switch(version)
-			{
-				case "128": 
-					result="СП101ФР-К";
-					break;
-				case "130": 
-					result="СП101ФР-К";
-					break;
-				case "132": 
-					result="СП101ФР-К";
-					break;
-				case "402": 
-					result="СП402ФР-К";
-					break;
-				case "403": 
-					result="СП402ФР-К";
-					break;
-				case "404": 
-					result="СП402ФР-К";
-					break;
-				case "601": 
-					result="СП601-К";
+			switch(version){
+				case "1010": 
+					result="WNJI-002К";
 					break;
 			}
 		}
-		catch (FrException frEx)
-		{
+		catch (FrException frEx){
 			error=frEx.getErrorCodeAsInt();
 		}
 
@@ -459,18 +391,17 @@ public class SP extends FR
 
 	    return result;
 	}
-	public String getKkmVersion() throws FrException
-	{
+	public String getKkmVersion() throws FrException{
 	    if (_writeLog) Common.log("getKkmVersion");
 	    int error=0;
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("A5");
-		commandStr.append("0");
+		commandStr.append("02");
+		commandStr.append("2");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 		
@@ -478,10 +409,9 @@ public class SP extends FR
 		if (error==0) error=transaction(CRC(commandStr), getStr);
 
         String result="";
-		if (error==0)
-		{
+		if (error==0){
 			ArrayOfBytes tmp = new ArrayOfBytes();
-			tmp=getStr.mid(6);
+			tmp=getStr.mid(8);
 			result=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
 
 			if (_writeLog) Common.log(result);
@@ -493,115 +423,16 @@ public class SP extends FR
 	    return result;
 	}
 
-	public String getPrinterInfo() throws FrException
-	{
-	    if (_writeLog) Common.log("getPrinterInfo");
-	    int error=0;
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		commandStr.append(0x02);
-		commandStr.append("PONE");
-		commandStr.append(id());
-		commandStr.append("AF");
-		commandStr.append("6");
-		commandStr.append(0x1C);
-		commandStr.append(0x03);
-		
-
-		if (error==0) error=transaction(CRC(commandStr), getStr);
-
-        String result="";
-		if (error==0)
-		{
-			ArrayOfBytes tmp = new ArrayOfBytes();
-			tmp=getStr.mid(6);
-			result+="boot-";
-			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
-
-			if (_writeLog) Common.log(result);
-		}
-
-		if (error==0)
-		{
-			commandStr.clear();
-
-			commandStr.append(0x02);
-			commandStr.append("PONE");
-			commandStr.append(id());
-			commandStr.append("AF");
-			commandStr.append("7");
-			commandStr.append(0x1C);
-			commandStr.append(0x03);
-
-			error=transaction(CRC(commandStr), getStr);
-		}
-
-		if (error==0)
-		{
-			ArrayOfBytes tmp = new ArrayOfBytes();
-			tmp=getStr.mid(6);
-			result+=" flash-";
-			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
-
-			//if (_writeLog)
-				Common.log("result = "+result);
-		}
-
-
-	    if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-
-	    return result;
-	}
-
-	public String getParameter(int rowNumber, int columnNumber) throws FrException
-	{
-		if (_writeLog) Common.log("getParameter");
-		int error=0;
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		commandStr.append(0x02);
-		commandStr.append("PONE");
-		commandStr.append(id());
-		commandStr.append("A1");
-		commandStr.append(String.valueOf(rowNumber));
-		commandStr.append(0x1C);
-		commandStr.append(String.valueOf(columnNumber));
-		commandStr.append(0x1C);
-		commandStr.append(0x03);
-
-
-		if (error==0) error=transaction(CRC(commandStr), getStr);
-
-		String result="";
-		if (error==0)
-		{
-			ArrayOfBytes tmp = new ArrayOfBytes();
-			tmp=getStr.mid(6);
-			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
-
-			//if (_writeLog)
-				Common.log("result = "+result);
-		}
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-
-		return result;
-	}
-
-
-	public String getCurrentStatus() throws FrException
-	{
+	public String getCurrentStatus() throws FrException{
 	    if (_writeLog) Common.log("getCurrentStatus");
 	    int error=0;
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("A0");
+		commandStr.append("00");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 		
@@ -609,8 +440,7 @@ public class SP extends FR
 		if (error==0) error=transaction(CRC(commandStr), getStr);
 
         String result="";
-		if (error==0)
-		{
+		if (error==0){
 			result=getStr.mid(6, 1).toString();
 			result+=getStr.mid(8, 1).toString();
 			result+=getStr.mid(10, 1).toString();
@@ -624,29 +454,25 @@ public class SP extends FR
 	    return result;
 	}
 
-	public String getLastShiftInFiscalMemory() throws FrException
-	{
+	public String getLastShiftInFiscalMemory() throws FrException{
 	    if (_writeLog) Common.log("getLastShiftInFiscalMemory");
 	    int error=0;
 
 	    String status="";
-		try
-		{
+		try{
 	    	status=getCurrentStatus();
 		}
-		catch (FrException frEx)
-		{
+		catch (FrException frEx){
 			error=frEx.getErrorCodeAsInt();
 		}
-
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("A5");
+		commandStr.append("01");
 		commandStr.append("1");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
@@ -655,10 +481,9 @@ public class SP extends FR
 		if (error==0) error=transaction(CRC(commandStr), getStr);
 
         String result="";
-		if (error==0)
-		{
+		if (error==0){
 			ArrayOfBytes tmp = new ArrayOfBytes();
-			tmp=getStr.mid(6);
+			tmp=getStr.mid(8);
 			result=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
 
 			result=String.valueOf(Integer.valueOf(result)-1);
@@ -671,9 +496,8 @@ public class SP extends FR
 	    return result;
 	}
 
-	public int init() throws FrException
-	{
-		if (_writeLog) Common.log("init");
+	public int init() throws FrException{
+		if (_writeLog) Common.log("Init");
 
 		int error=0;
 
@@ -681,9 +505,9 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("00");
+		commandStr.append("10");
 		commandStr.append(curDate());
 		commandStr.append(0x1C);
 		commandStr.append(curTime());
@@ -697,16 +521,14 @@ public class SP extends FR
 
 	}
 
-	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
-	{
+	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException{
 		if (_writeLog) Common.log("openDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
-		switch (docType) 
-		{
+		switch (docType){
 			case "RECEIPT_TYPE_NON_FISCAL_DOCUMENT" :
 				docType="1";
 				break;
@@ -716,15 +538,15 @@ public class SP extends FR
 			case "RECEIPT_TYPE_RETURN_SALE" :
 				docType="3";
 				break;
-			default:
+			default: 
 				docType="0";
 				break;
 		}
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("20");
+		commandStr.append("30");
 		commandStr.append(docType);
 		commandStr.append(0x1C);
 		commandStr.append(depType);
@@ -742,8 +564,7 @@ public class SP extends FR
 
 	}
 
-	public int printText(String text) throws FrException
-	{
+	public int printText(String text) throws FrException{
 		if (_writeLog) Common.log("printText");
 
 		int error=0;
@@ -752,9 +573,9 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("21");
+		commandStr.append("40");
 		commandStr.append(text, "CP866");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
@@ -766,10 +587,7 @@ public class SP extends FR
 
 	}
 
-
-
-	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
-	{
+	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException{
 		if (_writeLog) Common.log("addItem");
 		int error=0;
 
@@ -777,9 +595,9 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("30");
+		commandStr.append("42");
 		commandStr.append(itemName, "cp866");
 		commandStr.append(0x1C);
 		commandStr.append(articul, "cp866");
@@ -788,9 +606,7 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(cost);
 		commandStr.append(0x1C);
-		commandStr.append(depType);
 		commandStr.append(0x1C);
-		commandStr.append(taxType);
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
@@ -800,18 +616,17 @@ public class SP extends FR
 
 	}
 
-	public int total() throws FrException
-	{
-		if (_writeLog) Common.log("total");
+	public int total() throws FrException{
+		if (_writeLog) Common.log("Total");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("34");
+		commandStr.append("44");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
@@ -820,16 +635,14 @@ public class SP extends FR
 		return error;
 	}
 
-	public int pay(String payType, String sum, String text) throws FrException
-	{
+	public int pay(String payType, String sum, String text) throws FrException{
 		if (_writeLog) Common.log("pay");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
-		switch (payType) 
-		{
+		switch (payType){
 			case "CASH_0" :
 				payType="0";
 				break;
@@ -884,9 +697,9 @@ public class SP extends FR
 		}
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("35");
+		commandStr.append("47");
 		commandStr.append(payType);
 		commandStr.append(0x1C);
 		commandStr.append(sum);
@@ -900,8 +713,7 @@ public class SP extends FR
 		return error;
 	}
 
-	public int cancelDocument() throws FrException
-	{
+	public int cancelDocument() throws FrException{
 		if (_writeLog) Common.log("cancelDocument");
 		int error=0;
 
@@ -909,9 +721,9 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("23");
+		commandStr.append("32");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
@@ -922,8 +734,7 @@ public class SP extends FR
 
 	}
 
-	public int closeDocument(String text) throws FrException
-	{
+	public int closeDocument(String text) throws FrException{
 		if (_writeLog) Common.log("closeDocument");
 		int error=0;
 
@@ -931,21 +742,23 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("22");
+		commandStr.append("31");
 		commandStr.append(text, "cp866");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
 		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error==0){
+			if (_infoReceipt._printInfoReceipt) printInfoReceipt();
+		}
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
 
 
-	public int xReport(String text) throws FrException
-	{
+	public int xReport(String text) throws FrException{
 		if (_writeLog) Common.log("xReport");
 		int error=0;
 
@@ -953,9 +766,9 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("60");
+		commandStr.append("20");
 		commandStr.append(text, "cp866");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
@@ -965,8 +778,7 @@ public class SP extends FR
 		return error;
 	}
 
-	public int zReport(String text) throws FrException
-	{
+	public int zReport(String text) throws FrException{
 		if (_writeLog) Common.log("zReport");
 		int error=0;
 
@@ -974,9 +786,9 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("61");
+		commandStr.append("21");
 		commandStr.append(text, "cp866");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
@@ -986,142 +798,14 @@ public class SP extends FR
 		return error;
 	}
 
-	// private BufferedImage getQrImage(String codeText, int imageWidth, int imageHeight)
-	// {
-	// 	// QrCode image = new QrCode();
-	// 	// image.setImageWidth(imageWidth);
-	// 	// image.setImageHeight(imageHeight);
-	// 	// image.getQrImageFile(codeText, "QrFile.bmp");
-
-	// 	return QrCode.getQrImage(codeText, imageWidth, imageHeight);
-	// }
-
-	public int printImage(BufferedImage image) throws FrException
-	{
-		if (_writeLog) Common.log("printImage");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		ArrayOfBytes imageArray=new ArrayOfBytes();
-
-		int imageWidthInBytes=image.getWidth()/8;
-		int imageHeight=image.getHeight();
-		int imageSize=imageWidthInBytes*imageHeight;
-        int imageWidthInBytesReal=imageWidthInBytes;
-        while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
-        {
-              imageWidthInBytesReal++;
-        }
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try 
-        {
-            ImageIO.write(image, "bmp", baos);
-            baos.flush();
-            baos.close();
-        } 
-        catch (IOException ex) 
-        {
-            ex.printStackTrace();
-            error=ANY_LOGICAL_ERROR;
-        }
-
-		if (error==0)
-		{
-
-	        byte[] bmpArray = baos.toByteArray();
-			int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
-
-			for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
-			{
-				// for(int j=i*imageWidthInBytes+startByteOfImageData, k=0;k<imageWidthInBytes;j++, k++)
-				// {
-				// 	imageArray.append(~bmpArray[j]);
-				// }
-
-                for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
-                {
-                      if (k<imageWidthInBytes) imageArray.append(~bmpArray[j]);
-                }
-			}
-
-
-			commandStr.append(0x02);
-			commandStr.append("PONE");
-			commandStr.append(id());
-			commandStr.append("28");
-			commandStr.append(Integer.toString(imageSize));
-			commandStr.append(0x1C);
-			commandStr.append(0x03);
-
-			if (writePort(CRC(commandStr)))
-			{
-				for(int i=0;i<100; i++)
-				{
-					if (readPort(getStr))
-					{
-						if (getStr.at(0)==_bACK.at(0)) break;
-					}
-					if (i==99) error=NO_RESPONSE_FR;
-				}
-			}
-			else error=ERROR_SEND;
-		}
-
-
-
-		if (error==0)
-		{
-			commandStr.clear();
-			getStr.clear();
-
-			commandStr.append(imageArray);
-
-			if (writePort(commandStr))
-			{
-
-				// int count=0;
-				// while(!testConnect())
-				// {
-				// 	if (count>20)
-				// 	{
-				// 		error=NO_RESPONSE_FR;
-				// 		break;
-				// 	}
-				// 	count++;
-				// }
-
-
-				try 
-				{
-					Common.log("Pause "+1000+" ms ...");
-					Thread.sleep(1000);
-				} catch (InterruptedException ie) {}	
-				
-			}
-			else error=ERROR_SEND;
-		}
-		if (error==0)
-		{
-			error=getResponse(getStr);
-		}
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;		
-	}
-
-	public int printBarCode(int width, int height, String codeType, String codeText) throws FrException
-	{
+	public int printBarCode(int width, int height, String codeType, String codeText) throws FrException{
 		if (_writeLog) Common.log("printBarCode");
 		int error=0;
 
 		String localWidth=Integer.valueOf(width).toString();
 		String localHight=Integer.valueOf(height).toString();
 		String localCodeType="";
-		switch(codeType)
-		{
+		switch(codeType){
 			case "UPC-A":
 				localCodeType="0";
 				break;
@@ -1131,7 +815,13 @@ public class SP extends FR
 			case "EAN-13":
 				localCodeType="2";
 				break;
+			case "JAN-13":
+				localCodeType="2";
+				break;
 			case "EAN-8":
+				localCodeType="3";
+				break;
+			case "JAN-8":
 				localCodeType="3";
 				break;
 			case "Code 39":
@@ -1143,6 +833,27 @@ public class SP extends FR
 			case "Codabar":
 				localCodeType="6";
 				break;
+			case "PDF 417":
+				localCodeType="10";
+				break;
+			case "GS1 Databar":
+				localCodeType="11";
+				break;
+			case "GS1 Databar Truncated":
+				localCodeType="12";
+				break;
+			case "GS1 Databar Stacked":
+				localCodeType="13";
+				break;
+			case "GS1 Databar Stacked Omni-Directional":
+				localCodeType="14";
+				break;
+			case "GS1 Databar Limited":
+				localCodeType="15";
+				break;
+			case "GS1 Databar Expanded":
+				localCodeType="16";
+				break;
 
 		}
 
@@ -1150,9 +861,9 @@ public class SP extends FR
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		commandStr.append(0x02);
-		commandStr.append("PONE");
+		commandStr.append(getPassOfConnect());
 		commandStr.append(id());
-		commandStr.append("24");
+		commandStr.append("41");
 		commandStr.append("2");
 		commandStr.append(0x1C);
 		commandStr.append(localWidth);
@@ -1172,121 +883,16 @@ public class SP extends FR
 	}
 
 
-
-	public int printQrCodeFast(String codeText) throws FrException
-	{
-		if (_writeLog) Common.log("printQrCodeFast");
-		int error=0;
-
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		commandStr.append(0x02);
-		commandStr.append("PONE");
-		commandStr.append(id());
-		commandStr.append("29");
-		commandStr.append("5");
-		commandStr.append(0x1C);
-		commandStr.append("2");
-		commandStr.append(0x1C);
-		commandStr.append(codeText);
-		commandStr.append(0x1C);
-		commandStr.append(0x03);
-
-		if (error==0) error=transaction(CRC(commandStr), getStr);
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;		
-	}
-
-
-	public int printQrCode(String codeText) throws FrException
-	{
+	public int printQrCode(String codeText) throws FrException{
 		if (_writeLog) Common.log("printQrCode");
 		int error=0;
 
-		String kkmType="";
-		String kkmVersion="";
-
-		boolean printFast=false;
-
-		try
-		{
-			kkmVersion=getKkmVersion();
-			kkmType=getKkmType();
-		}
-		catch (FrException frEx)
-		{
-			error=frEx.getErrorCodeAsInt();
-		}
-
-
-
-		int imageWidth=0;
-		int imageHeight=200;
-
-		switch(kkmType)
-		{
-			case "СП101ФР-К": 
-				imageWidth=576;
-				break;
-			case "СП402ФР-К": 
-				imageWidth=448;
-				break;
-			case "СП601-К": 
-				imageWidth=576;
-				break;
-		}
-
-		// QrCode image = new QrCode();
-		// image.setImageWidth(imageWidth);
-		// image.setImageHeight(imageHeight);
-		// image.getQrImageFile(codeText, "QrFile.bmp");
-
-		if (kkmType=="СП101ФР-К"){
-			try{
-				if ((Integer.valueOf(kkmVersion)==130)){
-					String printerInfo="";
-					printerInfo=getPrinterInfo();
-
-					if ((printerInfo.indexOf("3.04")>1)&&(printerInfo.indexOf("3.01")>1)){
-						printFast=true;
-					}
-					else{
-//						Common.log("printFast=false");
-//						printFast=true;
-					}
-
-				}
-				else if ((Integer.valueOf(kkmVersion)>=132)){
-					String printerInfo="";
-					printerInfo=getParameter(33, 0);
-
-					switch (Integer.valueOf(printerInfo)){
-						case 0: printFast=false;
-							break;
-						case 1: printFast=false;
-							break;
-						case 2: printFast=false;
-							break;
-						default: printFast=false;
-							break;
-
-					}
-				}
+		if (error==0){
+			if (!codeText.isEmpty()){
+				_infoReceipt._printInfoReceipt=true;
+				_infoReceipt._printTextAsBarcode=true;
+				_infoReceipt._infoText=codeText;				
 			}
-			catch (FrException frEx){
-				error=frEx.getErrorCodeAsInt();
-			}
-
-		}
-		
-		if (printFast){
-			if (error==0) error=printQrCodeFast(codeText);
-			if (error==0) error=printText("");
-		}
-		else{
-        	if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
 		}
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
@@ -1322,9 +928,9 @@ public class SP extends FR
 			String strTo = new SimpleDateFormat("ddMMyy").format(to);
 
 			commandStr.append(0x02);
-			commandStr.append("PONE");
+			commandStr.append(getPassOfConnect());
 			commandStr.append(id());
-			commandStr.append("67");
+			commandStr.append("75");
 			commandStr.append("1");
 			commandStr.append(0x1C);
 			commandStr.append(strFrom);
@@ -1353,9 +959,9 @@ public class SP extends FR
 			String strTo = new SimpleDateFormat("ddMMyy").format(to);
 
 			commandStr.append(0x02);
-			commandStr.append("PONE");
+			commandStr.append(getPassOfConnect());
 			commandStr.append(id());
-			commandStr.append("67");
+			commandStr.append("75");
 			commandStr.append("0");
 			commandStr.append(0x1C);
 			commandStr.append(strFrom);
@@ -1384,9 +990,9 @@ public class SP extends FR
 			String strTo = String.format("%d", to);
 
 			commandStr.append(0x02);
-			commandStr.append("PONE");
+			commandStr.append(getPassOfConnect());
 			commandStr.append(id());
-			commandStr.append("66");
+			commandStr.append("74");
 			commandStr.append("1");
 			commandStr.append(0x1C);
 			commandStr.append(strFrom);
@@ -1415,9 +1021,9 @@ public class SP extends FR
 			String strTo = String.format("%d", to);
 
 			commandStr.append(0x02);
-			commandStr.append("PONE");
+			commandStr.append(getPassOfConnect());
 			commandStr.append(id());
-			commandStr.append("66");
+			commandStr.append("74");
 			commandStr.append("0");
 			commandStr.append(0x1C);
 			commandStr.append(strFrom);
@@ -1443,9 +1049,9 @@ public class SP extends FR
 			String strShift = String.format("%d", shift);
 
 			commandStr.append(0x02);
-			commandStr.append("PONE");
+			commandStr.append(getPassOfConnect());
 			commandStr.append(id());
-			commandStr.append("64");
+			commandStr.append("72");
 			commandStr.append(strShift);
 			commandStr.append(0x1C);
 			commandStr.append(0x03);			
@@ -1459,6 +1065,3 @@ public class SP extends FR
 
 
 }
-
-
-

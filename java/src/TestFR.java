@@ -164,11 +164,12 @@ public class TestFR {
 		EgaisExchange egaisEx = new EgaisExchange(egaisHost, egaisUserFsRarId, egaisUserInn, egaisUserKpp);
 
 		FR _fr=null;
-		if (_param4.contains("SP")) _fr=new SP();
-		else if (_param4.contains("SHTRIH")) _fr=new SHTRIH();
-		else if (_param4.contains("FPRINT")) _fr=new FPRINT();
-		else if (_param4.contains("PYRITE")) _fr=new PYRITE();
-		else if (_param4.contains("WINCOR")) _fr=new WINCOR();
+		if (_param4.equals("SP")) _fr=new SP();
+		else if (_param4.equals("SHTRIH")) _fr=new SHTRIH();
+		else if (_param4.equals("FPRINT")) _fr=new FPRINT();
+		else if (_param4.equals("PYRITE")) _fr=new PYRITE();
+		else if (_param4.equals("WINCOR")) _fr=new WINCOR();
+		else if (_param4.equals("SHTRIHDRV")) _fr=new SHTRIHDRV();
 		else return;
 
 		try{
@@ -215,7 +216,7 @@ public class TestFR {
 							_fr.total();
 
 							String egaisUrl=egaisEx.executeChequeExchange();
-							_fr.printQrCode(egaisUrl);
+							//_fr.printQrCode(egaisUrl);
 							Common.log(egaisUrl);
 							
 							_fr.pay(FR.PAY_TYPE_0, "500.00", "");
@@ -266,7 +267,7 @@ public class TestFR {
 					_fr.zReport("Петрова");			
 
 					String lastShift = _fr.getLastShiftInFiscalMemory();
-					//_fr.printEklzReportFullByDate(new Date(), new Date()); Report is very big sometimes
+					_fr.printEklzReportFullByDate(new Date(), new Date());// Report is very big sometimes
 					_fr.printEklzReportShortByDate(new Date(), new Date());
 					_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
 					_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
@@ -291,6 +292,7 @@ public class TestFR {
 		_conn.close();
 		_statmt.close();
 		_resSet.close();
+
 
 		System.exit(0);
     }

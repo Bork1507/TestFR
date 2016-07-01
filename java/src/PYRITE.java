@@ -1,21 +1,12 @@
 import java.util.*;
 import java.text.SimpleDateFormat;
-import java.io.*;
 
 import jssc.SerialPort;
-import jssc.SerialPortEvent;
-import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortTimeoutException;
 
-import java.awt.image.BufferedImage;
 
-import javax.imageio.ImageIO;
-
-
-
-
-public class WINCOR extends FR{
+public class PYRITE extends FR{
 	private SerialPort _serialPort;
 	private int _id=0x20; 
 	private int _gettedBytes=0; 
@@ -27,15 +18,9 @@ public class WINCOR extends FR{
 	private ArrayOfBytes _bENQ = new ArrayOfBytes();
 	private ArrayOfBytes _bACK = new ArrayOfBytes();
 
-	private InfoReceipt _infoReceipt = new InfoReceipt();
 
-	private class InfoReceipt{
-		public boolean _printInfoReceipt=false;
-		public boolean _printTextAsBarcode=false;
-		public String _infoText="";
-	}
 
-	public WINCOR(){
+	public PYRITE(){
 		_bENQ.append(0x05);
 		_bACK.append(0x06);
 	}
@@ -116,10 +101,10 @@ public class WINCOR extends FR{
 	            str="Ошибка 08h - Конец бумаги";
 	            break;
 	        case 9:
-	            str="Ошибка 09h - Принтер/дисплей не готов";
+	            str="Ошибка 09h - Принтер не готов";
 	            break;
 	        case 10:
-	            str="Ошибка 0Ah - Текущая смена больше 24 часов. Установка даты времени больше чем на 24 часа.";
+	            str="Ошибка 0Ah - Текущая смена больше 24 часов";
 	            break;
 	        case 11:
 	            str="Ошибка 0Bh - Разница во времени, ККМ и указанной в команде установки времени, больше 8 минут";
@@ -351,31 +336,6 @@ public class WINCOR extends FR{
 		return error;
 	}
 
-	public int printInfoReceipt() throws FrException{
-		if (_writeLog) Common.log("printInfoReceipt");
-		int error=0;
-
-		if (error==0) error=openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "", "");
-
-		if (_infoReceipt._printTextAsBarcode){
-			if (error==0) printBarCode(2, 200, "PDF 417", _infoReceipt._infoText);
-		}
-
-		String cuttedString[]=Common.cutString(_infoReceipt._infoText, 40);
-		for(int i=0; ((i<cuttedString.length)&&(error==0)); i++){
-			error=printText(cuttedString[i]);			
-		}
-
-		_infoReceipt._printInfoReceipt=false;
-
-		if (error==0) error=closeDocument("");
-
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-
 	public String getKkmType() throws FrException{
 	    if (_writeLog) Common.log("getKkmType");
 	    int error=0;
@@ -385,8 +345,20 @@ public class WINCOR extends FR{
 		try{
 			version=getKkmVersion();
 			switch(version){
-				case "1010": 
-					result="WNJI-002К";
+				case "13": 
+					result="ПИРИТ ФР01К";
+					break;
+				case "14": 
+					result="ПИРИТ ФР01К";
+					break;
+				case "15": 
+					result="ПИРИТ ФР01К";
+					break;
+				case "16": 
+					result="ПИРИТ ФР01К";
+					break;
+				case "215": 
+					result="PIRIT K";
 					break;
 			}
 		}
@@ -531,16 +503,13 @@ public class WINCOR extends FR{
 	}
 
 	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException{
-		if (_writeLog) Common.log("openDocument");
+		if (_writeLog) Common.log("OpenDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
 		switch (docType){
-			case "RECEIPT_TYPE_NON_FISCAL_DOCUMENT" :
-				docType="1";
-				break;
 			case "RECEIPT_TYPE_SALE" :
 				docType="2";
 				break;
@@ -597,7 +566,7 @@ public class WINCOR extends FR{
 	}
 
 	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException{
-		if (_writeLog) Common.log("addItem");
+		if (_writeLog) Common.log("AddItem");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -645,7 +614,7 @@ public class WINCOR extends FR{
 	}
 
 	public int pay(String payType, String sum, String text) throws FrException{
-		if (_writeLog) Common.log("pay");
+		if (_writeLog) Common.log("Pay");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -723,7 +692,7 @@ public class WINCOR extends FR{
 	}
 
 	public int cancelDocument() throws FrException{
-		if (_writeLog) Common.log("cancelDocument");
+		if (_writeLog) Common.log("CancelDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -744,7 +713,7 @@ public class WINCOR extends FR{
 	}
 
 	public int closeDocument(String text) throws FrException{
-		if (_writeLog) Common.log("closeDocument");
+		if (_writeLog) Common.log("CloseDocument");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -759,16 +728,13 @@ public class WINCOR extends FR{
 		commandStr.append(0x03);
 
 		if (error==0) error=transaction(CRC(commandStr), getStr);
-		if (error==0){
-			if (_infoReceipt._printInfoReceipt) printInfoReceipt();
-		}
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
 
 
 	public int xReport(String text) throws FrException{
-		if (_writeLog) Common.log("xReport");
+		if (_writeLog) Common.log("Xreport");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -788,7 +754,7 @@ public class WINCOR extends FR{
 	}
 
 	public int zReport(String text) throws FrException{
-		if (_writeLog) Common.log("zReport");
+		if (_writeLog) Common.log("Zreport");
 		int error=0;
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
@@ -807,102 +773,11 @@ public class WINCOR extends FR{
 		return error;
 	}
 
-	public int printBarCode(int width, int height, String codeType, String codeText) throws FrException{
-		if (_writeLog) Common.log("printBarCode");
-		int error=0;
-
-		String localWidth=Integer.valueOf(width).toString();
-		String localHight=Integer.valueOf(height).toString();
-		String localCodeType="";
-		switch(codeType){
-			case "UPC-A":
-				localCodeType="0";
-				break;
-			case "UPC-E":
-				localCodeType="1";
-				break;
-			case "EAN-13":
-				localCodeType="2";
-				break;
-			case "JAN-13":
-				localCodeType="2";
-				break;
-			case "EAN-8":
-				localCodeType="3";
-				break;
-			case "JAN-8":
-				localCodeType="3";
-				break;
-			case "Code 39":
-				localCodeType="4";
-				break;
-			case "Interleaved 2 of 5":
-				localCodeType="5";
-				break;
-			case "Codabar":
-				localCodeType="6";
-				break;
-			case "PDF 417":
-				localCodeType="10";
-				break;
-			case "GS1 Databar":
-				localCodeType="11";
-				break;
-			case "GS1 Databar Truncated":
-				localCodeType="12";
-				break;
-			case "GS1 Databar Stacked":
-				localCodeType="13";
-				break;
-			case "GS1 Databar Stacked Omni-Directional":
-				localCodeType="14";
-				break;
-			case "GS1 Databar Limited":
-				localCodeType="15";
-				break;
-			case "GS1 Databar Expanded":
-				localCodeType="16";
-				break;
-
-		}
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		commandStr.append(0x02);
-		commandStr.append(getPassOfConnect());
-		commandStr.append(id());
-		commandStr.append("41");
-		commandStr.append("2");
-		commandStr.append(0x1C);
-		commandStr.append(localWidth);
-		commandStr.append(0x1C);
-		commandStr.append(localHight);
-		commandStr.append(0x1C);
-		commandStr.append(localCodeType);
-		commandStr.append(0x1C);
-		commandStr.append(codeText);
-		commandStr.append(0x1C);
-		commandStr.append(0x03);
-
-		if (error==0) error=transaction(CRC(commandStr), getStr);
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error; // Example: printBarCode(2, 40, "Code 39", "1234567890");
-
-	}
-
-
 	public int printQrCode(String codeText) throws FrException{
 		if (_writeLog) Common.log("printQrCode");
 		int error=0;
 
-		if (error==0){
-			if (!codeText.isEmpty()){
-				_infoReceipt._printInfoReceipt=true;
-				_infoReceipt._printTextAsBarcode=true;
-				_infoReceipt._infoText=codeText;				
-			}
-		}
+		// The function is not supported in current fiscal printer :(
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
