@@ -774,12 +774,13 @@ public class SHTRIH extends FR
         ArrayOfBytes getStr=new ArrayOfBytes();
         ArrayOfBytes commandStr=new ArrayOfBytes();
 
+        commandStr.append(0x17);
         commandStr.append(0x1E);
         commandStr.append(0x0);
         commandStr.append(0x0);
         commandStr.append(0x0);
-        commandStr.append(0x01);
-        commandStr.append(text, "CP1251");
+        commandStr.append(0x02);
+        commandStr.append(leftJustified(text, (char)(0x00), 40), "cp1251");
 
 
         if (error==0) error=transaction(CRC(commandStr), getStr);

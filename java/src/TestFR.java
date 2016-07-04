@@ -213,6 +213,11 @@ public class TestFR {
 								_fr.addItem(itemname, article, weight, cost, "0", "1");
 							}
 
+							_fr.printText("   ");
+							_fr.printText("Текст");
+							_fr.printText("42C1064C00591E14C1200E8B4684E7D5A4B51CE2");
+							_fr.printText("   ");
+
 							_fr.total();
 
 							String egaisUrl=egaisEx.executeChequeExchange();
@@ -225,7 +230,7 @@ public class TestFR {
 
 							if (((i%5)==0)&&(i!=0)){
 								_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "");
-								
+
 								_resSet = _statmt.executeQuery("SELECT * FROM testitems");
 								while(_resSet.next()){
 									String  article = _resSet.getString("Article");
@@ -248,6 +253,7 @@ public class TestFR {
 
 									_fr.addItem(itemname, article, weight, cost, "0", "1");
 								}
+
 								_fr.total();
 								_fr.pay(FR.PAY_TYPE_0, "500.00", "");
 								_fr.closeDocument("");
