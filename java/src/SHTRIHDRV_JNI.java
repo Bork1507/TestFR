@@ -4,8 +4,15 @@
 
 public class SHTRIHDRV_JNI {
     static{
+        String osType=System.getProperty("os.name");
         String programDir=System.getProperty("user.dir");
-        System.load( programDir+"/java/lib/windows/SHTRIHDRV_JNI.dll" );
+        System.out.printf(osType);
+        if (osType.contains("Linux")){
+            System.load( programDir+"/java/lib/linux/SHTRIHDRV_JNI.so" );
+        }
+        else{
+            System.load( programDir+"/java/lib/windows/SHTRIHDRV_JNI.dll" );
+        }
     }
 
     public native int nativeConnect(int portNumber, int baud);
