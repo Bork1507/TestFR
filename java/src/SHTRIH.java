@@ -766,8 +766,31 @@ public class SHTRIH extends FR
 
 	}
 
+    public int printText(String text) throws FrException{
+        if (_writeLog) Common.log("printText");
 
-	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
+        int error=0;
+
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
+
+        commandStr.append(0x1E);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(0x0);
+        commandStr.append(0x01);
+        commandStr.append(text, "CP1251");
+
+
+        if (error==0) error=transaction(CRC(commandStr), getStr);
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+
+    }
+
+
+
+    public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
 		if (_writeLog) Common.log("AddItem");
 		int error=0;

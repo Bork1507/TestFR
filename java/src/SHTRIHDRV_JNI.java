@@ -34,14 +34,16 @@ public class SHTRIHDRV_JNI {
     public native int nativeConfirmDate(String inputDate);
     public native int nativeSetTime(String inputTime);
 
+    public native int nativePrintText(String text);
+
     public native int nativeBuy(String itemName, String articul, String qantity, String cost, String depType, String taxType);
     public native int nativeSale(String itemName, String articul, String qantity, String cost, String depType, String taxType);
     public native int nativeReturnSale(String itemName, String articul, String qantity, String cost, String depType, String taxType);
 
-    public native int CheckSubTotal();
-    public native int CloseCheck(String pay1, String pay2, String pay3, String pay4, String text);
+    public native int nativeCheckSubTotal();
+    public native int nativeCloseCheck(String pay1, String pay2, String pay3, String pay4, String text);
 
-    public native int CancelCheck();
+    public native int nativeCancelCheck();
 
     public native int nativeXreport();
     public native int nativeZreport();

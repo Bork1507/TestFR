@@ -879,29 +879,29 @@ public class FPRINT extends FR
 	}
 
 
-      public int printText(String text) throws FrException
-      {
-            if (_writeLog) Common.log("AddItem");
-            int error=0;
+    public int printText(String text) throws FrException
+    {
+        if (_writeLog) Common.log("AddItem");
+        int error=0;
 
-            ArrayOfBytes getStr=new ArrayOfBytes();
-            ArrayOfBytes commandStr=new ArrayOfBytes();
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
 
-            String textTMP=text;
+        String textTMP=text;
 
-            commandStr.append(0x00);
-            commandStr.append(0x00);
-            commandStr.append(0x4C);
-            commandStr.append(0x02);
-            commandStr.append(toAtolCodePage(textTMP));
-            commandStr.append(0x01);
+        commandStr.append(0x00);
+        commandStr.append(0x00);
+        commandStr.append(0x4C);
+        commandStr.append(0x02);
+        commandStr.append(toAtolCodePage(textTMP));
+        commandStr.append(0x01);
 
-            if (error==0) error=transaction(CRC(commandStr), getStr);
-            if (error==0) error=getEndOfPrinting();
+        if (error==0) error=transaction(CRC(commandStr), getStr);
+        if (error==0) error=getEndOfPrinting();
 
-            if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-            return error;
-      }
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+    }
 
 
 	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
@@ -950,7 +950,7 @@ public class FPRINT extends FR
 
 	}
 
-	public int total() throws FrException
+    public int total() throws FrException
 	{
 		if (_writeLog) Common.log("Total");
             int error=0;

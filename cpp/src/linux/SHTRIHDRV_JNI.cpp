@@ -87,6 +87,13 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSetTime (JNIEnv *jenv, jobject 
     return error;
 }
 
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintText (JNIEnv *jenv, jobject jobj, jstring text){
+    long error = 0;
+
+    return error;
+
+}
+
 JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeBuy (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
     long error = 0;
 
@@ -104,19 +111,19 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeReturnSale (JNIEnv *jenv, jobje
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CheckSubTotal (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeCheckSubTotal (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CloseCheck (JNIEnv *jenv, jobject jobj, jstring pay1, jstring pay2, jstring pay3, jstring pay4, jstring text){
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeCloseCheck (JNIEnv *jenv, jobject jobj, jstring pay1, jstring pay2, jstring pay3, jstring pay4, jstring text){
     long error = 0;
 
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CancelCheck (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeCancelCheck (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     return error;

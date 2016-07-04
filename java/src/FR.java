@@ -401,6 +401,8 @@ abstract class FR
 
 	abstract public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException;
 
+	abstract public int printText(String text) throws FrException;
+
 	abstract public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException;
 
 	abstract public int total() throws FrException;

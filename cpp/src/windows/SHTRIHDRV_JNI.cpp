@@ -353,6 +353,12 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSetTime (JNIEnv *jenv, jobject 
     return error;
 }
 
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintText (JNIEnv *jenv, jobject jobj, jstring text){
+    long error = 0;
+
+    return error;
+}
+
 JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeBuy (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
     long error = 0;
 

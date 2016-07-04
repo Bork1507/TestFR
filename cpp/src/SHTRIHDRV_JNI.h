@@ -97,6 +97,14 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSetTime
 
 /*
  * Class:     SHTRIHDRV_JNI
+ * Method:    nativePrintText
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintText
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     SHTRIHDRV_JNI
  * Method:    nativeBuy
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
  */
@@ -121,26 +129,26 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeReturnSale
 
 /*
  * Class:     SHTRIHDRV_JNI
- * Method:    CheckSubTotal
+ * Method:    nativeCheckSubTotal
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CheckSubTotal
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeCheckSubTotal
   (JNIEnv *, jobject);
 
 /*
  * Class:     SHTRIHDRV_JNI
- * Method:    CloseCheck
+ * Method:    nativeCloseCheck
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
  */
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CloseCheck
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeCloseCheck
   (JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring);
 
 /*
  * Class:     SHTRIHDRV_JNI
- * Method:    CancelCheck
+ * Method:    nativeCancelCheck
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CancelCheck
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeCancelCheck
   (JNIEnv *, jobject);
 
 /*

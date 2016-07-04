@@ -386,7 +386,7 @@ public class SHTRIHDRV extends FR
 	public int init() throws FrException
 	{
 		if (_writeLog) Common.log("Init");
-            int error=0;
+        int error=0;
 
         Common.log("Beep");
 		if (error==0) error=_shtrihNativeObject.nativeBeep();
@@ -415,8 +415,22 @@ public class SHTRIHDRV extends FR
 
 	}
 
+    public int printText(String text) throws FrException
+    {
+        if (_writeLog) Common.log("printText");
+        int error=0;
 
-	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
+        Common.log("CheckSubTotal");
+        if (error==0) error=_shtrihNativeObject.nativePrintText(text);
+        Common.log("Error = "+ error);
+
+        if (error==0) error=getEndOfPrinting();
+
+        return 0;
+
+    }
+
+    public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
 		if (_writeLog) Common.log("AddItem");
 		int error=0;
@@ -458,7 +472,7 @@ public class SHTRIHDRV extends FR
 
 		int error=0;
         Common.log("CheckSubTotal");
-        if (error==0) error=_shtrihNativeObject.CheckSubTotal();
+        if (error==0) error=_shtrihNativeObject.nativeCheckSubTotal();
         Common.log("Error = "+ error);
 
 		if (error==0) error=getEndOfPrinting();
@@ -529,7 +543,7 @@ public class SHTRIHDRV extends FR
 
 		int error=0;
         Common.log("CloseCheck");
-        if (error==0) error=_shtrihNativeObject.CloseCheck(pay1, pay2, pay3, pay4, text);
+        if (error==0) error=_shtrihNativeObject.nativeCloseCheck(pay1, pay2, pay3, pay4, text);
         Common.log("Error = "+ error);
 
 
@@ -546,7 +560,7 @@ public class SHTRIHDRV extends FR
 
 		int error=0;
         Common.log("CancelCheck");
-        if (error==0) error=_shtrihNativeObject.CancelCheck();
+        if (error==0) error=_shtrihNativeObject.nativeCancelCheck();
         Common.log("Error = "+ error);
 
         if (error==0) error=getEndOfPrinting();
