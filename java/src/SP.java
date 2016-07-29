@@ -352,11 +352,32 @@ public class SP extends FR
 
 
 		response.clear();
+		int resultReadPort = 0;
 
 		for (int i=0; ;i++) 
 		{
 			fromPort.clear();
 			if (readPort(fromPort))
+			{
+				resultReadPort=1;
+			}
+			else
+			{
+				resultReadPort = testConnect(fromPort);
+
+				if(resultReadPort==1)
+				{
+					//Common.log("!!!!! get another byte on test connect!!!");
+				}
+				else if(resultReadPort==-1)
+				{
+					error=NO_RESPONSE_FR;
+					break;
+				}
+
+			}
+
+			if (resultReadPort==1)
 			{
 				if (fromPort.at(0)==(byte)(0x02)) startByteWasReceived=true;
 				if (startByteWasReceived==true)
@@ -367,28 +388,11 @@ public class SP extends FR
 
 				if ((response.length()==resultLength)&&(response.length()>0))
 				{
-					
+
 					error=errorAnalisis(response);
 
 					break;
 
-				}
-
-			}
-			else
-			{
-				ArrayOfBytes out = new ArrayOfBytes();
-				int resultTestConnect = testConnect(out);
-
-				if(resultTestConnect==1)
-				{
-					response.append(out);
-					Common.log("!!!!! get another byte on test connect!!!");
-				}
-				else if(resultTestConnect==-1)
-				{
-					error=NO_RESPONSE_FR;
-					break;
 				}
 
 			}
@@ -1206,7 +1210,7 @@ public class SP extends FR
 		String kkmType="";
 		String kkmVersion="";
 
-		boolean printFast=false;
+		int printFast=-1;
 
 		try
 		{
@@ -1248,7 +1252,7 @@ public class SP extends FR
 					printerInfo=getPrinterInfo();
 
 					if ((printerInfo.indexOf("3.04")>1)&&(printerInfo.indexOf("3.01")>1)){
-						printFast=true;
+						printFast=1;
 					}
 					else{
 //						Common.log("printFast=false");
@@ -1261,16 +1265,20 @@ public class SP extends FR
 					printerInfo=getParameter(33, 0);
 
 					switch (Integer.valueOf(printerInfo)){
-						case 0: printFast=false;
+						case 0: printFast=0;
 							break;
-						case 1: printFast=false;
+						case 1: printFast=1;
 							break;
-						case 2: printFast=false;
+						case 2: printFast=1;
 							break;
-						default: printFast=false;
+						default: printFast=0;
 							break;
 
 					}
+				}
+				else{
+					// Commands 0x28 and 0x29 are not supported
+					printFast=-1;
 				}
 			}
 			catch (FrException frEx){
@@ -1279,12 +1287,15 @@ public class SP extends FR
 
 		}
 		
-		if (printFast){
+		if (printFast==1){
 			if (error==0) error=printQrCodeFast(codeText);
 			if (error==0) error=printText("");
 		}
-		else{
+		else if (printFast==0){
         	if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+		}
+		else {
+			// do nothing
 		}
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
