@@ -221,7 +221,7 @@ public class TestFR {
 							_fr.total();
 
 							String egaisUrl=egaisEx.executeChequeExchange();
-							//_fr.printQrCode(egaisUrl);
+							_fr.printQrCode(egaisUrl);
 							Common.log(egaisUrl);
 							
 							_fr.pay(FR.PAY_TYPE_0, "500.00", "");
