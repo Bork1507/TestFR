@@ -474,78 +474,77 @@ public class SHTRIH extends FR
 		return error;
 	}
 
-	private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
-	{
+    private int transaction(ArrayOfBytes toPort, ArrayOfBytes result)
+    {
 
-		if (_writeLog) Common.log("getEndOfPrinting");
-		int error=0;
+        if (_writeLog) Common.log("getEndOfPrinting");
+        int error=0;
 
-		ArrayOfBytes state = new ArrayOfBytes();
-		ArrayOfBytes fromPort = new ArrayOfBytes();
-		
-		boolean startByteWasReceived=false;
-		int resultLength=300; // more than byte
+        ArrayOfBytes state = new ArrayOfBytes();
+        ArrayOfBytes fromPort = new ArrayOfBytes();
 
-		result.clear();
+        boolean startByteWasReceived=false;
+        int resultLength=300; // more than byte
 
-            int i=0;
-		if (testConnect())
+        result.clear();
+
+        int i=0;
+        if (testConnect()){
+            writePort(toPort);
+            for (;;i++)
             {
-                  writePort(toPort);                  
-                  for (;;i++)
-      		{
-      			for (int k=0;k<100;k++ ) 
-      			{
-      				// Cycle for receve current status
+                for (int k=0;k<500;k++ )
+                {
+                    // Cycle for receve current status
 
-      				fromPort.clear();
-      				readPort(fromPort);
+                    fromPort.clear();
+                    readPort(fromPort);
 
-      				for (int j=0;j<fromPort.length();j++)
-      				{
-      					if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
-      					if (startByteWasReceived==true)
-      					{
-      						result.append(fromPort.at(j));
-      					}
-      				}
-      				
-      				if ((result.length()>1)&&(resultLength==300)) 
-      				{
-      					resultLength=result.at(1)+3;
-      				}
-      				
-      				if ((result.length()==resultLength))
-      				{
-                                    writePort(_bACK);
-                                    error=result.atUnsignedInt(3);
-      					break;
-
-      				}
-           			}
-                        
-                        if(result.length()==resultLength)
+                    for (int j=0;j<fromPort.length();j++)
+                    {
+                        if (fromPort.at(j)==(byte)(0x02)) startByteWasReceived=true;
+                        if (startByteWasReceived==true)
                         {
-                              break;
+                            result.append(fromPort.at(j));
                         }
-                        else	
-                        {
-                              writePort(_bENQ);
-                              result.clear();
-                              startByteWasReceived=false;
-                              resultLength=300;
+                    }
 
-                              if (i>2) break;
-                        }
-      		}
+                    if ((result.length()>1)&&(resultLength==300))
+                    {
+                        resultLength=result.at(1)+3;
+                    }
+
+                    if ((result.length()==resultLength))
+                    {
+                        writePort(_bACK);
+                        error=result.atUnsignedInt(3);
+                        break;
+
+                    }
+                }
+
+                if(result.length()==resultLength)
+                {
+                      break;
+                }
+                else
+                {
+                      writePort(_bENQ);
+                      result.clear();
+                      startByteWasReceived=false;
+                      resultLength=300;
+
+                      if (i>2) break;
+                }
             }
-		
-		if ((result.length()!=resultLength)) error=FR.NO_RESPONSE_FR;
+        }
+
+        if ((result.length()!=resultLength)) error=FR.NO_RESPONSE_FR;
 
 
-		return error;
+        return error;
 
-	}
+    }
 
     public int getShortStatus() throws FrException
     {
@@ -583,11 +582,11 @@ public class SHTRIH extends FR
         commandStr.append(curDate());
 
 
-//        try{
-//            //"Special for RETAIL-01K. Bugs in switching status!"
-//            Common.log("Pause "+Integer.parseInt("1000")+" ms ...");
-//            Thread.sleep(Integer.parseInt("1000"));
-//        } catch (InterruptedException ie) {}
+        try{
+            //"Special for RETAIL-01K. Bugs in switching status!"
+            Common.log("Pause "+Integer.parseInt("1000")+" ms ...");
+            Thread.sleep(Integer.parseInt("1000"));
+        } catch (InterruptedException ie) {}
 
         // set date
         if (error==0) error=transaction(CRC(commandStr), getStr);
