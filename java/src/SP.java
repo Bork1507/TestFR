@@ -1302,6 +1302,71 @@ public class SP extends FR
 		return error;
 	}
 
+	public int loadLogotype(String filePath) throws FrException
+	{
+		if (_writeLog) Common.log("loadLogotype");
+		int error=0;
+
+		ArrayOfBytes bmpFileArray=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+		ArrayOfBytes getStr=new ArrayOfBytes();
+
+		long position=0;
+
+		try {
+			RandomAccessFile bmpFile = new RandomAccessFile(new File(filePath), "r");
+
+			position = bmpFile.length();
+
+			for (int i=0; i<position; i++) {
+
+				bmpFile.seek(i);
+				bmpFileArray.append(bmpFile.readByte());
+			}
+		}
+		catch (FileNotFoundException e) {
+			error = FILE_NOT_FOUND;
+		}
+		catch (IOException e) {}
+
+
+		if (error==0) {
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("E2");
+			commandStr.append(String.valueOf(bmpFileArray.length()));
+			commandStr.append(0x1C);
+			commandStr.append(0x03);
+
+			if (writePort(CRC(commandStr))) {
+				for(int i=0;i<100; i++) {
+					if (readPort(getStr)) {
+						if (getStr.at(0)==_bACK.at(0)) break;
+					}
+					if (i==99) error=NO_RESPONSE_FR;
+				}
+			}
+			else error=ERROR_SEND;
+		}
+
+		if (error==0) {
+			if (writePort(bmpFileArray)) {
+				try {
+					Common.log("Pause "+1000+" ms ...");
+					Thread.sleep(1000);
+				} catch (InterruptedException ie) {}
+
+			}
+			else error=ERROR_SEND;
+		}
+		if (error==0) {
+			error=getResponse(getStr);
+		}
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
 
 	public int receiptSale() throws FrException{
 		if (_writeLog) Common.log("ReceiptSale");

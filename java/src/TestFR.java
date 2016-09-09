@@ -178,6 +178,25 @@ public class TestFR {
 			Common.log(" ");
 			Common.log("!!!Start program!!!");
 
+			try {
+				Common.log(" ");
+
+				_fr.init();
+
+				_fr.loadLogotype("/home/bork/VirtualBoxFolder/Projects/Fiscal/ServPlus_koordinats_601.bmp");
+
+			}
+			catch (FrException frEx){
+				Common.log(frEx.toString());
+				try {
+					Common.log("Press Enter ... ");
+					System.in.read();
+				}
+				catch(IOException e){}
+			}
+
+
+/*
 			for(int cycle=0;cycle<Integer.parseInt(_param0); cycle++){
 				try{
 					Common.log(" ");
@@ -288,6 +307,7 @@ public class TestFR {
 					catch(IOException e){}
 				}
 			}
+*/
 		}
 		catch (FrException frEx){
 			Common.log(frEx.toString());

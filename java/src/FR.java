@@ -419,6 +419,8 @@ abstract class FR
 
 	abstract public int printQrCode(String url) throws FrException;
 
+	abstract public int loadLogotype(String filePath) throws FrException;
+
 	abstract public int receiptSale() throws FrException;
 
 	abstract public int printEklzReportFullByDate(Date from, Date to) throws FrException;

@@ -1321,7 +1321,16 @@ public class FPRINT extends FR
       }
 
 
-	public int receiptSale() throws FrException
+    public int loadLogotype(String filePath) throws FrException
+    {
+        if (_writeLog) Common.log("loadLogotype");
+        int error=0;
+
+        return error;
+    }
+
+
+    public int receiptSale() throws FrException
 	{
 		if (_writeLog) Common.log("ReceiptSale");
 		int error=0;

@@ -899,6 +899,13 @@ public class WINCOR extends FR{
 		return error;
 	}
 
+	public int loadLogotype(String filePath) throws FrException
+	{
+		if (_writeLog) Common.log("loadLogotype");
+		int error=0;
+
+		return error;
+	}
 
 	public int receiptSale() throws FrException{
 		if (_writeLog) Common.log("ReceiptSale");
