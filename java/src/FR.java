@@ -387,6 +387,8 @@ abstract class FR
 	}
 
 
+	abstract public String deviceType();
+
     abstract public void openPort(String portName, String baud) throws FrException;
 
 	abstract public void closePort();
@@ -397,11 +399,17 @@ abstract class FR
 
     abstract public String getLastShiftInFiscalMemory() throws FrException;
 
+	abstract public String getKkmParameter(int rowNumber, int columnNumber) throws FrException;
+
+	abstract public int setKkmParameter(int rowNumber, int columnNumber, String value) throws FrException;
+
 	abstract public int init() throws FrException;
 
 	abstract public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException;
 
 	abstract public int printText(String text) throws FrException;
+
+	abstract public int printTextEx(String text, int mask) throws FrException;
 
 	abstract public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException;
 
@@ -419,6 +427,7 @@ abstract class FR
 
 	abstract public int printQrCode(String url) throws FrException;
 
+	abstract public int eraseLogotype() throws FrException;
 	abstract public int loadLogotype(String filePath) throws FrException;
 
 	abstract public int receiptSale() throws FrException;
@@ -428,7 +437,6 @@ abstract class FR
 	abstract public int printEklzReportFullByShift(int from, int to) throws FrException;
 	abstract public int printEklzReportShortByShift(int from, int to) throws FrException; 
 	abstract public int printEklzReportControlTape(int shift) throws FrException;
-
 
 }
 

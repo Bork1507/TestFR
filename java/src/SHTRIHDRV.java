@@ -1,15 +1,8 @@
 import jssc.SerialPort;
-import jssc.SerialPortException;
-import jssc.SerialPortTimeoutException;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -31,6 +24,10 @@ public class SHTRIHDRV extends FR
 	{
 
 	}
+
+    public String deviceType() {
+        return "FISCAL_PRINTER";
+    }
 
     private String curDate()
     {
@@ -365,6 +362,22 @@ public class SHTRIHDRV extends FR
         return result;
     }
 
+    public String getKkmParameter(int rowNumber, int columnNumber) throws FrException
+    {
+        if (_writeLog) Common.log("getKkmParameter");
+        int error=0;
+        String result="";
+
+        return result;
+    }
+
+    public int setKkmParameter(int rowNumber, int columnNumber, String value) throws FrException {
+        if (_writeLog) Common.log("setKkmParameter");
+        int error=0;
+
+        return error;
+    }
+
     public String getLastShiftInFiscalMemory() throws FrException
     {
         if (_writeLog) Common.log("getLastShiftInFiscalMemory");
@@ -428,6 +441,16 @@ public class SHTRIHDRV extends FR
 
         return 0;
 
+    }
+
+    public int printTextEx(String text, int mask) throws FrException
+    {
+        if (_writeLog) Common.log("printTextEx");
+
+        int error=0;
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
     }
 
     public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
@@ -661,6 +684,14 @@ public class SHTRIHDRV extends FR
 
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+    }
+
+    public int eraseLogotype() throws FrException
+    {
+        if (_writeLog) Common.log("eraseLogotype");
+        int error=0;
+
         return error;
     }
 

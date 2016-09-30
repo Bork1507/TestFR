@@ -31,6 +31,10 @@ public class WINCOR extends FR{
 		_bACK.append(0x06);
 	}
 
+	public String deviceType() {
+		return "FISCAL_PRINTER";
+	}
+
 	private String _passOfConnect="PIRI";
 
 	private String getPassOfConnect(){		
@@ -423,6 +427,69 @@ public class WINCOR extends FR{
 	    return result;
 	}
 
+	public String getKkmParameter(int rowNumber, int columnNumber) throws FrException
+	{
+		if (_writeLog) Common.log("getKkmParameter");
+		int error=0;
+//		ArrayOfBytes getStr=new ArrayOfBytes();
+//		ArrayOfBytes commandStr=new ArrayOfBytes();
+//
+//		commandStr.append(0x02);
+//		commandStr.append("PONE");
+//		commandStr.append(id());
+//		commandStr.append("A1");
+//		commandStr.append(String.valueOf(rowNumber));
+//		commandStr.append(0x1C);
+//		commandStr.append(String.valueOf(columnNumber));
+//		commandStr.append(0x1C);
+//		commandStr.append(0x03);
+//
+//
+//		if (error==0) error=transaction(CRC(commandStr), getStr);
+//
+		String result="";
+//		if (error==0)
+//		{
+//			ArrayOfBytes tmp = new ArrayOfBytes();
+//			tmp=getStr.mid(6);
+//			result+=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
+//
+//			//if (_writeLog)
+//			Common.log("result = "+result);
+//		}
+//
+//		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return result;
+	}
+
+	public int setKkmParameter(int rowNumber, int columnNumber, String value) throws FrException {
+		if (_writeLog) Common.log("setKkmParameter");
+		int error=0;
+//		ArrayOfBytes getStr=new ArrayOfBytes();
+//		ArrayOfBytes commandStr=new ArrayOfBytes();
+//
+//		commandStr.append(0x02);
+//		commandStr.append("PONE");
+//		commandStr.append(id());
+//		commandStr.append("A2");
+//		commandStr.append(String.valueOf(rowNumber));
+//		commandStr.append(0x1C);
+//		commandStr.append(String.valueOf(columnNumber));
+//		commandStr.append(0x1C);
+//		commandStr.append(value, "CP866");
+//		commandStr.append(0x1C);
+//		commandStr.append(0x03);
+//
+//
+//		if (error==0) error=transaction(CRC(commandStr), getStr);
+//
+//		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return error;
+	}
+
+
 	public String getCurrentStatus() throws FrException{
 	    if (_writeLog) Common.log("getCurrentStatus");
 	    int error=0;
@@ -585,6 +652,31 @@ public class WINCOR extends FR{
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 
+	}
+
+	public int printTextEx(String text, int mask) throws FrException
+	{
+		if (_writeLog) Common.log("printTextEx");
+
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append(getPassOfConnect());
+		commandStr.append(id());
+		commandStr.append("40");
+		commandStr.append(text, "CP866");
+		commandStr.append(0x1C);
+		commandStr.append(String.valueOf(mask));
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
 	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException{
@@ -896,6 +988,14 @@ public class WINCOR extends FR{
 		}
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
+	public int eraseLogotype() throws FrException
+	{
+		if (_writeLog) Common.log("eraseLogotype");
+		int error=0;
+
 		return error;
 	}
 

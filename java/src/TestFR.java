@@ -96,11 +96,13 @@ public class TestFR {
 					_programProperties.setProperty("BAUD", "19200");
 					_programProperties.setProperty("FR", "SP");
 					_programProperties.setProperty("TIMEOUT", "1000");
+					_programProperties.setProperty("TEST_LOADLOGOTYPE", "YES");
+					_programProperties.setProperty("TEST_LOADSETTINGS", "YES");
+					_programProperties.setProperty("TEST_MAIN", "YES");
 
 					FileOutputStream out = new FileOutputStream(configurationFileName);
 					_programProperties.storeToXML(out, null);
-					out.close();   
-
+					out.close();
 				}
 
 				FileInputStream in = new FileInputStream(configurationFileName);
@@ -170,146 +172,267 @@ public class TestFR {
 		else if (_param4.equals("PYRITE")) _fr=new PYRITE();
 		else if (_param4.equals("WINCOR")) _fr=new WINCOR();
 		else if (_param4.equals("SHTRIHDRV")) _fr=new SHTRIHDRV();
+		else if (_param4.equals("CW1000")) _fr=new CW1000();
 		else return;
 
-		try{
+		try {
+
+
 			_fr.openPort(_param2, _param3);
 			Common.log(" ");
 			Common.log(" ");
 			Common.log("!!!Start program!!!");
 
-			try {
-				Common.log(" ");
+			if (_programProperties.getProperty("TEST_LOADSETTINGS", "NO").equals("YES")) {
 
-				_fr.init();
+				for (int k = 4; k < 5; k++) {
+					// Set parameters for SP
+					if (_param4.equals("SP")) {
 
-				_fr.loadLogotype("/home/bork/VirtualBoxFolder/Projects/Fiscal/ServPlus_koordinats_601.bmp");
+						// Compact mode. Normal = 0, Compact = 1
+						String tmp = _fr.getKkmParameter(2, 0);
+						tmp = Integer.toBinaryString(Integer.valueOf(tmp));
+						tmp = tmp.substring(0, tmp.length() - 1);
+						tmp = tmp + "0";
+						_fr.setKkmParameter(2, 0, String.valueOf(Integer.valueOf(tmp, 2)));
 
-			}
-			catch (FrException frEx){
-				Common.log(frEx.toString());
-				try {
-					Common.log("Press Enter ... ");
-					System.in.read();
-				}
-				catch(IOException e){}
-			}
-
-
-/*
-			for(int cycle=0;cycle<Integer.parseInt(_param0); cycle++){
-				try{
-					Common.log(" ");
-					Common.log("!!!Start cycle number - "+cycle);
-
-					try
-					{
-						_fr.init();
+						// Set 1-st row of header
+						_fr.setKkmParameter(20, 0, "");
+						if (k > 0) _fr.setKkmParameter(20, 0, "1234567890");
+						// Set 2-nd row of header
+						_fr.setKkmParameter(20, 1, "");
+						if (k > 1) _fr.setKkmParameter(20, 1, "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ");
+						// Set 3-rd row of header
+						_fr.setKkmParameter(20, 2, "");
+						if (k > 2) _fr.setKkmParameter(20, 2, "абвгдеёжзийклмнопрстуфхцчшщъыьэюя");
+						// Set 4-th row of header
+						_fr.setKkmParameter(20, 3, "");
+						if (k > 3) _fr.setKkmParameter(20, 3, "!\"№;%:?*()_+@#$%^&*()-=");
 					}
-					catch(FrException frEx){}
 
-					Common.log(_fr.getKkmType()+" "+_fr.getKkmVersion());
-					for (int i=0; i<Integer.parseInt(_param1); i++){
-						try{
-							try{
-								Common.log("Pause "+Integer.parseInt(_timeoutBetweenReceipts)+" ms ...");
-								Thread.sleep(Integer.parseInt(_timeoutBetweenReceipts));
-							} catch (InterruptedException ie) {}	
+					_fr.init();
+
+					_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "0");
+					String article = "1234567";
+					String itemname = "ItemName";
+					String cost = "111";
+					String weight = "1";
+					_fr.addItem(itemname, article, weight, cost, "0", "1");
+					_fr.total();
+					_fr.pay(FR.PAY_TYPE_0, "500.00", "");
+					_fr.closeDocument("");
+
+					_fr.zReport("Петрова");
+
+					_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "0");
+
+					_fr.printTextEx("Шрифт А межсимв.расст.ум. 41 симв в стр", 0);
+					_fr.printTextEx("Шрифт А надчеркнутый", 0x04);
+					_fr.printTextEx("Шрифт А выделенный", 0x08);
+					_fr.printTextEx("Шрифт А двойная высота", 0x10);
+					_fr.printTextEx("Шрифт А двойная ширина", 0x20);
+					_fr.printTextEx("Шрифт А инверсия", 0x40);
+					_fr.printTextEx("Шрифт А подчеркнутый", 0x80);
+					_fr.printText("");
+
+					_fr.printTextEx("Шрифт C межсимв.расст.2. 57 симв в стр", 1);
+					_fr.printTextEx("Шрифт C надчеркнутый", 0x05);
+					_fr.printTextEx("Шрифт C выделенный", 0x09);
+					_fr.printTextEx("Шрифт C двойная высота", 0x11);
+					_fr.printTextEx("Шрифт C двойная ширина", 0x21);
+					_fr.printTextEx("Шрифт C инверсия", 0x41);
+					_fr.printTextEx("Шрифт C подчеркнутый", 0x81);
+					_fr.printText("");
+
+					_fr.printTextEx("Шрифт C2 межсимв.расст.0. 72 симв в стр", 2);
+					_fr.printTextEx("Шрифт C2 надчеркнутый", 0x06);
+					_fr.printTextEx("Шрифт C2 выделенный", 0x0A);
+					_fr.printTextEx("Шрифт C2 двойная высота", 0x12);
+					_fr.printTextEx("Шрифт C2 двойная ширина", 0x22);
+					_fr.printTextEx("Шрифт C2 инверсия", 0x42);
+					_fr.printTextEx("Шрифт C2 подчеркнутый", 0x82);
+					_fr.printText("");
+
+					_fr.printTextEx("Шрифт B межсимв.расст.ум. 36 симв в стр", 3);
+					_fr.printTextEx("Шрифт B надчеркнутый", 0x07);
+					_fr.printTextEx("Шрифт B выделенный", 0x0B);
+					_fr.printTextEx("Шрифт B двойная высота", 0x13);
+					_fr.printTextEx("Шрифт B двойная ширина", 0x23);
+					_fr.printTextEx("Шрифт B инверсия", 0x43);
+					_fr.printTextEx("Шрифт B подчеркнутый", 0x83);
+					_fr.printText("");
+
+					_fr.closeDocument("0");
+
+					_fr.init();
+				}
+			}
+
+			if (_programProperties.getProperty("TEST_LOADLOGOTYPE", "NO").equals("YES")) {
+
+				if (_param4.equals("SP")) {
+					// Logo 1=print logo 0=do not print logo
+					_fr.setKkmParameter(5, 0, "1");
+				}
+
+				String path = "";
+
+				for (int i = 2; i < 3; i++) {
+					if (i == 0) {
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 269х050_.bmp";
+					} else if (i == 1) {
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х107.bmp"; // AXIOHM
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х080.bmp"; // CW1000
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP601_Logo_ServPlus_koordinats 551x079.bmp"; // IBM
+					} else if (i == 2) {
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 288х126.bmp"; // AXIOHM
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х100.bmp"; // CW1000
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP601_Logo_ServPlus_koordinats 576x167.bmp"; // IBM
+					}
+
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException ie) {}
+
+					_fr.eraseLogotype();
+					_fr.loadLogotype(path);
+					_fr.xReport("");
+				}
+
+				// Choose logo for next test.
+				switch(1){
+					case 0:
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 269х050_.bmp";
+						break;
+					case 1:
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х107.bmp"; // AXIOHM
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х080.bmp"; // CW1000
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP601_Logo_ServPlus_koordinats 551x079.bmp"; // IBM
+						break;
+					case 2:
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 288х126.bmp"; // AXIOHM
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х100.bmp"; // CW1000
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP601_Logo_ServPlus_koordinats 576x167.bmp"; // IBM
+						break;
+				}
+				_fr.eraseLogotype();
+				_fr.loadLogotype(path);
+			}
 
 
-							_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "");
-							//_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
+			if (_programProperties.getProperty("TEST_MAIN", "NO").equals("YES")) {
+				for (int cycle = 0; cycle < Integer.parseInt(_param0); cycle++) {
+					try {
+						Common.log(" ");
+						Common.log("!!!Start cycle number - " + cycle);
+
+						try {
+							_fr.init();
+						} catch (FrException frEx) {
+						}
+
+						Common.log(_fr.getKkmType() + " " + _fr.getKkmVersion());
+						for (int i = 0; i < Integer.parseInt(_param1); i++) {
+							try {
+								try {
+									Common.log("Pause " + Integer.parseInt(_timeoutBetweenReceipts) + " ms ...");
+									Thread.sleep(Integer.parseInt(_timeoutBetweenReceipts));
+								} catch (InterruptedException ie) {
+								}
 
 
-							_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-		
-							while(_resSet.next()){
-								String  article = _resSet.getString("Article");
-								String  itemname = _resSet.getString("ItemName");
-								String  cost = _resSet.getString("Cost");
-								String  weight = _resSet.getString("Weight");
-
-								_fr.addItem(itemname, article, weight, cost, "0", "1");
-							}
-
-							_fr.printText("   ");
-							_fr.printText("Текст");
-							_fr.printText("42C1064C00591E14C1200E8B4684E7D5A4B51CE2");
-							_fr.printText("   ");
-
-							_fr.total();
-
-							String egaisUrl=egaisEx.executeChequeExchange();
-							_fr.printQrCode(egaisUrl);
-							Common.log(egaisUrl);
-							
-							_fr.pay(FR.PAY_TYPE_0, "500.00", "");
-							_fr.closeDocument("");
-
-
-							if (((i%5)==0)&&(i!=0)){
 								_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "");
+								//_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
+
 
 								_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-								while(_resSet.next()){
-									String  article = _resSet.getString("Article");
-									String  itemname = _resSet.getString("ItemName");
-									String  cost = _resSet.getString("Cost");
-									String  weight = _resSet.getString("Weight");
+
+								while (_resSet.next()) {
+									String article = _resSet.getString("Article");
+									String itemname = _resSet.getString("ItemName");
+									String cost = _resSet.getString("Cost");
+									String weight = _resSet.getString("Weight");
 
 									_fr.addItem(itemname, article, weight, cost, "0", "1");
 								}
-								_fr.cancelDocument();
 
-								_fr.openDocument(FR.RECEIPT_TYPE_RETURN_SALE, "0", "Иванова", "");
-	
-								_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-								while(_resSet.next()){
-									String  article = _resSet.getString("Article");
-									String  itemname = _resSet.getString("ItemName");
-									String  cost = _resSet.getString("Cost");
-									String  weight = _resSet.getString("Weight");
-
-									_fr.addItem(itemname, article, weight, cost, "0", "1");
-								}
+								_fr.printText("   ");
+								_fr.printText("Текст");
+								_fr.printText("42C1064C00591E14C1200E8B4684E7D5A4B51CE2");
+								_fr.printText("   ");
 
 								_fr.total();
+
+								String egaisUrl = egaisEx.executeChequeExchange();
+								_fr.printQrCode(egaisUrl);
+								Common.log(egaisUrl);
+
 								_fr.pay(FR.PAY_TYPE_0, "500.00", "");
 								_fr.closeDocument("");
-					
-								_fr.xReport("Иванова");
-							}
-						}
-						catch (FrException frEx){
-							Common.log(frEx.toString());
-							try {
-								Common.log("Press Enter ... ");
-								System.in.read();
-							}
-							catch(IOException e){}
-						}
-					}
-					_fr.zReport("Петрова");			
 
-					String lastShift = _fr.getLastShiftInFiscalMemory();
-					_fr.printEklzReportFullByDate(new Date(), new Date());// Report is very big sometimes
-					_fr.printEklzReportShortByDate(new Date(), new Date());
-					_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
-					_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
-					_fr.printEklzReportControlTape(Integer.valueOf(lastShift));
-				}
-				catch (FrException frEx){
-					Common.log(frEx.toString());
-					try {
-						Common.log("Press Enter ... ");
-						System.in.read();
+
+								if (((i % 5) == 0) && (i != 0)) {
+									_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "");
+
+									_resSet = _statmt.executeQuery("SELECT * FROM testitems");
+									while (_resSet.next()) {
+										String article = _resSet.getString("Article");
+										String itemname = _resSet.getString("ItemName");
+										String cost = _resSet.getString("Cost");
+										String weight = _resSet.getString("Weight");
+
+										_fr.addItem(itemname, article, weight, cost, "0", "1");
+									}
+									_fr.cancelDocument();
+
+									_fr.openDocument(FR.RECEIPT_TYPE_RETURN_SALE, "0", "Иванова", "");
+
+									_resSet = _statmt.executeQuery("SELECT * FROM testitems");
+									while (_resSet.next()) {
+										String article = _resSet.getString("Article");
+										String itemname = _resSet.getString("ItemName");
+										String cost = _resSet.getString("Cost");
+										String weight = _resSet.getString("Weight");
+
+										_fr.addItem(itemname, article, weight, cost, "0", "1");
+									}
+
+									_fr.total();
+									_fr.pay(FR.PAY_TYPE_0, "500.00", "");
+									_fr.closeDocument("");
+
+									_fr.xReport("Иванова");
+								}
+							} catch (FrException frEx) {
+								Common.log(frEx.toString());
+								try {
+									Common.log("Press Enter ... ");
+									System.in.read();
+								} catch (IOException e) {
+								}
+							}
+						}
+						_fr.zReport("Петрова");
+
+						String lastShift = _fr.getLastShiftInFiscalMemory();
+						_fr.printEklzReportFullByDate(new Date(), new Date());// Report is very big sometimes
+						_fr.printEklzReportShortByDate(new Date(), new Date());
+						_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
+						_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
+						_fr.printEklzReportControlTape(Integer.valueOf(lastShift));
+					} catch (FrException frEx) {
+						Common.log(frEx.toString());
+						try {
+							Common.log("Press Enter ... ");
+							System.in.read();
+						} catch (IOException e) {
+						}
 					}
-					catch(IOException e){}
 				}
+				_resSet.close();
 			}
-*/
 		}
-		catch (FrException frEx){
+		catch(FrException frEx){
 			Common.log(frEx.toString());
 		}
 
@@ -317,7 +440,6 @@ public class TestFR {
 
 		_conn.close();
 		_statmt.close();
-		_resSet.close();
 
 
 		System.exit(0);

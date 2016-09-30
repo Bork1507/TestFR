@@ -34,6 +34,9 @@ public class SHTRIH extends FR
 		_bNAK.append(0x15);
 	}
 
+    public String deviceType() {
+        return "FISCAL_PRINTER";
+    }
 
 	private ArrayOfBytes turnString(ArrayOfBytes str)
 	{
@@ -700,6 +703,22 @@ public class SHTRIH extends FR
         return result;
     }
 
+    public String getKkmParameter(int rowNumber, int columnNumber) throws FrException
+    {
+        if (_writeLog) Common.log("getKkmParameter");
+        int error=0;
+        String result="";
+
+        return result;
+    }
+
+    public int setKkmParameter(int rowNumber, int columnNumber, String value) throws FrException {
+        if (_writeLog) Common.log("setKkmParameter");
+        int error=0;
+
+        return error;
+    }
+
     public String getLastShiftInFiscalMemory() throws FrException
     {
         if (_writeLog) Common.log("getLastShiftInFiscalMemory");
@@ -788,7 +807,15 @@ public class SHTRIH extends FR
 
     }
 
+    public int printTextEx(String text, int mask) throws FrException
+    {
+        if (_writeLog) Common.log("printTextEx");
 
+        int error=0;
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+    }
 
     public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
 	{
@@ -1434,6 +1461,14 @@ public class SHTRIH extends FR
             if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
             return error;
       }
+
+    public int eraseLogotype() throws FrException
+    {
+        if (_writeLog) Common.log("eraseLogotype");
+        int error=0;
+
+        return error;
+    }
 
     public int loadLogotype(String filePath) throws FrException
     {
