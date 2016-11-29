@@ -174,6 +174,7 @@ public class TestFR {
 		else if (_param4.equals("WINCOR")) _fr=new WINCOR();
 		else if (_param4.equals("SHTRIHDRV")) _fr=new SHTRIHDRV();
 		else if (_param4.equals("CW1000")) _fr=new CW1000();
+		else if (_param4.equals("SPDRV")) _fr=new SPDRV();
 		else return;
 
 		try {
@@ -333,30 +334,11 @@ public class TestFR {
 
 					try {
 
-						_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "1");
-						//_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
-
-						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-
-						while (_resSet.next()) {
-							String article = _resSet.getString("Article");
-							String itemname = _resSet.getString("ItemName");
-							String cost = _resSet.getString("Cost");
-							String weight = _resSet.getString("Weight");
-
-							_fr.addItem(itemname, article, weight, cost, "0", "1");
-						}
-						_fr.printText("Текст");
-						_fr.total();
-//						String egaisUrl = egaisEx.executeChequeExchange();
-//						_fr.printQrCode(egaisUrl);
-//						Common.log(egaisUrl);
-						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
-						_fr.closeDocument("");
-
-
 //						_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "1");
+//						//_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
+//
 //						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
+//
 //						while (_resSet.next()) {
 //							String article = _resSet.getString("Article");
 //							String itemname = _resSet.getString("ItemName");
@@ -365,34 +347,53 @@ public class TestFR {
 //
 //							_fr.addItem(itemname, article, weight, cost, "0", "1");
 //						}
-//						_fr.cancelDocument();
-
-						_fr.openDocument(FR.RECEIPT_TYPE_RETURN_SALE, "0", "Иванова", "1");
-						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-						_resSet.next();
-							String article = _resSet.getString("Article");
-							String itemname = _resSet.getString("ItemName");
-							String cost = _resSet.getString("Cost");
-							String weight = _resSet.getString("Weight");
-
-							_fr.addItem(itemname, article, weight, cost, "0", "1");
-
-						_fr.total();
-						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
-						_fr.closeDocument("");
-
-
-						_fr.openDocument(FR.RECEIPT_TYPE_CASHIN, "0", "Иванова", "1");
-						_fr.addCashInCashOutSum("", "500.00");
+//						_fr.printText("Текст");
+//						_fr.total();
+////						String egaisUrl = egaisEx.executeChequeExchange();
+////						_fr.printQrCode(egaisUrl);
+////						Common.log(egaisUrl);
+//						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
+//						_fr.closeDocument("");
+//
+//
+////						_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "1");
+////						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
+////						while (_resSet.next()) {
+////							String article = _resSet.getString("Article");
+////							String itemname = _resSet.getString("ItemName");
+////							String cost = _resSet.getString("Cost");
+////							String weight = _resSet.getString("Weight");
+////
+////							_fr.addItem(itemname, article, weight, cost, "0", "1");
+////						}
+////						_fr.cancelDocument();
+//
+//						_fr.openDocument(FR.RECEIPT_TYPE_RETURN_SALE, "0", "Иванова", "1");
+//						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
+//						_resSet.next();
+//							String article = _resSet.getString("Article");
+//							String itemname = _resSet.getString("ItemName");
+//							String cost = _resSet.getString("Cost");
+//							String weight = _resSet.getString("Weight");
+//
+//							_fr.addItem(itemname, article, weight, cost, "0", "1");
+//
 //						_fr.total();
 //						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
-						_fr.closeDocument("");
-
-						_fr.openDocument(FR.RECEIPT_TYPE_CASHOUT, "0", "Иванова", "1");
-						_fr.addCashInCashOutSum("", "500.00");
-//						_fr.total();
-//						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
-						_fr.closeDocument("");
+//						_fr.closeDocument("");
+//
+//
+//						_fr.openDocument(FR.RECEIPT_TYPE_CASHIN, "0", "Иванова", "1");
+//						_fr.addCashInCashOutSum("", "500.00");
+////						_fr.total();
+////						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
+//						_fr.closeDocument("");
+//
+//						_fr.openDocument(FR.RECEIPT_TYPE_CASHOUT, "0", "Иванова", "1");
+//						_fr.addCashInCashOutSum("", "500.00");
+////						_fr.total();
+////						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
+//						_fr.closeDocument("");
 
 						_fr.xReport("Иванова");
 
@@ -405,7 +406,6 @@ public class TestFR {
 						}
 					}
 					_fr.zReport("Петрова");
-
 				} catch (FrException frEx) {
 					Common.log(frEx.toString());
 					try {

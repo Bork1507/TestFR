@@ -450,6 +450,12 @@ public class SP extends FR
 				case "404": 
 					result="СП402ФР-К";
 					break;
+				case "414":
+					result="СП412ФР";
+					break;
+				case "614":
+					result="СП614БУ";
+					break;
 				case "460":
 					result="СП402-Ф";
 					break;
