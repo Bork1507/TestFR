@@ -58,4 +58,5 @@ public class SHTRIHDRV_JNI {
 
     public native int nativeClosePort();
 
+    public native int fiscal54Fz();
 }

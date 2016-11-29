@@ -55,6 +55,8 @@ abstract class FR
 	public static final String RECEIPT_TYPE_SALE="RECEIPT_TYPE_SALE";
 	public static final String RECEIPT_TYPE_RETURN_SALE="RECEIPT_TYPE_RETURN_SALE";
 	public static final String RECEIPT_TYPE_NON_FISCAL_DOCUMENT="RECEIPT_TYPE_NON_FISCAL_DOCUMENT";
+	public static final String RECEIPT_TYPE_CASHIN="RECEIPT_TYPE_CASHIN";
+	public static final String RECEIPT_TYPE_CASHOUT="RECEIPT_TYPE_CASHOUT";
 
 	public static final int ERROR_PORT          =1001;
 	public static final int ERROR_CONNECT       =1002;
@@ -413,6 +415,8 @@ abstract class FR
 
 	abstract public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException;
 
+	abstract public int addCashInCashOutSum(String itemName, String sum) throws FrException;
+
 	abstract public int total() throws FrException;
 
 	abstract public int pay(String payType, String sum, String text) throws FrException;
@@ -438,6 +442,7 @@ abstract class FR
 	abstract public int printEklzReportShortByShift(int from, int to) throws FrException; 
 	abstract public int printEklzReportControlTape(int shift) throws FrException;
 
+	abstract public int fiscal54Fz() throws FrException;
 }
 
 

@@ -215,6 +215,14 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportControlTape
 JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeClosePort
   (JNIEnv *, jobject);
 
+/*
+ * Class:     SHTRIHDRV_JNI
+ * Method:    fiscal54Fz
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_fiscal54Fz
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

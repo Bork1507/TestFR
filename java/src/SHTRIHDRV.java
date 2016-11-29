@@ -489,7 +489,17 @@ public class SHTRIHDRV extends FR
 
 	}
 
-	public int total() throws FrException
+    public int addCashInCashOutSum(String itemName, String sum) throws FrException
+    {
+        if (_writeLog) Common.log("addCashInCashOutSum");
+        int error=0;
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+    }
+
+
+    public int total() throws FrException
 	{
 		if (_writeLog) Common.log("Total");
 
@@ -785,6 +795,16 @@ public class SHTRIHDRV extends FR
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;
     }
+    public int fiscal54Fz() throws FrException{
+        if (_writeLog) Common.log("fiscal54");
+        int error=0;
 
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+
+    }
 
 }

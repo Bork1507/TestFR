@@ -438,7 +438,10 @@ public class SP extends FR
 				case "132": 
 					result="СП101ФР-К";
 					break;
-				case "402": 
+				case "160":
+					result="СП101-Ф";
+					break;
+				case "402":
 					result="СП402ФР-К";
 					break;
 				case "403": 
@@ -447,7 +450,10 @@ public class SP extends FR
 				case "404": 
 					result="СП402ФР-К";
 					break;
-				case "601": 
+				case "460":
+					result="СП402-Ф";
+					break;
+				case "601":
 					result="СП601-К";
 					break;
 			}
@@ -747,6 +753,12 @@ public class SP extends FR
 			case "RECEIPT_TYPE_RETURN_SALE" :
 				docType="3";
 				break;
+			case "RECEIPT_TYPE_CASHIN" :
+				docType="4";
+				break;
+			case "RECEIPT_TYPE_CASHOUT" :
+				docType="5";
+				break;
 			default:
 				docType="0";
 				break;
@@ -854,6 +866,31 @@ public class SP extends FR
 		return error;
 
 	}
+
+
+	public int addCashInCashOutSum(String itemName, String sum) throws FrException
+	{
+		if (_writeLog) Common.log("addCashInCashOutSum");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("36");
+		commandStr.append(itemName, "cp866");
+		commandStr.append(0x1C);
+		commandStr.append(sum);
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
 
 	public int total() throws FrException
 	{
@@ -1285,10 +1322,16 @@ public class SP extends FR
 			case "СП101ФР-К": 
 				imageWidth=576;
 				break;
-			case "СП402ФР-К": 
+			case "СП101-Ф":
+				imageWidth=576;
+				break;
+			case "СП402ФР-К":
 				imageWidth=448;
 				break;
-			case "СП601-К": 
+			case "СП402-Ф":
+				imageWidth=448;
+				break;
+			case "СП601-К":
 				imageWidth=576;
 				break;
 		}
@@ -1298,7 +1341,7 @@ public class SP extends FR
 		// image.setImageHeight(imageHeight);
 		// image.getQrImageFile(codeText, "QrFile.bmp");
 
-		if (kkmType=="СП101ФР-К"){
+		if ((kkmType=="СП101ФР-К")||(kkmType=="СП101-Ф")){
 			try{
 				if ((Integer.valueOf(kkmVersion)==130)){
 					String printerInfo="";
@@ -1608,6 +1651,48 @@ public class SP extends FR
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 
 		return error;
+	}
+	public int fiscal54Fz() throws FrException{
+		if (_writeLog) Common.log("fiscal54");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("08");
+		commandStr.append("0", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("ООО\"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ\"", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("123456789012", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("01234012340123401234", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("Иванов абвгдеёжзийклмнопрстуфхцчшщъыьэюя", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("Город !@#$%^&*()\"№;%:?*<>[]{}\'`~-=_+", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("Другой город", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("1", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("0", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("ОФД \"Первый ОФД\"", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append("120987654321", "cp866");
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+
+		//if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error==0) writePort(CRC(commandStr));
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+
 	}
 
     public int printImageToCW1000(String filePath) throws FrException
