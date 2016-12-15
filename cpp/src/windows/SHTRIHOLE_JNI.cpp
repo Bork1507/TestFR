@@ -1,4 +1,4 @@
-#include "SHTRIHDRV_JNI.h"
+#include "SHTRIHOLE_JNI.h"
 #include <windows.h>
 #include <tchar.h>
 #include <iostream>
@@ -28,7 +28,7 @@ double time_tToDATE(struct tm inDateTime){
     return resultDate;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeConnect (JNIEnv *jenv, jobject jobj, jint portNumber, jint baud){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeConnect (JNIEnv *jenv, jobject jobj, jint portNumber, jint baud){
     if ( ( CoInitialize( NULL ))!=S_OK)
     {
        cout << "Unable to initialize COM" << endl;
@@ -133,7 +133,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeConnect (JNIEnv *jenv, jobject 
    return error;
 }
 
-JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetShortECRStatus (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jstring JNICALL Java_SHTRIHOLE_1JNI_nativeGetShortECRStatus (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     long mode=999999999;
@@ -153,14 +153,14 @@ JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetShortECRStatus (JNIEnv *j
     return outShortECRStatus;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeGetResultCode (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeGetResultCode (JNIEnv *jenv, jobject jobj){
     long error = 0;
     error=pDrvFR->get_ResultCode();
     //cout << "Result GetResultCode - " << error << endl;
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeGetEndOfPrinting (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeGetEndOfPrinting (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     long mode=999999999;
@@ -191,7 +191,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeGetEndOfPrinting (JNIEnv *jenv,
 
 }
 
-JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetKkmType (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jstring JNICALL Java_SHTRIHOLE_1JNI_nativeGetKkmType (JNIEnv *jenv, jobject jobj){
     long error = 0;
     BSTR bstrKKMType;//=SysAllocString(L"Проверка инициализации русскими символами");
 
@@ -208,7 +208,7 @@ JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetKkmType (JNIEnv *jenv, jo
     return outKkmType;
 }
 
-JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetKkmVersion (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jstring JNICALL Java_SHTRIHOLE_1JNI_nativeGetKkmVersion (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     BSTR bstrECRSoftVersion;
@@ -264,7 +264,7 @@ JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetKkmVersion (JNIEnv *jenv,
     return outKkmVersion;
 }
 
-JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetLastShiftInFiscalMemory (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jstring JNICALL Java_SHTRIHOLE_1JNI_nativeGetLastShiftInFiscalMemory (JNIEnv *jenv, jobject jobj){
     long error = 0;
     long result;
 
@@ -281,14 +281,14 @@ JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetLastShiftInFiscalMemory (
     return outKkmType;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeBeep (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeBeep (JNIEnv *jenv, jobject jobj){
     long error = 0;
     error=pDrvFR->Beep();
     //cout << "error - " << error << endl;
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSetDate (JNIEnv *jenv, jobject jobj, jstring inputDate){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeSetDate (JNIEnv *jenv, jobject jobj, jstring inputDate){
     long error = 0;
 
     const char *nativeStringDate = jenv->GetStringUTFChars(inputDate, JNI_FALSE);
@@ -315,7 +315,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSetDate (JNIEnv *jenv, jobject 
 
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeConfirmDate (JNIEnv *jenv, jobject jobj, jstring inputDate){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeConfirmDate (JNIEnv *jenv, jobject jobj, jstring inputDate){
     long error = 0;
 
     if (error == 0) error=pDrvFR->ConfirmDate();
@@ -324,7 +324,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeConfirmDate (JNIEnv *jenv, jobj
 
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSetTime (JNIEnv *jenv, jobject jobj, jstring inputTime){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeSetTime (JNIEnv *jenv, jobject jobj, jstring inputTime){
     long error = 0;
 
 
@@ -353,13 +353,13 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSetTime (JNIEnv *jenv, jobject 
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintText (JNIEnv *jenv, jobject jobj, jstring text){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativePrintText (JNIEnv *jenv, jobject jobj, jstring text){
     long error = 0;
 
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeBuy (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeBuy (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
     long error = 0;
 
     //CURRENCY priceCur=static_cast<CURRENCY>(24234563800);
@@ -398,7 +398,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeBuy (JNIEnv *jenv, jobject jobj
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSale (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeSale (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
     long error = 0;
 
     //CURRENCY priceCur=static_cast<CURRENCY>(24234563800);
@@ -437,7 +437,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSale (JNIEnv *jenv, jobject job
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeReturnSale (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeReturnSale (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
     long error = 0;
 
     //CURRENCY priceCur=static_cast<CURRENCY>(24234563800);
@@ -475,7 +475,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeReturnSale (JNIEnv *jenv, jobje
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CheckSubTotal (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_CheckSubTotal (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     error=pDrvFR->CheckSubTotal();
@@ -484,7 +484,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CheckSubTotal (JNIEnv *jenv, jobject 
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CloseCheck (JNIEnv *jenv, jobject jobj, jstring pay1, jstring pay2, jstring pay3, jstring pay4, jstring text){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_CloseCheck (JNIEnv *jenv, jobject jobj, jstring pay1, jstring pay2, jstring pay3, jstring pay4, jstring text){
     long error = 0;
 
     CURRENCY payCur1;
@@ -530,7 +530,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CloseCheck (JNIEnv *jenv, jobject job
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CancelCheck (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_CancelCheck (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     error=pDrvFR->CancelCheck();
@@ -539,21 +539,21 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CancelCheck (JNIEnv *jenv, jobject jo
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeXreport (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeXreport (JNIEnv *jenv, jobject jobj){
     long error = 0;
     error=pDrvFR->PrintReportWithoutCleaning();
     //cout << "error PrintReportWithoutCleaning - " << error << endl;
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeZreport (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeZreport (JNIEnv *jenv, jobject jobj){
     long error = 0;
     error=pDrvFR->PrintReportWithCleaning();
     //cout << "error PrintReportWithCleaning - " << error << endl;
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportFullByDate (JNIEnv *jenv, jobject jobj, jstring from, jstring to){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativePrintEklzReportFullByDate (JNIEnv *jenv, jobject jobj, jstring from, jstring to){
     long error = 0;
 
     const char *nativeStringFromDate = jenv->GetStringUTFChars(from, JNI_FALSE);
@@ -601,7 +601,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportFullByDate (JNIE
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportShortByDate (JNIEnv *jenv, jobject jobj, jstring from, jstring to){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativePrintEklzReportShortByDate (JNIEnv *jenv, jobject jobj, jstring from, jstring to){
     long error = 0;
 
     const char *nativeStringFromDate = jenv->GetStringUTFChars(from, JNI_FALSE);
@@ -649,7 +649,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportShortByDate (JNI
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportFullByShift (JNIEnv *jenv, jobject jobj, jint from, jint to){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativePrintEklzReportFullByShift (JNIEnv *jenv, jobject jobj, jint from, jint to){
     long error = 0;
 
     if (error == 0) error=pDrvFR->set_Password(30);
@@ -662,7 +662,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportFullByShift (JNI
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportShortByShift (JNIEnv *jenv, jobject jobj, jint from, jint to){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativePrintEklzReportShortByShift (JNIEnv *jenv, jobject jobj, jint from, jint to){
     long error = 0;
 
     if (error == 0) error=pDrvFR->set_Password(30);
@@ -675,7 +675,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportShortByShift (JN
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportControlTape (JNIEnv *jenv, jobject jobj, jint shift){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativePrintEklzReportControlTape (JNIEnv *jenv, jobject jobj, jint shift){
     long error = 0;
 
     if (error == 0) error=pDrvFR->set_Password(30);
@@ -686,7 +686,7 @@ JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativePrintEklzReportControlTape (JNI
     return error;
 }
 
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeClosePort (JNIEnv *jenv, jobject jobj){
+JNIEXPORT jint JNICALL Java_SHTRIHOLE_1JNI_nativeClosePort (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     error=pDrvFR->Disconnect();

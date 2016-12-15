@@ -442,6 +442,8 @@ abstract class FR
 	abstract public int printEklzReportShortByShift(int from, int to) throws FrException; 
 	abstract public int printEklzReportControlTape(int shift) throws FrException;
 
+	abstract public int testJNIfunctions(String text) throws FrException;
+
 	abstract public int fiscal54Fz() throws FrException;
 }
 

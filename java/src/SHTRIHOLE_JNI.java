@@ -2,16 +2,17 @@
  * Created by Bork on 27.06.2016.
  */
 
-public class SHTRIHDRV_JNI {
+public class SHTRIHOLE_JNI {
     static{
         String osType=System.getProperty("os.name");
         String programDir=System.getProperty("user.dir");
         System.out.printf(osType);
+        System.out.printf("\n");
         if (osType.contains("Linux")){
-            System.load( programDir+"/java/lib/linux/SHTRIHDRV_JNI.so" );
+            System.load( programDir+"/java/lib/linux/SHTRIHOLE_JNI.so" );
         }
         else{
-            System.load( programDir+"/java/lib/windows/SHTRIHDRV_JNI.dll" );
+            System.load( programDir+"/java/lib/windows/SHTRIHOLE_JNI.dll" );
         }
     }
 

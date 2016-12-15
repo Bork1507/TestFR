@@ -1,5 +1,5 @@
 /**
- * Created by Bork on 29.11.2016.
+ * Created by Bork on 02.12.2016.
  */
 import jssc.SerialPort;
 
@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-public class SPDRV extends FR
+public class SPOLE extends FR
 {
     private SerialPort _serialPort;
     private int _gettedBytes=0;
@@ -20,9 +20,9 @@ public class SPDRV extends FR
 
     private String _receiptType="";
 
-    private SPDRV_JNI _spNativeObject= new SPDRV_JNI();
+    private SPOLE_JNI _spNativeObject= new SPOLE_JNI();
 
-    public SPDRV()
+    public SPOLE()
     {
 
     }
@@ -167,7 +167,7 @@ public class SPDRV extends FR
         Common.log("Connect");
 
         error=_spNativeObject.nativeConnect(Integer.parseInt(portNameOnlyDigits), Integer.valueOf(baud));
-
+        //error=_spNativeObject.nativeCutAndPrint();
         Common.log("Error = "+ error);
     }
 
@@ -177,7 +177,7 @@ public class SPDRV extends FR
 
         Common.log("ClosePort");
 
-        error=_spNativeObject.nativeClosePort();
+        //error=_spNativeObject.nativeClosePort();
 
         Common.log("Error = "+ error);
     }
@@ -189,7 +189,7 @@ public class SPDRV extends FR
 
         Common.log("getEndOfPrinting");
 
-        if (error==0) error=_spNativeObject.nativeGetEndOfPrinting();
+        //if (error==0) error=_spNativeObject.nativeGetEndOfPrinting();
 
         Common.log("Error = "+ error);
         return error;
@@ -202,7 +202,7 @@ public class SPDRV extends FR
         String result="";
 
         Common.log("GetShortECRStatus");
-        if (error==0) result=_spNativeObject.nativeGetShortECRStatus();
+        //if (error==0) result=_spNativeObject.nativeGetShortECRStatus();
         Common.log("ShortECRStatus = "+ result);
         Common.log("Error = "+ error);
 
@@ -225,14 +225,14 @@ public class SPDRV extends FR
         } catch (InterruptedException ie) {}
 
         Common.log("SetDate");
-        if (error==0) error=_spNativeObject.nativeSetDate(currentDate);
+        //if (error==0) error=_spNativeObject.nativeSetDate(currentDate);
         Common.log("Error = "+ error);
 
         if (error==0) getShortStatus();
 
 
         Common.log("ConfirmDate");
-        if (error==0) error=_spNativeObject.nativeConfirmDate(currentDate);
+        //if (error==0) error=_spNativeObject.nativeConfirmDate(currentDate);
         Common.log("Error = "+ error);
 
         return error;
@@ -246,7 +246,7 @@ public class SPDRV extends FR
         String currentTime=curTime();
 
         Common.log("SetTime");
-        if (error==0) error=_spNativeObject.nativeSetTime(currentTime);
+        //if (error==0) error=_spNativeObject.nativeSetTime(currentTime);
 
         Common.log("Error = "+ error);
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
@@ -350,8 +350,8 @@ public class SPDRV extends FR
         String result="";
 
         Common.log("GetLastShiftInFiscalMemory");
-        if (error==0) result=_spNativeObject.nativeGetLastShiftInFiscalMemory();
-        if (error==0) error=_spNativeObject.nativeGetResultCode();
+        //if (error==0) result=_spNativeObject.nativeGetLastShiftInFiscalMemory();
+        //if (error==0) error=_spNativeObject.nativeGetResultCode();
 
         if (_writeLog) Common.log(result);
 
@@ -366,7 +366,6 @@ public class SPDRV extends FR
         if (_writeLog) Common.log("Init");
         int error=0;
 
-        if (error==0) error=_spNativeObject.nativeInit();
         Common.log("Error = "+ error);
 
 //        if (error==0) getShortStatus();
@@ -376,6 +375,8 @@ public class SPDRV extends FR
 //        if (error==0) getShortStatus();
 
         //Common.log("Error - "+error+" - "+getErrorDetails(error));
+
+        if (error==0) error=_spNativeObject.nativeInit(curDate(), curTime());
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;
@@ -410,7 +411,6 @@ public class SPDRV extends FR
         }
 
         //if (error==0) error=_spNativeObject.nativeOpenDocument(Integer.getInteger(docType), Integer.getInteger(depType), operName, Integer.getInteger(docNumber));
-        if (error==0) error=_spNativeObject.nativeOpenDocument(Integer.valueOf(docType), Integer.valueOf(depType), operName, Integer.valueOf(docNumber));
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;
@@ -452,11 +452,11 @@ public class SPDRV extends FR
             case "RECEIPT_TYPE_SALE" :
                 Common.log("Sale");
                 //if (error==0) error=_spNativeObject.nativeBuy(itemName, articul, qantity, cost, depType, taxType);
-                if (error==0) error=_spNativeObject.nativeSale(itemName, articul, qantity, cost, depType, taxType);
+                //if (error==0) error=_spNativeObject.nativeSale(itemName, articul, qantity, cost, depType, taxType);
                 break;
             case "RECEIPT_TYPE_RETURN_SALE" :
                 Common.log("ReturnSale");
-                if (error==0) error=_spNativeObject.nativeReturnSale(itemName, articul, qantity, cost, depType, taxType);
+                //if (error==0) error=_spNativeObject.nativeReturnSale(itemName, articul, qantity, cost, depType, taxType);
                 break;
             default:
                 //intReceiptType=0;
@@ -489,7 +489,7 @@ public class SPDRV extends FR
 
         int error=0;
         Common.log("CheckSubTotal");
-        if (error==0) error=_spNativeObject.nativeCheckSubTotal();
+        //if (error==0) error=_spNativeObject.nativeCheckSubTotal();
         Common.log("Error = "+ error);
 
         if (error==0) error=getEndOfPrinting();
@@ -560,7 +560,7 @@ public class SPDRV extends FR
 
         int error=0;
         Common.log("CloseCheck");
-        if (error==0) error=_spNativeObject.nativeCloseCheck(pay1, pay2, pay3, pay4, text);
+        //if (error==0) error=_spNativeObject.nativeCloseCheck(pay1, pay2, pay3, pay4, text);
         Common.log("Error = "+ error);
 
 
@@ -576,7 +576,6 @@ public class SPDRV extends FR
         if (_writeLog) Common.log("CancelDocument");
 
         int error=0;
-        if (error==0) error=_spNativeObject.nativeCancelDocument();
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;
@@ -710,7 +709,7 @@ public class SPDRV extends FR
         String strTo = new SimpleDateFormat("ddMMyy").format(to);
 
         Common.log("PrintEklzReportFullByDate");
-        if (error==0) error=_spNativeObject.nativePrintEklzReportFullByDate(strFrom, strTo);
+        //if (error==0) error=_spNativeObject.nativePrintEklzReportFullByDate(strFrom, strTo);
         Common.log("Error = "+ error);
         if (error==0) error=getEndOfPrinting();
 
@@ -725,7 +724,7 @@ public class SPDRV extends FR
         String strTo = new SimpleDateFormat("ddMMyy").format(to);
 
         Common.log("PrintEklzReportShortByDate");
-        if (error==0) error=_spNativeObject.nativePrintEklzReportShortByDate(strFrom, strTo);
+        //if (error==0) error=_spNativeObject.nativePrintEklzReportShortByDate(strFrom, strTo);
         Common.log("Error = "+ error);
         if (error==0) error=getEndOfPrinting();
 
@@ -738,7 +737,7 @@ public class SPDRV extends FR
         int error=0;
 
         Common.log("PrintEklzReportFullByShift");
-        if (error==0) error=_spNativeObject.nativePrintEklzReportFullByShift(from, to);
+        //if (error==0) error=_spNativeObject.nativePrintEklzReportFullByShift(from, to);
         Common.log("Error = "+ error);
         if (error==0) error=getEndOfPrinting();
 
@@ -750,7 +749,7 @@ public class SPDRV extends FR
         int error=0;
 
         Common.log("PrintEklzReportShortByShift");
-        if (error==0) error=_spNativeObject.nativePrintEklzReportShortByShift(from, to);
+        //if (error==0) error=_spNativeObject.nativePrintEklzReportShortByShift(from, to);
         Common.log("Error = "+ error);
         if (error==0) error=getEndOfPrinting();
 
@@ -762,7 +761,7 @@ public class SPDRV extends FR
         int error=0;
 
         Common.log("PrintEklzReportControlTape");
-        if (error==0) error=_spNativeObject.nativePrintEklzReportControlTape(shift);
+        //if (error==0) error=_spNativeObject.nativePrintEklzReportControlTape(shift);
         Common.log("Error = "+ error);
         if (error==0) error=getEndOfPrinting();
 
@@ -772,32 +771,65 @@ public class SPDRV extends FR
     public int testJNIfunctions(String text) throws FrException{
         int error=0;
 
-        //        String result = "";
-//        String quantity = "";
-//
-//        //if (error==0) error=_spNativeObject.nativeJournalPrint(text);
-//        if (error == 0) result = _spNativeObject.nativeJournalRead(1, 0); // получить номер текущей контрольной ленты;
-//        if (error == 0) error = _spNativeObject.nativeGetResultCode();
-//        Common.log("Error = " + error);
-//        Common.log(result);
-//        if (error == 0) quantity = _spNativeObject.nativeJournalRead(2, 0); // получить количество записей в текущей контрольной ленте;
-//        if (error == 0) error = _spNativeObject.nativeGetResultCode();
-//        Common.log("Error = " + error);
-//        Common.log(quantity);
-//        if (error == 0) result = _spNativeObject.nativeJournalRead(4, 2); //поиск чека в контрольной ленте по порядковому номеру чека (положение в контрольной ленте);
-//        if (error == 0) error = _spNativeObject.nativeGetResultCode();
-//        Common.log("Error = " + error);
-//        Common.log(result);
-//        result = _spNativeObject.nativeJournalRead(5, 218); //поиск чека в контрольной ленте по номеру чека;
-//        error = _spNativeObject.nativeGetResultCode();
-//        Common.log("Error = " + error);
-//        Common.log(result);
-//        for (int i = 0; i < Integer.parseInt(quantity); i++)
-//        {       result = _spNativeObject.nativeJournalRead(8, i); //запрос записи из контрольной ленты по номеру записи (получение шестнадцатеричного представления записи).
-//                error = _spNativeObject.nativeGetResultCode();
-//                Common.log("Error = " + error);
-//                Common.log(result);
-//        }
+        String result = "";
+        String quantity = "";
+
+        if (error == 0) result = _spNativeObject.nativeJournalRead(1, 0); // получить номер текущей контрольной ленты;
+        if (error == 0) error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(result);
+        if (error == 0) quantity = _spNativeObject.nativeJournalRead(2, 0); // получить количество записей в текущей контрольной ленте;
+        if (error == 0) error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(quantity);
+        if (error == 0) result = _spNativeObject.nativeJournalRead(4, 2); //поиск чека в контрольной ленте по порядковому номеру чека (положение в контрольной ленте);
+        if (error == 0) error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(result);
+        result = _spNativeObject.nativeJournalRead(5, 218); //поиск чека в контрольной ленте по номеру чека;
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(result);
+        for (int i = 0; i < Integer.parseInt(quantity); i++)
+        {       result = _spNativeObject.nativeJournalRead(8, i); //запрос записи из контрольной ленты по номеру записи (получение шестнадцатеричного представления записи).
+            error = _spNativeObject.nativeGetResultCode();
+            Common.log("Error = " + error);
+            Common.log(result);
+        }
+
+        int nResult = 0;
+        Common.log("nativeGetJournalNumber");
+        nResult = _spNativeObject.nativeGetJournalNumber(); //return JournalNumber
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(String.valueOf(nResult));
+
+        Common.log("nativeGetJournalRecordCount");
+        nResult = _spNativeObject.nativeGetJournalRecordCount(); //return JournalRecordCount
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(String.valueOf(nResult));
+
+        Common.log("nativeGetJournalRecord");
+        result = _spNativeObject.nativeGetJournalRecord(26);
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(result);
+
+        Common.log("nativeGetJournalReceiptByIndex");
+        nResult = _spNativeObject.nativeGetJournalReceiptByIndex(4); //return JournalRecordNumber
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(String.valueOf(nResult));
+
+        Common.log("nativeGetJournalReceiptByNumber");
+        nResult = _spNativeObject.nativeGetJournalReceiptByNumber(319); //return JournalRecordNumber
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log(String.valueOf(nResult));
+
+
+        if (error==0) error=_spNativeObject.nativeJournalPrint(text);
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;

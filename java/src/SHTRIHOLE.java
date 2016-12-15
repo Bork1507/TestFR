@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 
-public class SHTRIHDRV extends FR
+public class SHTRIHOLE extends FR
 {
     private SerialPort _serialPort;
 	private int _gettedBytes=0;
@@ -18,9 +18,9 @@ public class SHTRIHDRV extends FR
 
 	private String _receiptType="";
 
-    private SHTRIHDRV_JNI _shtrihNativeObject = new SHTRIHDRV_JNI();
+    private SHTRIHOLE_JNI _shtrihNativeObject = new SHTRIHOLE_JNI();
 
-	public SHTRIHDRV()
+	public SHTRIHOLE()
 	{
 
 	}
@@ -791,6 +791,12 @@ public class SHTRIHDRV extends FR
         if (error==0) error=_shtrihNativeObject.nativePrintEklzReportControlTape(shift);
         Common.log("Error = "+ error);
         if (error==0) error=getEndOfPrinting();
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+    }
+    public int testJNIfunctions(String text) throws FrException{
+        int error=0;
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;

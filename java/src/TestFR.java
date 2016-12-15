@@ -172,9 +172,11 @@ public class TestFR {
 		else if (_param4.equals("FPRINT")) _fr=new FPRINT();
 		else if (_param4.equals("PYRITE")) _fr=new PYRITE();
 		else if (_param4.equals("WINCOR")) _fr=new WINCOR();
-		else if (_param4.equals("SHTRIHDRV")) _fr=new SHTRIHDRV();
+		else if (_param4.equals("SHTRIHOLE")) _fr=new SHTRIHOLE();
 		else if (_param4.equals("CW1000")) _fr=new CW1000();
 		else if (_param4.equals("SPDRV")) _fr=new SPDRV();
+		else if (_param4.equals("SPOLE")) _fr=new SPOLE();
+		else if (_param4.equals("SPOLE1C")) _fr=new SPOLE1C();
 		else return;
 
 		try {
@@ -335,6 +337,7 @@ public class TestFR {
 					try {
 
 //						_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "1");
+//						_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "1");
 //						//_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
 //
 //						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
@@ -347,7 +350,8 @@ public class TestFR {
 //
 //							_fr.addItem(itemname, article, weight, cost, "0", "1");
 //						}
-//						_fr.printText("Текст");
+						_fr.testJNIfunctions("Текст");
+						_fr.printText("Текст");
 //						_fr.total();
 ////						String egaisUrl = egaisEx.executeChequeExchange();
 ////						_fr.printQrCode(egaisUrl);
@@ -366,7 +370,7 @@ public class TestFR {
 ////
 ////							_fr.addItem(itemname, article, weight, cost, "0", "1");
 ////						}
-////						_fr.cancelDocument();
+//						_fr.cancelDocument();
 //
 //						_fr.openDocument(FR.RECEIPT_TYPE_RETURN_SALE, "0", "Иванова", "1");
 //						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
@@ -414,7 +418,7 @@ public class TestFR {
 					} catch (IOException e) {
 					}
 				}
-				_resSet.close();
+				if (_resSet!=null) _resSet.close();
 			}
 			if (_programProperties.getProperty("TEST_FISCAL", "NO").equals("YES")) {
 

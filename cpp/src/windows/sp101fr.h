@@ -11,9 +11,11 @@
 #endif
 
 #ifdef SP101FR_EXPORTS
-#define SP101FR_API __declspec(dllexport)  
+#define SP101FR_API __declspec(dllexport) 
+#define SPFR_API __declspec(dllexport) 
 #else
 #define SP101FR_API __declspec(dllimport) 
+#define SPFR_API __declspec(dllimport) 
 #endif
 
 #define SPFRE_OK                     0x00   //no error
@@ -55,6 +57,9 @@
 #define SPFRE_DEVICE_TIMEOUT         0x30   //device timeout
 #define SPFRE_BUSY                   0x40   //device busy
 
+//------------------------------Journal errors-------------------------------------//
+#define SPFRE_JOURNAL_NO_DATA        0x24   //no data in journal
+
 //------------------------------EEJ errors-------------------------------------//
 #define SPFRE_EEJ1                   0x41   //incorrect command or parameter
 #define SPFRE_EEJ2                   0x42   //invalid EEJ state
@@ -67,20 +72,30 @@
 #define SPFRE_EEJ9                   0x49   //overflow
 #define SPFRE_EEJA                   0x4A   //no response
 #define SPFRE_EEJB                   0x4B   //EEJ data eschange error
+#define SPFRE_EEJ_END                0x4C   //EEJ конец отчета
 
+//-----------------------------SKNO errors-------------------------------------//
+#define SPFRE_SKNO_INCORRECT_STATE   0x41    //SKNO incorrect state 
+#define SPFRE_SKNO_LONG              0x42    //an opened receipt is too big
+#define SPFRE_SKNO_NONE              0x4A    //no response
+#define SPFRE_SKNO_IO                0x4B    //data exchange error
 
 typedef unsigned short USHORT;
 typedef unsigned long  ULONG;
 typedef unsigned char  BYTE;
 typedef LONGLONG FRCURRENCY;
 
-
+// Memory type for direct memory I/O
 enum  SPRF_DATA_AREA {
-	arBIOS,         //BIOS
-	arDATA,         //Data area
-	arRAM           //RAM area
+	// CPU firmware area
+	arBIOS,
+	// Fiscal memory area
+	arDATA,
+	// RAM area
+	arRAM,
+	// EEPROM area
+	arEEPROM
 };
-
 
 
 enum  BARCODE_TYPE {
@@ -108,7 +123,19 @@ enum BARCODE_ASDIGIT
 	DIGIT_UPDOWN    //print digits at the top and at the bottom
 };
 
+enum QRCODE_ERR_CORRECTION_LEVEL   // how much damage the QR code is expected to suffer
+{
+	LEVEL_L = 0,     // level L up to 7% damage
+	LEVEL_M = 1,     // level M up to 15% damage
+	LEVEL_Q = 2,     // level Q up to 25% damage
+	LEVEL_H = 3      // level H up to 30% damage
+};
+
 #pragma pack(1)
+
+typedef struct SPFR_EEJRECORD {	
+	char                s[41];	
+}SPFR_EEJRECORD;
 
 typedef struct SPFR_SUMS {
 	FRCURRENCY  sums[16];
@@ -169,6 +196,13 @@ typedef struct SPFR_BARCODE {
 	BYTE                BarcodeHeight;  //Height of barcode	
 } SPFR_BARCODE;
 
+// QR-code structure
+typedef struct SPFR_QRCODE {
+	char                         s[406];	
+	USHORT                       QRCodeScale;              // QR code scale 1 to 10
+	QRCODE_ERR_CORRECTION_LEVEL  QRCodeErrCorrectionLevel; // how much damage the QR code is expected to suffer
+} SPFR_QRCODE;
+
 // Text to print on client display structure 
 typedef struct SPFR_CLIENTDISPLAYTEXT {
 	char  s[21];                    //Text data
@@ -178,6 +212,16 @@ typedef struct SPFR_CLIENTDISPLAYTEXT {
 typedef struct SPFR_INN {
 	char  s[13];                    //INN data
 } SPFR_INN;
+
+// UNP structure
+typedef struct SPFR_UNP {
+	char  s[10];                    //UNP data
+} SPFR_UNP;
+
+// SKNO structure
+typedef struct SPFR_SKNO {
+	char  s[10];                    //SKNO data
+} SPFR_SKNO;
 
 // FR registration number structure
 typedef struct SPFR_REGISTRATION_NUMBER {
@@ -199,12 +243,9 @@ typedef struct SPFR_ARTICLE_CODE {
 	char  s[14];                    //Article code data    18
 } SPFR_ARTICLE_CODE;
 
-
 typedef struct SPFR_ARTICLE_CODE2 {
 	char  s[19];                    //Article code data    18
 } SPFR_ARTICLE_CODE2;
-
-
 
 // Article name structure
 typedef struct SPFR_ARTICLE_NAME {
@@ -216,13 +257,16 @@ typedef struct SPFR_ARTICLE_NAME2 {
 	char  s[41];                    //Article name
 } SPFR_ARTICLE_NAME2;
 
+// EAN
+typedef struct SPFR_ARTICLE_EAN {
+	char  s[14];                    //Article EAN
+} SPFR_ARTICLE_EAN;
 
 // Discount name structure
 typedef struct SPFR_DISCOUNT_NAME {
 	char  s[33];                    //Discount name
 } SPFR_DISCOUNT_NAME;
 typedef SPFR_DISCOUNT_NAME  SPFR_EXTRA_NAME;
-
 
 // Discount name structure
 typedef struct SPFR_DISCOUNT_NAME2 {
@@ -245,6 +289,9 @@ typedef struct SPFR_BANKNOTE_NAME {
 	char  s[23];                    //Banknote name
 } SPFR_BANKNOTE_NAME;
 
+typedef struct SPFR_STRING44 {
+	char  s[45];                    //FR string
+} SPFR_STRING45;
 
 // FR string structure
 typedef struct SPFR_STRING {
@@ -265,12 +312,28 @@ typedef struct SPFR_LOGO_NAME {
 	char  s[256];                   //Logotype file name
 } SPFR_LOGO_NAME;
 
+// Name of file structure
+typedef struct SPFR_FILE_NAME {
+	char  s[256];                   //File name
+} SPFR_FILE_NAME;
+
 // FR date structure
 typedef struct {
 	unsigned char       day;        //day,   1-31
 	unsigned char       month;      //month, 1-12
 	unsigned short      year;       //year,  1980-2078
 } SPFRDT;
+
+// FR date structure
+typedef struct {
+	// Day of month
+	unsigned char Day;
+	// Month
+	unsigned char Month;
+	// Year (ranged 1980-2078)
+	unsigned short Year;
+} SPFR_DATE;
+
 
 // FR time structure
 typedef struct {
@@ -332,6 +395,111 @@ typedef union {
 	BYTE  status;
 } SPFR_REC_STATUS;
 
+// Data in fiscal memory (for SP101 fiscal memory type)
+
+// Serial number
+typedef struct {
+	// Serial number
+	char SerialNumber[12];
+} SPFR_FISCAL_DATA_SERIAL_101;
+
+// Fiscalization / registration record
+typedef struct {
+	// Registration number (string)
+	char RegNumber[12];
+	// INN (string)
+	char Inn[12];
+	// Registration date
+	SPFR_DATE Date;
+	// Number of closed shifts
+	unsigned short Shift;
+	// Fiscal officer password (string)
+	char Password[10];
+	// Reserved
+	char Reserved[24];
+} SPFR_FISCAL_DATA_REGISTRATION_101;
+
+// EKLZ activization record
+typedef struct {
+	// EKLZ number (string)
+	char EKLZNumber[12];
+	// Activization date
+	SPFR_DATE Date;
+	// Number of closed shifts
+	unsigned short Shift;
+	// Reserved
+	char Reserved[14];
+} SPFR_FISCAL_DATA_ACTIVIZATION_101;
+
+// Shift record
+typedef struct {
+	// Shift number
+	unsigned short Shift;
+	// Shift date
+	SPFR_DATE Date;
+	// Sum of sales
+	FRCURRENCY CashIn;
+	// Sum of returns
+	FRCURRENCY CashOut;
+} SPFR_FISCAL_DATA_SHIFT_101;
+
+// Data in fiscal memory (for SP402 fiscal memory type)
+
+// Serial number
+typedef struct {
+	// Serial number
+	char SerialNumber[12];
+	// Record attributes
+	unsigned char Crc;
+	unsigned char Flag;
+} SPFR_FISCAL_DATA_SERIAL_402;
+
+// Fiscalization / registration record
+typedef struct {
+	// Registration number (string)
+	char RegNumber[12];
+	// INN (string)
+	char Inn[12];
+	// Registration date
+	SPFR_DATE Date;
+	// Number of closed shifts
+	unsigned short Shift;
+	// Fiscal officer password (string)
+	char Password[10];
+	// Record attributes
+	unsigned char Crc;
+	unsigned char Flag;
+} SPFR_FISCAL_DATA_REGISTRATION_402;
+
+// EKLZ activization record
+typedef struct {
+    // EKLZ number (string)
+	char EKLZNumber[12];
+	// Activization date
+	SPFR_DATE Date;
+	// Number of closed shifts
+	unsigned short Shift;
+	// Record attributes
+	unsigned char Crc;
+	unsigned char Flag;
+} SPFR_FISCAL_DATA_ACTIVIZATION_402;
+
+// Shift record
+typedef struct {
+	// Shift number
+	unsigned short Shift;
+	// Shift date
+	SPFR_DATE Date;
+	// Sum of sales
+	FRCURRENCY CashIn;
+	// Sum of returns
+	FRCURRENCY CashOut;
+	// Record attributes
+	unsigned char Crc;
+	unsigned char Flag;
+} SPFR_FISCAL_DATA_SHIFT_402;
+
+
 #pragma pack()
 
 extern SP101FR_API USHORT SPFRTMOUT; //timeout
@@ -379,6 +547,9 @@ SP101FR_API USHORT __stdcall SPFR_GetStatus(HANDLE             hFR,
                                             SPFR_FATAL_STATUS* sFatalStatus,
                                             SPFR_STATUS*       sStatus,
                                             SPFR_REC_STATUS*   sReceiptStatus);
+
+
+SP101FR_API USHORT __stdcall SPFR_GetPrinterVersion(HANDLE hFR, SPFR_STRING *psData);
 
 //--------------------------------------------------------------------------------------//
 // SPFR_GetVersion
@@ -453,6 +624,26 @@ SP101FR_API USHORT __stdcall SPFR_Register(HANDLE                    hFR,
                                            SPFR_PASSWORD*            pNewPassword);
 
 //--------------------------------------------------------------------------------------//
+// SPFR_RegisterSKNO       [BEL]
+//         FR registration 
+// [in]
+//         hFr                  FR handle
+//         pOldPassword         Current password of tax official
+//         rRegNumber           Registration number
+//         sUNP                 UNP number
+//         sSKNO                SKNO number
+//         pNewPassword         New password of tax official
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_RegisterSKNO(HANDLE                    hFR,
+                                               SPFR_PASSWORD*            pOldPassword,
+                                               SPFR_REGISTRATION_NUMBER* rRegNumber,
+                                               SPFR_UNP*                 sUNP,
+											   SPFR_SKNO*                sSKNO,
+                                               SPFR_PASSWORD*            pNewPassword);
+
+//--------------------------------------------------------------------------------------//
 // SPFR_ActivateEEJ
 //         Activates EJJ
 // [in]
@@ -491,6 +682,38 @@ SP101FR_API USHORT __stdcall SPFR_OpenReceipt(HANDLE              hFR,
                                               USHORT              wSectionNumber,
                                               SPFR_OPERATOR_NAME* nOperatorName,
                                               ULONG               lReceiptNumber);
+
+//--------------------------------------------------------------------------------------//
+// SPFR_OpenStornoReceipt                          [414]
+//         Opens new storno receipt and changes FR mode to input mode
+// [in]
+//         hFR                    FR handle
+//         wSectionNumber         Section number
+//         nOperatorName          Operator name or operator code (look up documentation)
+//         lReceiptToStornoNumber Source document number to storno
+//         lReceiptNumber         Document number or 0 if autonumeration enabled
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_OpenStornoReceipt(HANDLE              hFR,
+                                                    USHORT              wSectionNumber,
+                                                    SPFR_OPERATOR_NAME* nOperatorName,
+                                                    ULONG               lReceiptToStornoNumber,
+                                                    ULONG               lReceiptNumber);
+
+//--------------------------------------------------------------------------------------//
+// SPFR_AddStornoAmount                          [414]
+//         Adds an amount into the opened storno document
+// [in]
+//         hFr                    FR handle
+//         wPaymentType           Payment type code
+//         dAmountToStorno        Amount to add into the storno document
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_AddStornoAmount(HANDLE          hFR,
+                                                  USHORT          wPaymentType,
+                                                  FRCURRENCY      dAmountToStorno);
 
 
 //--------------------------------------------------------------------------------------//
@@ -641,6 +864,32 @@ SP101FR_API USHORT __stdcall SPFR_AddArticleEx2(HANDLE               hFR,
                                                 USHORT               wTaxNumber,
                                                 FRCURRENCY*          dpReceiptTotal);
 
+//--------------------------------------------------------------------------------------//
+// SPFR_AddArticleEx3                          [414]
+//         Inserts new article into document
+// [in]
+//         hFr                  FR handle
+//         nArticleName         Commodity name
+//         cArticleCode         Article
+//         dArticleQty          Commodity quantity
+//         dArticleTotal        Price of commodity
+//         wDepartment          Department (section) number, 0 if not to print
+//         wTaxNumber           ID of VAT
+//         sEAN                 EAN 
+// [out]   
+//         dpReceiptTotal       Total price of current article
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_AddArticleEx3(HANDLE               hFR,
+                                                SPFR_ARTICLE_NAME2*  nArticleName,
+                                                SPFR_ARTICLE_CODE2*  cArticleCode,
+                                                double               dArticleQty,
+                                                FRCURRENCY           dArticleTotal,
+                                                USHORT               wDepartment,
+                                                USHORT               wTaxNumber,
+												SPFR_ARTICLE_EAN*    sEAN,
+                                                FRCURRENCY*          dpReceiptTotal);
 
 
 //--------------------------------------------------------------------------------------//
@@ -716,7 +965,6 @@ SP101FR_API USHORT __stdcall SPFR_StornoArticleEx2(HANDLE               hFR,
                                                    USHORT                wDepartment,
                                                    USHORT                wTaxNumber,
                                                    FRCURRENCY*           dpReceiptTotal);
-
 
 //--------------------------------------------------------------------------------------//
 // SPFR_DiscountPercent                     [OLD]
@@ -1007,6 +1255,36 @@ SP101FR_API USHORT __stdcall SPFR_EEJJournal(HANDLE   hFR,
 
 
 //--------------------------------------------------------------------------------------//
+// SPFR_JournalRead
+//         Read journal
+// [in]
+//         hFr                  FR handle
+//         wOperation           Operation
+//         dwParameter          Parametr
+// [out]   
+//         sParam               Journal text
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_JournalRead(HANDLE   hFR,
+                                              USHORT   wOperation,
+                                              ULONG    dwParameter,
+                                              SPFR_STRING* sParam);
+
+
+//--------------------------------------------------------------------------------------//
+// SPFR_JournalPrint
+//         Print journal
+// [in]
+//         hFr                  FR handle
+//         nOperatorName        Operator's code
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_JournalPrint(HANDLE   hFR,
+                                               SPFR_OPERATOR_NAME* nOperatorName);
+
+//--------------------------------------------------------------------------------------//
 // SPFR_GetReceipt
 //         Prints EEJ document
 // [in]
@@ -1140,6 +1418,18 @@ SP101FR_API USHORT __stdcall SPFR_GetEEJStatus(HANDLE hFR,
                                                LPBYTE EEJStatus);
 
 //--------------------------------------------------------------------------------------//
+// SPFR_GetSKNOStatus
+//         Requests SKNO status
+// [in]
+//         hFr                  FR handle
+// [out]   
+//         SKNOStatus            Status 
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_GetSKNOStatus(HANDLE hFR, 
+                                               USHORT* SKNOStatus);
+//--------------------------------------------------------------------------------------//
 // SPFR_GetCurrentShift
 //         Returns current shift number
 // [in]
@@ -1166,7 +1456,6 @@ SP101FR_API USHORT __stdcall SPFR_GetCurrentShift(HANDLE   hFR,
 SP101FR_API USHORT __stdcall SPFR_GetLastRegShift(HANDLE   hFR,
                                                   USHORT*  wShiftNumber);
 
-
 //--------------------------------------------------------------------------------------//
 // SPFR_GetRegNumber
 //         Returns FR serial number
@@ -1180,7 +1469,6 @@ SP101FR_API USHORT __stdcall SPFR_GetLastRegShift(HANDLE   hFR,
 SP101FR_API USHORT __stdcall SPFR_GetRegNumber(HANDLE                    hFR,
                                                SPFR_REGISTRATION_NUMBER* nRegNumber);
 
-
 //--------------------------------------------------------------------------------------//
 // SPFR_OpenCashDrawer
 //         Opens cash drawer
@@ -1190,7 +1478,6 @@ SP101FR_API USHORT __stdcall SPFR_GetRegNumber(HANDLE                    hFR,
 //         Error code
 //--------------------------------------------------------------------------------------//
 SP101FR_API USHORT __stdcall SPFR_OpenCashDrawer(HANDLE hFR);
-
 
 //--------------------------------------------------------------------------------------//
 // SPFR_Install
@@ -1208,34 +1495,61 @@ SP101FR_API USHORT __stdcall SPFR_Install(HANDLE              hFR,
                                           SPFRTM*             dtNewTime,
                                           SPFR_SERIAL_NUMBER* nSerialNumber);
 
-
 //--------------------------------------------------------------------------------------//
 // SPFR_ReadMemBlock
 //         Gets memory block dump from FR
 // [in]
 //         hFr                  FR handle
 //         sdaDataType          Memory area to read data from
-//         wByteOffset          Dump offset 
+//         dwByteOffset         Dump offset 
 //         wByteCount           Dump bytes count (64 max) 
 // [out]   
 //         pbData               Memory block data 
 // [ret]   
 //         Error code
 //--------------------------------------------------------------------------------------//
-SP101FR_API USHORT __stdcall SPFR_ReadMemBlock(HANDLE         hFR,
-                                               SPRF_DATA_AREA sdaDataType,
-                                               USHORT         wByteOffset,
-                                               USHORT         wByteCount,
-                                               BYTE*          pbData);
+SP101FR_API USHORT __stdcall SPFR_ReadMemBlock(HANDLE hFR, SPRF_DATA_AREA tDataType,
+	DWORD dwByteOffset, WORD wByteCount, BYTE *pbData);
 
-
+//--------------------------------------------------------------------------------------//
+// SPFR_PrintGraphics        402
+// SPFR_PrintGraphicsEx      101 
+//         Printes graphics
+// [in]
+//         hFr                  FR handle
+//         wByteCount           Picture data bytes count
+//         pbData               Picture data 
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_PrintGraphics(HANDLE hFR,
+                                           USHORT wByteCount,
+                                           BYTE*  pbData);
+SP101FR_API USHORT __stdcall SPFR_PrintGraphicsEx(HANDLE hFR,
+                                           USHORT wByteCount,
+										   USHORT wWidth, 
+                                           BYTE*  pbData);
+//--------------------------------------------------------------------------------------//
+// SPFR_PrintGraphicsFromFile     402
+// SPFR_PrintGraphicsFromFileEx   101
+//         Printes graphics
+// [in]
+//         hFr                  FR handle
+//         nFileName            Picture file name
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_PrintGraphicsFromFile(HANDLE             hFR,
+                                                        SPFR_LOGO_NAME*    nFileName);
+SP101FR_API USHORT __stdcall SPFR_PrintGraphicsFromFileEx(HANDLE             hFR,
+                                                        SPFR_FILE_NAME*    nFileName);
 //--------------------------------------------------------------------------------------//
 // SPFR_LoadLogo
 //         Writes logotype into FR
 // [in]
 //         hFr                  FR handle
-//         wByteCount           Logotype data bytes count
-//         pbData               Logotype data 
+//         wByteCount           Picture data bytes count
+//         pbData               Picture data 
 // [ret]   
 //         Error code
 //--------------------------------------------------------------------------------------//
@@ -1280,6 +1594,17 @@ SP101FR_API USHORT __stdcall SPFR_CancelReport(HANDLE hFR);
 SP101FR_API USHORT __stdcall SPFR_AddBarcode(HANDLE           hFR,
                                              SPFR_BARCODE*    bBarcode);
 
+//--------------------------------------------------------------------------------------//
+// SPFR_AddQRCode
+//         Inserts new QR code into document
+// [in]
+//         hFr                  FR handle
+//         bQRCode              QRCode structure
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_AddQRCode(HANDLE           hFR,
+                                            SPFR_QRCODE*     pQRCode);
 
 //--------------------------------------------------------------------------------------//
 // SPFR_CutAndPrint
@@ -1355,6 +1680,18 @@ SP101FR_API USHORT __stdcall SPFR_GetCurrentDocNum(HANDLE   hFR,
                                                    USHORT*  wDocNum);
 
 //--------------------------------------------------------------------------------------//
+// SPFR_GetCurrentDocNumEx
+//         Returns current document number
+// [in]
+//         hFr                  FR handle
+// [out]   
+//         pDocNumber           Current document number
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_GetCurrentDocNumEx(HANDLE hFR, ULONG *pDocNumber);
+
+//--------------------------------------------------------------------------------------//
 // SPFR_GetCurrentReceiptNum
 //         Returns current receipt number
 // [in]
@@ -1366,6 +1703,18 @@ SP101FR_API USHORT __stdcall SPFR_GetCurrentDocNum(HANDLE   hFR,
 //--------------------------------------------------------------------------------------//
 SP101FR_API USHORT __stdcall SPFR_GetCurrentReceiptNum(HANDLE   hFR,
                                                        USHORT*  wReceiptNum);
+
+//--------------------------------------------------------------------------------------//
+// SPFR_GetCurrentReceiptNumEx
+//         Returns current receipt number
+// [in]
+//         hFr                  FR handle
+// [out]   
+//         pReceiptNumber       Current receipt number
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_GetCurrentReceiptNumEx(HANDLE hFR, ULONG *pReceiptNumber);
 
 
 //--------------------------------------------------------------------------------------//
@@ -1576,8 +1925,35 @@ SP101FR_API USHORT __stdcall SPFR_GetRebookSumByCashtype(HANDLE       hFR,
                                                          USHORT       wCashType,
                                                          FRCURRENCY*  dRebookSum);
 
+//--------------------------------------------------------------------------------------//
+// SPFR_GetFiscalDataSerial
+//			Returns fiscal memory record with serial number
+// [in]
+//			hFr						FR handle
+//			wVersion				FR version
+// [out]   
+//			pSerial					Record
+// [ret]   
+//			Error code
+//--------------------------------------------------------------------------------------//
+SPFR_API USHORT __stdcall SPFR_GetFiscalDataSerial(HANDLE hFR, USHORT wVersion, BYTE *pSerial);
 
 //--------------------------------------------------------------------------------------//
+// SPFR_GetFiscalGrandTotal
+//			Returns accumulated grand totals for sales and returns
+// [in]
+//			hFr						FR handle
+//			wVersion				FR version
+// [out]   
+//			pGrandTotalSales		Grand total of sales
+//			pGrandTotalReturns		Grand total of returns
+// [ret]   
+//			Error code
+//--------------------------------------------------------------------------------------//
+SPFR_API USHORT __stdcall SPFR_GetFiscalGrandTotal(HANDLE hFR, USHORT wVersion, FRCURRENCY *pGrandTotalSales,
+	FRCURRENCY *pGrandTotalReturns);
+
+
 // SPFR_GetRebookSumForAllPayments
 // SPFR_GetSumForAllPayments
 // SPFR_GetCurrentReceiptSums
@@ -1627,4 +2003,37 @@ SP101FR_API USHORT __stdcall SPFR_GetRebookPaymentsCount(HANDLE               hF
                                                          SPFR_PAYMENTCOUNTS*  sPaymentCounts);
 //--------------------------------------------------------------------------------------//
 SP101FR_API USHORT __stdcall SPFR_GetAccumulatedTotal(HANDLE hFR, FRCURRENCY* dAccumulatedTotal);
+SP101FR_API USHORT __stdcall SPFR_GetAccumulatedTotalEx(HANDLE hFR, FRCURRENCY* dAccumulatedTotal);
 //--------------------------------------------------------------------------------------//
+
+//Канал ЭКЛЗ
+SP101FR_API USHORT __stdcall SPFR_EEJJournal_Text(HANDLE hFR, USHORT wShift, SPFR_EEJRECORD* sRow );
+SP101FR_API USHORT __stdcall SPFR_EEJGetReceipt_Text(HANDLE hFR, ULONG dwKPKNumber, SPFR_EEJRECORD* sRow);
+SP101FR_API USHORT __stdcall SPFR_EEJShiftReport_Text(HANDLE   hFR,
+													  BOOL     bIsFull,
+													  USHORT   wFirstShift,
+													  USHORT   wLastShift, 
+													  SPFR_EEJRECORD* sRow);
+
+SP101FR_API USHORT __stdcall SPFR_EEJDateReport_Text(HANDLE   hFR,
+													 BOOL      bIsFull,
+													 SPFRDT*   dtFirstDate,
+													 SPFRDT*   dtLastDate, 
+													 SPFR_EEJRECORD* sRow);
+
+
+
+SP101FR_API USHORT __stdcall SPFR_EEJReport_Text_Close(HANDLE   hFR);
+SP101FR_API USHORT __stdcall SPFR_EEJReport_Text_Next(HANDLE   hFR, SPFR_EEJRECORD* sRow);
+
+//iRow - row number. Starts with 1.
+SP101FR_API USHORT __stdcall SPFR_WriteHeader(HANDLE       hFR,
+											  USHORT       iRow,											  
+											  SPFR_STRING44* sRow);
+
+SP101FR_API USHORT __stdcall SPFR_WriteFooter(HANDLE       hFR,
+											  USHORT       iRow,											  
+											  SPFR_STRING44* sRow);
+
+
+SP101FR_API USHORT __stdcall SPFR_CloseNonFiscalEx(HANDLE hFR);

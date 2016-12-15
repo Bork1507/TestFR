@@ -105,6 +105,14 @@ JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintText
 
 /*
  * Class:     SPDRV_JNI
+ * Method:    nativeOpenDocument
+ * Signature: (IILjava/lang/String;I)I
+ */
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeOpenDocument
+  (JNIEnv *, jobject, jint, jint, jstring, jint);
+
+/*
+ * Class:     SPDRV_JNI
  * Method:    nativeBuy
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
  */
@@ -145,27 +153,43 @@ JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeCloseCheck
 
 /*
  * Class:     SPDRV_JNI
- * Method:    nativeCancelCheck
+ * Method:    nativeCancelDocument
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeCancelCheck
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeCancelDocument
   (JNIEnv *, jobject);
 
 /*
  * Class:     SPDRV_JNI
  * Method:    nativeXreport
- * Signature: ()I
+ * Signature: (Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeXreport
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     SPDRV_JNI
  * Method:    nativeZreport
- * Signature: ()I
+ * Signature: (Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeZreport
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     SPDRV_JNI
+ * Method:    nativeJournalPrint
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeJournalPrint
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     SPDRV_JNI
+ * Method:    nativeJournalRead
+ * Signature: (II)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeJournalRead
+  (JNIEnv *, jobject, jint, jint);
 
 /*
  * Class:     SPDRV_JNI

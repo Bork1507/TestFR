@@ -1558,7 +1558,12 @@ public class FPRINT extends FR
             if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
             return error;
       }
+    public int testJNIfunctions(String text) throws FrException{
+        int error=0;
 
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+    }
     public int fiscal54Fz() throws FrException{
         if (_writeLog) Common.log("fiscal54");
         int error=0;
