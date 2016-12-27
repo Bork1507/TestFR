@@ -136,6 +136,8 @@ public:
     virtual HRESULT _stdcall GetJournalRecord( /*[in]*/ short RecordNumber,  /*[out]*/ BSTR * RecordData,  /*[out, retval]*/ short * Result ) = 0;
     virtual HRESULT _stdcall GetJournalReceiptByIndex( /*[in]*/ unsigned long ReceiptIndex,  /*[out]*/ short * RecordNumber,  /*[out, retval]*/ short * Result ) = 0;
     virtual HRESULT _stdcall GetJournalReceiptByNumber( /*[in]*/ unsigned long ReceiptNumber,  /*[out]*/ short * RecordNumber,  /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall GetRegNumberEx( /*[out]*/ BSTR * SerialNumberEx, /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall InstallEx(/*[in]*/ DATE NewDateTime, /*[in]*/ BSTR SerialNumber, /*[out, retval]*/ short * Result ) = 0;
 
     short _stdcall Connect(unsigned char PortNumber)
     {
@@ -165,10 +167,40 @@ public:
       (this->ZReport(OperatorName, (short*)&Result));
       return Result;
     }
+    short _stdcall GetRegNumber(BSTR * RegNumber)
+    {
+      short Result;
+      (this->GetRegNumber(RegNumber, (short*)&Result));
+      return Result;
+    }
+    short _stdcall GetRegNumberEx(BSTR * SerialNumberEx)
+    {
+      short Result;
+      (this->GetRegNumberEx(SerialNumberEx, (short*)&Result));
+      return Result;
+    }
+    short _stdcall Install(DATE CheckDateTime, BSTR SerialNumber)
+    {
+      short Result;
+      (this->Install(CheckDateTime, SerialNumber, (short*)&Result));
+      return Result;
+    }
+    short _stdcall InstallEx(DATE CheckDateTime, BSTR SerialNumber)
+    {
+      short Result;
+      (this->InstallEx(CheckDateTime, SerialNumber, (short*)&Result));
+      return Result;
+    }
     short _stdcall CutAndPrint(void)
     {
       short Result;
       (this->CutAndPrint((short*)&Result));
+      return Result;
+    }
+    short _stdcall GetFiscNumber(BSTR * FiscNum)
+    {
+      short Result;
+      (this->GetFiscNumber(FiscNum, (short*)&Result));
       return Result;
     }
     short _stdcall ConnectEx(unsigned char PortNumber, unsigned long BaudRate)
@@ -416,6 +448,8 @@ interface SPOleFR_1C  : public IDispatch
     virtual HRESULT _stdcall JournalNumber( /*[out, retval]*/ short * Value ) = 0;
     virtual HRESULT _stdcall JournalRecordCount( /*[out, retval]*/ short * Value ) = 0;
     virtual HRESULT _stdcall JournalRecordNumber( /*[out, retval]*/ short * Value ) = 0;
+    virtual HRESULT _stdcall GetRegNumberEx( /*[out, retval]*/ short * Result );
+    virtual HRESULT _stdcall SerialNumberEx( /*[out, retval]*/ BSTR * Value );
 
     short _stdcall Connect(unsigned char PortNumber)
     {
@@ -440,6 +474,30 @@ interface SPOleFR_1C  : public IDispatch
       short Result;
       (this->CutAndPrint((short*)&Result));
       return Result;
+    }
+    short _stdcall GetRegNumber(void)
+    {
+      short Result;
+      (this->GetRegNumber((short*)&Result));
+      return Result;
+    }
+    BSTR _stdcall RegNumber(void)
+    {
+      BSTR Value = 0;
+      (this->RegNumber((BSTR*)&Value));
+      return Value;
+    }
+    short _stdcall GetFiscNumber(void)
+    {
+      short Result;
+      (this->GetFiscNumber((short*)&Result));
+      return Result;
+    }
+    BSTR _stdcall FiscalNumber(void)
+    {
+      BSTR Value = 0;
+      (this->FiscalNumber((BSTR*)&Value));
+      return Value;
     }
     short _stdcall ConnectEx(unsigned char PortNumber, unsigned long BaudRate)
     {
@@ -511,6 +569,18 @@ interface SPOleFR_1C  : public IDispatch
     {
       short Value;
       (this->JournalRecordNumber((short*)&Value));
+      return Value;
+    }
+    short _stdcall GetRegNumberEx(void)
+    {
+      short Result;
+      (this->GetRegNumberEx((short*)&Result));
+      return Result;
+    }
+    BSTR _stdcall SerialNumberEx(void)
+    {
+      BSTR Value = 0;
+      (this->SerialNumberEx((BSTR*)&Value));
       return Value;
     }
 

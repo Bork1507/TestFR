@@ -25,10 +25,14 @@ public class SPDRV_JNI {
 
     public native String nativeGetKkmType();
     public native String nativeGetKkmVersion();
+    public native String nativeGetSerialNumber();
 
     public native String nativeGetLastShiftInFiscalMemory();
 
     public native int nativeInit();
+
+    public native int nativeInstall(String inputDate, String inputTime, String serialNumber);
+    public native int nativeInstallEx(String inputDate, String inputTime, String serialNumber);
 
     public native int nativeSetDate(String inputDate);
     public native int nativeConfirmDate(String inputDate);

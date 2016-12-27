@@ -270,6 +270,25 @@ abstract class FR
 			return new ArrayOfBytes(java.util.Arrays.copyOfRange(bytesArray, localStart, this.length()-1));        	
 		}
 
+		public String byteToHex(byte currentByte)
+		{
+			int localInt=0;
+			String result="";
+			localInt=currentByte&0xFF;
+			result=Integer.toHexString(localInt);
+			return result;
+		}
+
+		public String toHex(int byteHexLength)
+		{
+			String result="";
+			for (int i=0;i<length();i++)
+			{
+				result+=FR.this.rightJustified(byteToHex(bytesArray[i]), '0', byteHexLength);
+			}
+			return result;
+		}
+
 		public String toHex()
 		{
 			int localInt=0;
@@ -313,6 +332,31 @@ abstract class FR
 		public int indexOf(int key)
 		{
 			return this.indexOf((byte) key);
+		}
+
+		public ArrayOfBytes rightJustified(char ch, int length)
+		{
+			if (_wrileLog) Common.log("rightJustifiedArrayOfBytes");
+
+			ArrayOfBytes out = new ArrayOfBytes();
+			while (out.length()<length-this.length())
+			{
+				out.append(ch);
+			}
+			out.append(this);
+			return out;
+		}
+
+		public ArrayOfBytes leftJustified(char ch, int length)
+		{
+			if (_wrileLog) Common.log("leftJustifiedArrayOfBytes");
+
+			ArrayOfBytes out = this;
+			while (out.length()<length)
+			{
+				out.append(ch);
+			}
+			return out;
 		}
 
 	}
@@ -398,6 +442,8 @@ abstract class FR
 	abstract public String getKkmType() throws FrException;
 
     abstract public String getKkmVersion() throws FrException;
+
+	abstract public String getSerialNumber() throws FrException;
 
     abstract public String getLastShiftInFiscalMemory() throws FrException;
 

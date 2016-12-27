@@ -327,6 +327,22 @@ public class SPOLE1C extends FR
         return result;
     }
 
+    public String getSerialNumber() throws FrException
+    {
+        if (_writeLog) Common.log("getSerialNumber");
+        int error=0;
+        String result="";
+
+        if (error==0) result=_spNativeObject.nativeGetSerialNumber();
+        if (error==0) error=_spNativeObject.nativeGetResultCode();
+
+        if (_writeLog) Common.log(result);
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+        return result;
+    }
+
     public String getKkmParameter(int rowNumber, int columnNumber) throws FrException
     {
         if (_writeLog) Common.log("getKkmParameter");

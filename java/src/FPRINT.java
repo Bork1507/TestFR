@@ -787,6 +787,21 @@ public class FPRINT extends FR
             return result;
       }
 
+    public String getSerialNumber() throws FrException
+    {
+        if (_writeLog) Common.log("getSerialNumber");
+        int error=0;
+        String result="";
+
+        result="";
+
+        if (_writeLog) Common.log(result);
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+        return result;
+    }
+
     public String getKkmParameter(int rowNumber, int columnNumber) throws FrException
     {
         if (_writeLog) Common.log("getKkmParameter");

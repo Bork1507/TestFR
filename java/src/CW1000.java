@@ -423,6 +423,21 @@ public class CW1000 extends FR
 	    return result;
 	}
 
+	public String getSerialNumber() throws FrException
+	{
+		if (_writeLog) Common.log("getSerialNumber");
+		int error=0;
+		String result="";
+
+		result="";
+
+		if (_writeLog) Common.log(result);
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return result;
+	}
+
 	public String getPrinterInfo() throws FrException
 	{
 	    if (_writeLog) Common.log("getPrinterInfo");

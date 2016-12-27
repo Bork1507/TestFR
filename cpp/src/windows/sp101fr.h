@@ -225,12 +225,18 @@ typedef struct SPFR_SKNO {
 
 // FR registration number structure
 typedef struct SPFR_REGISTRATION_NUMBER {
-	char  s[13];                    //Registration number
+	char  s[13];                    //Registration number and Serial number исспользуется при получении серийного номера, регистрационного номера, и при фискализации 
 } SPFR_REGISTRATION_NUMBER;
+
+// FR long serial number structure
+typedef struct SPFR_SERIAL_NUMBER_EX {
+	char  s[20];                    //Serial number исспользуется для получения длинного серийного номера и при инсталляции с длинным серийным номером
+} SPFR_SERIAL_NUMBER_EX;
+
 
 // FR serial number structure
 typedef struct SPFR_SERIAL_NUMBER {
-	char  s[13];                    //Serial number
+	char  s[13];                    //Serial number исспользуется при инсталляции с коротким серийным номером
 } SPFR_SERIAL_NUMBER;
 
 // Password structure
@@ -1470,6 +1476,21 @@ SP101FR_API USHORT __stdcall SPFR_GetRegNumber(HANDLE                    hFR,
                                                SPFR_REGISTRATION_NUMBER* nRegNumber);
 
 //--------------------------------------------------------------------------------------//
+// ПОЛУЧЕНИЕ СЕРИЙНОГО НОМЕРА ККМ
+//
+// SPFR_GetRegNumberEx
+//         Returns FR serial number
+// [in]
+//         hFr                  FR handle
+// [out]   
+//         nRegNumber           Serial number
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_GetRegNumberEx(HANDLE                    hFR,
+                                               SPFR_SERIAL_NUMBER_EX* nSerialNumber);
+
+//--------------------------------------------------------------------------------------//
 // SPFR_OpenCashDrawer
 //         Opens cash drawer
 // [in]
@@ -1494,6 +1515,22 @@ SP101FR_API USHORT __stdcall SPFR_Install(HANDLE              hFR,
                                           SPFRDT*             dtNewDate,
                                           SPFRTM*             dtNewTime,
                                           SPFR_SERIAL_NUMBER* nSerialNumber);
+
+//--------------------------------------------------------------------------------------//
+// SPFR_InstallEx
+//         FR installing
+// [in]
+//         hFr                  FR handle
+//         dtNewDate            Current date
+//         tmNewTime            Current time 
+//         nSerialNumber        Serial number 
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_InstallEx(HANDLE              hFR,
+                                          SPFRDT*             dtNewDate,
+                                          SPFRTM*             dtNewTime,
+                                          SPFR_SERIAL_NUMBER_EX* nSerialNumber);
 
 //--------------------------------------------------------------------------------------//
 // SPFR_ReadMemBlock

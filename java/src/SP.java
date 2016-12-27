@@ -509,6 +509,41 @@ public class SP extends FR
 	    return result;
 	}
 
+	public String getSerialNumber() throws FrException
+	{
+		if (_writeLog) Common.log("getSerialNumber");
+		int error=0;
+		String result="";
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		commandStr.append(0x02);
+		commandStr.append("PONE");
+		commandStr.append(id());
+		commandStr.append("A6");
+		commandStr.append(0x1C);
+		commandStr.append(0x03);
+
+
+		if (error==0) error=transaction(CRC(commandStr), getStr);
+
+		if (error==0)
+		{
+			ArrayOfBytes tmp = new ArrayOfBytes();
+			tmp=getStr.mid(6);
+			result=tmp.mid(0, tmp.indexOf(0x1C)).toString("CP866");
+
+			if (_writeLog) Common.log(result);
+		}
+
+		if (_writeLog) Common.log(result);
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+		return result;
+	}
+
 	public String getPrinterInfo() throws FrException
 	{
 	    if (_writeLog) Common.log("getPrinterInfo");

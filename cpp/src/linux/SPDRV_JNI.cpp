@@ -56,6 +56,14 @@ JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetKkmVersion (JNIEnv *jenv, job
     return outKkmVersion;
 }
 
+JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetSerialNumber (JNIEnv *jenv, jobject jobj){
+    long error = 0;
+
+    jstring outSerialNumber = jenv->NewStringUTF(BLIND_STOPPER);;
+
+    return outSerialNumber;
+}
+
 JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetLastShiftInFiscalMemory (JNIEnv *jenv, jobject jobj){
     long error = 0;
 

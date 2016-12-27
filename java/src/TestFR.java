@@ -177,6 +177,7 @@ public class TestFR {
 		else if (_param4.equals("SPDRV")) _fr=new SPDRV();
 		else if (_param4.equals("SPOLE")) _fr=new SPOLE();
 		else if (_param4.equals("SPOLE1C")) _fr=new SPOLE1C();
+		else if (_param4.equals("SKNO")) _fr=new SKNO();
 		else return;
 
 		try {
@@ -328,11 +329,12 @@ public class TestFR {
 				try {
 					Common.log("!!!Start TEST_TASK!!!");
 
-					try {
-						_fr.init();
-					} catch (FrException frEx) {}
+//					try {
+//						_fr.init();
+//					} catch (FrException frEx) {}
 
 					Common.log(_fr.getKkmType() + " " + _fr.getKkmVersion());
+					Common.log("FR serial number - " + _fr.getSerialNumber());
 
 					try {
 
@@ -351,7 +353,7 @@ public class TestFR {
 //							_fr.addItem(itemname, article, weight, cost, "0", "1");
 //						}
 						_fr.testJNIfunctions("Текст");
-						_fr.printText("Текст");
+//						_fr.printText("Текст");
 //						_fr.total();
 ////						String egaisUrl = egaisEx.executeChequeExchange();
 ////						_fr.printQrCode(egaisUrl);
@@ -409,7 +411,7 @@ public class TestFR {
 						} catch (IOException e) {
 						}
 					}
-					_fr.zReport("Петрова");
+//					_fr.zReport("Петрова");
 				} catch (FrException frEx) {
 					Common.log(frEx.toString());
 					try {

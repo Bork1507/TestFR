@@ -65,6 +65,14 @@ JNIEXPORT jstring JNICALL Java_SPOLE1C_1JNI_nativeGetKkmVersion
 
 /*
  * Class:     SPOLE1C_JNI
+ * Method:    nativeGetSerialNumber
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_SPOLE1C_1JNI_nativeGetSerialNumber
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE1C_JNI
  * Method:    nativeGetLastShiftInFiscalMemory
  * Signature: ()Ljava/lang/String;
  */
@@ -73,11 +81,27 @@ JNIEXPORT jstring JNICALL Java_SPOLE1C_1JNI_nativeGetLastShiftInFiscalMemory
 
 /*
  * Class:     SPOLE1C_JNI
- * Method:    nativeBeep
- * Signature: ()I
+ * Method:    nativeInit
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)I
  */
-JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeBeep
-  (JNIEnv *, jobject);
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeInit
+  (JNIEnv *, jobject, jstring, jstring);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeInstall
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeInstall
+  (JNIEnv *, jobject, jstring, jstring, jstring);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeInstallEx
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeInstallEx
+  (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
  * Class:     SPOLE1C_JNI

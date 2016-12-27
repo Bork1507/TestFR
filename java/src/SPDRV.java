@@ -327,6 +327,23 @@ public class SPDRV extends FR
         return result;
     }
 
+    public String getSerialNumber() throws FrException
+    {
+        if (_writeLog) Common.log("getSerialNumber");
+        int error=0;
+        String result="";
+
+        if (error==0) result=_spNativeObject.nativeGetSerialNumber();
+        if (error==0) error=_spNativeObject.nativeGetResultCode();
+
+        if (_writeLog) Common.log(result);
+        Common.log("Error = "+ error);
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+
+        return result;
+    }
+
     public String getKkmParameter(int rowNumber, int columnNumber) throws FrException
     {
         if (_writeLog) Common.log("getKkmParameter");
@@ -772,6 +789,9 @@ public class SPDRV extends FR
     public int testJNIfunctions(String text) throws FrException{
         int error=0;
 
+        //if (error == 0) error = _spNativeObject.nativeInstall(curDate(), curTime(), "123456789012");
+        if (error == 0) error = _spNativeObject.nativeInstallEx(curDate(), curTime(), "0053R0136763");
+
         //        String result = "";
 //        String quantity = "";
 //
@@ -798,6 +818,7 @@ public class SPDRV extends FR
 //                Common.log("Error = " + error);
 //                Common.log(result);
 //        }
+
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;

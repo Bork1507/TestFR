@@ -143,6 +143,22 @@ JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeGetKkmVersion (JNIEnv *jenv, job
     return outKkmType;
 }
 
+JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeGetSerialNumber (JNIEnv *jenv, jobject jobj){
+    short error = 0;
+    BSTR bstrResult;
+    char cResult[100];
+    for (int i=0;i<100;i++)cResult[i]=0;
+
+    //if (error == 0) error=pOleFR->GetFiscNumber(&bstrResult);
+    //if (error == 0) error=pOleFR->GetRegNumber(&bstrResult);
+    if (error == 0) error=pOleFR->GetRegNumberEx(&bstrResult);
+
+    g_error = error;
+
+    WideCharToMultiByte(CP_UTF8, 0, bstrResult, -1, cResult, 100, NULL, NULL);
+    return jenv->NewStringUTF(cResult);
+}
+
 JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeInit (JNIEnv *jenv, jobject jobj, jstring inputDate, jstring inputTime){
     long error = 0;
 
@@ -172,6 +188,99 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeInit (JNIEnv *jenv, jobject jobj, j
 
     if (error == 0) error=pOleFR->Init(time_tToDATE(timeinfo));
     //cout << "error SetDate - " << error << endl;
+    return error;
+}
+
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeInstall (JNIEnv *jenv, jobject jobj, jstring inputDate, jstring inputTime, jstring serialNumber){
+    long error = 0;
+
+    const char *nativeStringDate = jenv->GetStringUTFChars(inputDate, JNI_FALSE);
+    const char *nativeStringTime = jenv->GetStringUTFChars(inputTime, JNI_FALSE);
+
+    char chDay[3]={0,0,0};
+    char chMonth[3]={0,0,0};
+    char chYear[3]={0,0,0};
+    char chHour[3]={0,0,0};
+    char chMin[3]={0,0,0};
+    char chSec[3]={0,0,0};
+    strncat(chDay, nativeStringDate, 2);
+    strncat(chMonth, nativeStringDate+2, 2);
+    strncat(chYear, nativeStringDate+4, 2);
+    strncat(chHour, nativeStringTime, 2);
+    strncat(chMin, nativeStringTime+2, 2);
+    strncat(chSec, nativeStringTime+4, 2);
+
+    struct tm timeinfo;
+    timeinfo.tm_sec=atoi(chSec);
+    timeinfo.tm_min=atoi(chMin);
+    timeinfo.tm_hour=atoi(chHour);
+    timeinfo.tm_mday=atoi(chDay);
+    timeinfo.tm_mon=atoi(chMonth)-1;
+    timeinfo.tm_year=atoi(chYear)+100;
+
+    const char *nativeSerialNumber = jenv->GetStringUTFChars(serialNumber, JNI_FALSE);
+    DWORD dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeSerialNumber, -1, NULL, 0);
+    wchar_t *pwText;
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeSerialNumber, -1, pwText, dwNum);
+
+    BSTR MyBstr = SysAllocString(pwText);
+
+    if (error == 0) error=pOleFR->Install(time_tToDATE(timeinfo), MyBstr);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    delete []pwText;
+    return error;
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeInstallEx (JNIEnv *jenv, jobject jobj, jstring inputDate, jstring inputTime, jstring serialNumber){
+    long error = 0;
+
+    const char *nativeStringDate = jenv->GetStringUTFChars(inputDate, JNI_FALSE);
+    const char *nativeStringTime = jenv->GetStringUTFChars(inputTime, JNI_FALSE);
+
+    char chDay[3]={0,0,0};
+    char chMonth[3]={0,0,0};
+    char chYear[3]={0,0,0};
+    char chHour[3]={0,0,0};
+    char chMin[3]={0,0,0};
+    char chSec[3]={0,0,0};
+    strncat(chDay, nativeStringDate, 2);
+    strncat(chMonth, nativeStringDate+2, 2);
+    strncat(chYear, nativeStringDate+4, 2);
+    strncat(chHour, nativeStringTime, 2);
+    strncat(chMin, nativeStringTime+2, 2);
+    strncat(chSec, nativeStringTime+4, 2);
+
+    struct tm timeinfo;
+    timeinfo.tm_sec=atoi(chSec);
+    timeinfo.tm_min=atoi(chMin);
+    timeinfo.tm_hour=atoi(chHour);
+    timeinfo.tm_mday=atoi(chDay);
+    timeinfo.tm_mon=atoi(chMonth)-1;
+    timeinfo.tm_year=atoi(chYear)+100;
+
+    const char *nativeSerialNumber = jenv->GetStringUTFChars(serialNumber, JNI_FALSE);
+    DWORD dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeSerialNumber, -1, NULL, 0);
+    wchar_t *pwText;
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeSerialNumber, -1, pwText, dwNum);
+
+    BSTR MyBstr = SysAllocString(pwText);
+
+    if (error == 0) error=pOleFR->InstallEx(time_tToDATE(timeinfo), MyBstr);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    delete []pwText;
     return error;
 }
 

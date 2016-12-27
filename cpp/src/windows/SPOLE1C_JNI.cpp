@@ -249,7 +249,27 @@ JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeCutAndPrint (JNIEnv *jenv, jobjec
 //
 //    return outKkmVersion;
 //}
-//
+
+JNIEXPORT jstring JNICALL Java_SPOLE1C_1JNI_nativeGetSerialNumber (JNIEnv *jenv, jobject jobj){
+    short error = 0;
+    BSTR bstrResult;
+    char cResult[100];
+    for (int i=0;i<100;i++)cResult[i]=0;
+
+//    if (error == 0) error=pOleFR->GetFiscNumber();
+//    if (error == 0) bstrResult=pOleFR->FiscalNumber();
+//    if (error == 0) error=pOleFR->GetRegNumber();
+//    if (error == 0) bstrResult=pOleFR->RegNumber();
+    if (error == 0) error=pOleFR->GetRegNumberEx();
+    if (error == 0) bstrResult=pOleFR->SerialNumberEx();
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    WideCharToMultiByte(CP_UTF8, 0, bstrResult, -1, cResult, 100, NULL, NULL);
+    return jenv->NewStringUTF(cResult);
+}
+
 //JNIEXPORT jstring JNICALL Java_SHTRIHDRV_1JNI_nativeGetLastShiftInFiscalMemory (JNIEnv *jenv, jobject jobj){
 //    long error = 0;
 //    long result;

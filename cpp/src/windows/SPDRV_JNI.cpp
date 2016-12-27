@@ -225,6 +225,37 @@ JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetKkmVersion (JNIEnv *jenv, job
     return outKkmType;
 }
 
+JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetSerialNumber (JNIEnv *jenv, jobject jobj){
+    long error = 0;
+    jstring outSerialNumber = jenv->NewStringUTF("");
+
+    SPFR_SERIAL_NUMBER_EX sSerialNumber;
+
+    typedef USHORT (WINAPI *SPFR_GetRegNumberEx)(HANDLE, SPFR_SERIAL_NUMBER_EX*);
+    SPFR_GetRegNumberEx pfnSPFR_GetRegNumberEx;
+    pfnSPFR_GetRegNumberEx=(SPFR_GetRegNumberEx)GetProcAddress(hsp101fr,"SPFR_GetRegNumberEx");
+    error=(*pfnSPFR_GetRegNumberEx)(comport_fr, &sSerialNumber);
+
+//    SPFR_REGISTRATION_NUMBER sSerialNumber;
+//
+//    typedef USHORT (WINAPI *SPFR_GetRegNumber)(HANDLE, SPFR_REGISTRATION_NUMBER*);
+//    SPFR_GetRegNumber pfnSPFR_GetRegNumber;
+//    pfnSPFR_GetRegNumber=(SPFR_GetRegNumber)GetProcAddress(hsp101fr,"SPFR_GetRegNumber");
+//    error=(*pfnSPFR_GetRegNumber)(comport_fr, &sSerialNumber);
+
+    if (error == 0)
+    {
+        outSerialNumber = jenv->NewStringUTF(sSerialNumber.s);
+        g_error = 0;
+    }
+    else
+    {
+        g_error = error;
+    }
+
+    return outSerialNumber;
+}
+
 JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeInit (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
@@ -251,12 +282,82 @@ JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeInit (JNIEnv *jenv, jobject jobj){
         tmCheckTime.second=sdata->tm_sec;
 
     //теперь вызываем функцию DLL как обычную функцию
-    (*pfnSPFR_Init)(comport_fr, &dtCheckDate, &tmCheckTime);
+    error = (*pfnSPFR_Init)(comport_fr, &dtCheckDate, &tmCheckTime);
 
-    cout << "Работа программы завершена.\n";
+//    cout << "Работа программы завершена.\n";
 
 
     //cout << "error - " << error << endl;
+    return error;
+}
+
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeInstall (JNIEnv *jenv, jobject jobj, jstring inputDate, jstring inputTime, jstring serialNumber){
+    long error = 0;
+
+    SPFRDT dtCheckDate;
+    SPFRTM tmCheckTime;
+    SPFR_SERIAL_NUMBER sSerialNumber;
+    char cp1251SerialNumber[30];
+
+    const char *utfSerialNumber = jenv->GetStringUTFChars(serialNumber, JNI_FALSE);
+    int utfSerialNumberLength = jenv->GetStringUTFLength(serialNumber);
+    int cp1251SerialNumberLength = UtfToCp1251((const unsigned char *)utfSerialNumber, utfSerialNumberLength, cp1251SerialNumber);
+
+    strcpy(sSerialNumber.s, cp1251SerialNumber);
+
+
+    // ДАТА
+    time_t data;
+    struct tm *sdata;
+    data=time(NULL);
+    sdata=localtime(&data);
+    dtCheckDate.day=sdata->tm_mday;
+    dtCheckDate.month=sdata->tm_mon+1;
+    dtCheckDate.year=sdata->tm_year+1900;
+    tmCheckTime.hour=sdata->tm_hour;
+    tmCheckTime.minute=sdata->tm_min;
+    tmCheckTime.second=sdata->tm_sec;
+
+    typedef USHORT (WINAPI *SPFR_Install)(HANDLE, SPFRDT*, SPFRTM*, SPFR_SERIAL_NUMBER*);
+    SPFR_Install pfnSPFR_Install;
+    pfnSPFR_Install=(SPFR_Install)GetProcAddress(hsp101fr,"SPFR_Install");
+    error = (*pfnSPFR_Install)(comport_fr, &dtCheckDate, &tmCheckTime, &sSerialNumber);
+
+    return error;
+}
+
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeInstallEx (JNIEnv *jenv, jobject jobj, jstring inputDate, jstring inputTime, jstring serialNumber){
+    long error = 0;
+
+    SPFRDT dtCheckDate;
+    SPFRTM tmCheckTime;
+    SPFR_SERIAL_NUMBER_EX sSerialNumber;
+    char cp1251SerialNumber[30];
+
+    const char *utfSerialNumber = jenv->GetStringUTFChars(serialNumber, JNI_FALSE);
+    int utfSerialNumberLength = jenv->GetStringUTFLength(serialNumber);
+    int cp1251SerialNumberLength = UtfToCp1251((const unsigned char *)utfSerialNumber, utfSerialNumberLength, cp1251SerialNumber);
+
+    strcpy(sSerialNumber.s, cp1251SerialNumber);
+
+
+    // ДАТА
+    time_t data;
+    struct tm *sdata;
+    data=time(NULL);
+    sdata=localtime(&data);
+    dtCheckDate.day=sdata->tm_mday;
+    dtCheckDate.month=sdata->tm_mon+1;
+    dtCheckDate.year=sdata->tm_year+1900;
+    tmCheckTime.hour=sdata->tm_hour;
+    tmCheckTime.minute=sdata->tm_min;
+    tmCheckTime.second=sdata->tm_sec;
+
+    typedef USHORT (WINAPI *SPFR_InstallEx)(HANDLE, SPFRDT*, SPFRTM*, SPFR_SERIAL_NUMBER_EX*);
+    SPFR_InstallEx pfnSPFR_InstallEx;
+    pfnSPFR_InstallEx=(SPFR_InstallEx)GetProcAddress(hsp101fr,"SPFR_InstallEx");
+    error = (*pfnSPFR_InstallEx)(comport_fr, &dtCheckDate, &tmCheckTime, &sSerialNumber);
+
     return error;
 }
 

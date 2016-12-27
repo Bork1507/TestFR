@@ -57,6 +57,14 @@ JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetKkmVersion
 
 /*
  * Class:     SPDRV_JNI
+ * Method:    nativeGetSerialNumber
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetSerialNumber
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPDRV_JNI
  * Method:    nativeGetLastShiftInFiscalMemory
  * Signature: ()Ljava/lang/String;
  */
@@ -70,6 +78,22 @@ JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetLastShiftInFiscalMemory
  */
 JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeInit
   (JNIEnv *, jobject);
+
+/*
+ * Class:     SPDRV_JNI
+ * Method:    nativeInstall
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeInstall
+  (JNIEnv *, jobject, jstring, jstring, jstring);
+
+/*
+ * Class:     SPDRV_JNI
+ * Method:    nativeInstallEx
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeInstallEx
+  (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
  * Class:     SPDRV_JNI
