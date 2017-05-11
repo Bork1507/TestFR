@@ -106,6 +106,7 @@ public class QrCode
 
 		int size = _imageHeight;
 		String fileType = "bmp";
+		File myFile = new File("123");
 
 		BufferedImage image=null;
 		try 
@@ -140,12 +141,18 @@ public class QrCode
 					}
 				}
 			}
-		} 
+			ImageIO.write(image, fileType, myFile);
+		}
 		catch (WriterException e) 
 		{
 			e.printStackTrace();
 			image=new BufferedImage(_imageWidth, 1, BufferedImage.TYPE_BYTE_BINARY);
-		} 
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			//result=false;
+		}
 
 		return image;
 	}

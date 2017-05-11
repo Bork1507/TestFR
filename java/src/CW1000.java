@@ -915,7 +915,7 @@ public class CW1000 extends FR
 		return error;
 	}
 
-	private int printLogotype() throws FrException
+	public int printLogotype() throws FrException
 	{
 		if (_writeLog) Common.log("eraseLogotype");
 		int error=0;
@@ -924,7 +924,7 @@ public class CW1000 extends FR
 		commandStr.append(0x1c);
 		commandStr.append(0x70);
 		commandStr.append(0x01);
-		commandStr.append(0x01);
+		commandStr.append(0x00);
 
 
 		if (_printLogotype == true) {

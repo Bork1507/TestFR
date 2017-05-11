@@ -456,7 +456,13 @@ public class SP extends FR
 				case "614":
 					result="СП614БУ";
 					break;
+				case "450":
+					result="СП402";
+					break;
 				case "460":
+					result="СП402-Ф";
+					break;
+				case "462":
 					result="СП402-Ф";
 					break;
 				case "601":
@@ -817,6 +823,9 @@ public class SP extends FR
 		commandStr.append(0x1C);
 		commandStr.append(docNumber);
 		commandStr.append(0x1C);
+//		commandStr.append("1");
+//		commandStr.append(0x1C);
+//		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
 
@@ -899,6 +908,9 @@ public class SP extends FR
 		commandStr.append(depType);
 		commandStr.append(0x1C);
 		commandStr.append(taxType);
+		commandStr.append(0x1C);
+		commandStr.append(0x1C);
+		commandStr.append("1");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
@@ -1111,6 +1123,8 @@ public class SP extends FR
 		commandStr.append(id());
 		commandStr.append("61");
 		commandStr.append(text, "cp866");
+//		commandStr.append("65");
+//		commandStr.append("4");
 		commandStr.append(0x1C);
 		commandStr.append(0x03);
 
@@ -1245,7 +1259,534 @@ public class SP extends FR
 		return error;		
 	}
 
-	public int printBarCode(int width, int height, String codeType, String codeText) throws FrException
+	public int printImageScaleWithout(BufferedImage image) throws FrException
+	{
+		if (_writeLog) Common.log("printImage");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		ArrayOfBytes imageArray=new ArrayOfBytes();
+
+		int imageWidthInBytes=image.getWidth()/8;
+		int imageHeight=image.getHeight();
+		int imageSize=imageWidthInBytes*imageHeight;
+		int imageWidthInBytesReal=imageWidthInBytes;
+		while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+		{
+			imageWidthInBytesReal++;
+		}
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+		{
+			ImageIO.write(image, "bmp", baos);
+			baos.flush();
+			baos.close();
+		}
+		catch (IOException ex)
+		{
+			ex.printStackTrace();
+			error=ANY_LOGICAL_ERROR;
+		}
+
+		if (error==0)
+		{
+
+			byte[] bmpArray = baos.toByteArray();
+			int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+			for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+			{
+				// for(int j=i*imageWidthInBytes+startByteOfImageData, k=0;k<imageWidthInBytes;j++, k++)
+				// {
+				// 	imageArray.append(~bmpArray[j]);
+				// }
+
+				for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+				{
+					if (k<imageWidthInBytes) imageArray.append(~bmpArray[j]);
+				}
+			}
+
+
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("2A");
+			commandStr.append(Integer.toString(imageArray.length()));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(imageWidthInBytes));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(1));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(1));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(0));
+			commandStr.append(0x1C);
+			commandStr.append(0x03);
+
+			if (writePort(CRC(commandStr)))
+			{
+				for(int i=0;i<100; i++)
+				{
+					if (readPort(getStr))
+					{
+						if (getStr.at(0)==_bACK.at(0)) break;
+					}
+					if (i==99) error=NO_RESPONSE_FR;
+				}
+			}
+			else error=ERROR_SEND;
+		}
+
+
+
+		if (error==0)
+		{
+			commandStr.clear();
+			getStr.clear();
+
+			commandStr.append(imageArray);
+
+			if (writePort(commandStr))
+			{
+
+				// int count=0;
+				// while(!testConnect())
+				// {
+				// 	if (count>20)
+				// 	{
+				// 		error=NO_RESPONSE_FR;
+				// 		break;
+				// 	}
+				// 	count++;
+				// }
+
+
+				try
+				{
+					Common.log("Pause "+1000+" ms ...");
+					Thread.sleep(1000);
+				} catch (InterruptedException ie) {}
+
+			}
+			else error=ERROR_SEND;
+		}
+		if (error==0)
+		{
+			error=getResponse(getStr);
+		}
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
+    public int printImageScaleHeight(BufferedImage image) throws FrException
+    {
+        if (_writeLog) Common.log("printImageWithScale");
+        int error=0;
+
+        ArrayOfBytes getStr=new ArrayOfBytes();
+        ArrayOfBytes commandStr=new ArrayOfBytes();
+
+        ArrayOfBytes imageArray=new ArrayOfBytes();
+
+        int imageWidthInBytes=image.getWidth()/8;
+        int imageHeight=image.getHeight();
+        int imageSize=imageWidthInBytes*imageHeight;
+        int imageWidthInBytesReal=imageWidthInBytes;
+        while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+        {
+            imageWidthInBytesReal++;
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try
+        {
+            ImageIO.write(image, "bmp", baos);
+            baos.flush();
+            baos.close();
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+            error=ANY_LOGICAL_ERROR;
+        }
+
+        int equalRowsCount=0;
+        ArrayOfBytes imageArrayRow=new ArrayOfBytes();
+        ArrayOfBytes imageArrayTmp=new ArrayOfBytes();
+        ArrayOfBytes zeroRow=new ArrayOfBytes();
+        zeroRow.fill(imageWidthInBytes, 0);
+
+        if (error==0)
+        {
+
+            byte[] bmpArray = baos.toByteArray();
+
+            int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+            for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+            {
+                imageArrayTmp.clear();
+                for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+                {
+                    byte bitsRev = (byte) (~bmpArray[j]); //reverse bits
+                    if (k<imageWidthInBytes) imageArrayTmp.append(bitsRev);
+                }
+                if (imageArrayTmp.equals(zeroRow)) continue;
+                if (!imageArrayRow.equals(imageArrayTmp))
+                { // add to image array only unique rows
+                    imageArray.append(imageArrayTmp);
+                    imageArrayRow.clear();
+                    imageArrayRow.append(imageArrayTmp);
+                    equalRowsCount=0;
+                }
+                else equalRowsCount++;
+            }
+        }
+
+        if (error==0)
+        {
+
+//			byte[] bmpArray = baos.toByteArray();
+//			int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+//
+//			for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+//			{
+//				// for(int j=i*imageWidthInBytes+startByteOfImageData, k=0;k<imageWidthInBytes;j++, k++)
+//				// {
+//				// 	imageArray.append(~bmpArray[j]);
+//				// }
+//
+//				for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+//				{
+//					if (k<imageWidthInBytes) imageArray.append(~bmpArray[j]);
+//				}
+//			}
+
+            //byte printGraphicsEx(long nImageSize, byte bWidthBytes, byte bWidthScale, byte bHeightScale, ushort wShiftToRight)
+            commandStr.append(0x02);
+            commandStr.append("PONE");
+            commandStr.append(id());
+            commandStr.append("2A");
+            commandStr.append(Integer.toString(imageArray.length()));
+            commandStr.append(0x1C);
+            commandStr.append(Integer.toString(imageWidthInBytes));
+            commandStr.append(0x1C);
+            commandStr.append(Integer.toString(1));
+            commandStr.append(0x1C);
+            commandStr.append(Integer.toString(equalRowsCount));
+            commandStr.append(0x1C);
+            commandStr.append(Integer.toString(0));
+            commandStr.append(0x1C);
+            commandStr.append(0x03);
+
+            if (writePort(CRC(commandStr)))
+            {
+                for(int i=0;i<100; i++)
+                {
+                    if (readPort(getStr))
+                    {
+                        if (getStr.at(0)==_bACK.at(0)) break;
+                    }
+                    if (i==99) error=NO_RESPONSE_FR;
+                }
+            }
+            else error=ERROR_SEND;
+        }
+
+
+
+        if (error==0)
+        {
+            commandStr.clear();
+            getStr.clear();
+
+            commandStr.append(imageArray);
+
+            if (writePort(commandStr))
+            {
+
+                // int count=0;
+                // while(!testConnect())
+                // {
+                // 	if (count>20)
+                // 	{
+                // 		error=NO_RESPONSE_FR;
+                // 		break;
+                // 	}
+                // 	count++;
+                // }
+
+
+                try
+                {
+                    Common.log("Pause "+2000+" ms ...");
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {}
+
+            }
+            else error=ERROR_SEND;
+        }
+        if (error==0)
+        {
+            error=getResponse(getStr);
+        }
+
+        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+        return error;
+    }
+
+	public int printImageScaleWidthAndHeight(BufferedImage image) throws FrException
+	{
+		if (_writeLog) Common.log("printImageWithScale");
+		int error=0;
+
+		ArrayOfBytes getStr=new ArrayOfBytes();
+		ArrayOfBytes commandStr=new ArrayOfBytes();
+
+		ArrayOfBytes imageArray=new ArrayOfBytes();
+
+		int imageWidthInBytes=image.getWidth()/8;
+		int imageHeight=image.getHeight();
+		int imageSize=imageWidthInBytes*imageHeight;
+		int imageWidthInBytesReal=imageWidthInBytes;
+		while(imageWidthInBytesReal%4!=0) // see to https://en.wikipedia.org/wiki/BMP_file_format#Pixel_array_.28bitmap_data.29
+		{
+			imageWidthInBytesReal++;
+		}
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+		{
+			ImageIO.write(image, "bmp", baos);
+			baos.flush();
+			baos.close();
+		}
+		catch (IOException ex)
+		{
+			ex.printStackTrace();
+			error=ANY_LOGICAL_ERROR;
+		}
+
+		int equalRowsCount=0;
+		int equalBitCount=0;
+		ArrayOfBytes imageArrayRow=new ArrayOfBytes();
+		ArrayOfBytes imageArrayTmp=new ArrayOfBytes();
+		ArrayOfBytes zeroRow=new ArrayOfBytes();
+		zeroRow.fill(imageWidthInBytes, 0);
+
+		int imageWidthInBytesLittle=0;
+
+		int removeFirstBitInRows=0;
+
+		if (error==0)
+		{
+
+			byte[] bmpArray = baos.toByteArray();
+
+			int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+
+			boolean firstRealRow=true;
+			for(int i=imageHeight-1;-1<i; i--) // inversion bytes and image
+			{
+				imageArrayTmp.clear();
+				for(int j=i*imageWidthInBytesReal+startByteOfImageData, k=0;k<imageWidthInBytesReal;j++, k++)
+				{
+					byte bitsRev = (byte) (~bmpArray[j]); //reverse bits
+					if (k<imageWidthInBytes) imageArrayTmp.append(bitsRev);
+				}
+				if (imageArrayTmp.equals(zeroRow)) continue;
+
+				if (firstRealRow)
+				{// вычисляем коэффициент умножения битов в строке. По краям картинки могут быть пустые области.
+					firstRealRow=false;
+
+					int _curBitInByte=7;
+					int _curByteInRow=0;
+					int _curBitResult=0;
+					int _lastBitResult=1000;
+					ArrayOfBytes _equalBitArray=new ArrayOfBytes();
+
+					for (int _curBitInRow=0; _curBitInRow<imageArrayTmp.length()*8;_curBitInRow++)
+					{
+
+						if ((imageArrayTmp.at(_curByteInRow) & 1<<_curBitInByte)>0) _curBitResult = 1;
+						else _curBitResult = 0;
+
+						if (_curBitResult!=_lastBitResult) // смена текущего значения бита
+						{
+							if (equalBitCount!=0) _equalBitArray.append(equalBitCount); // фиксируем количество повторений в массив
+							equalBitCount=1;
+							_lastBitResult=_curBitResult;
+						}
+						else equalBitCount++;
+
+
+						if (_curBitInByte==0) // закончили работать с одним байтом и переключаемся на следующий
+						{
+							_curBitInByte=7;
+							_curByteInRow++;
+						}
+						else _curBitInByte--;
+					}
+
+					// разбор массива полученных повторений
+					removeFirstBitInRows=_equalBitArray.at(0); // количество пустых бит в левой стороне каждой строки
+					equalBitCount=10000;
+					// получаем минимальное количество идущих подряд битов
+					for(int z=1;z<_equalBitArray.length()-1;z++)
+					{
+						if (equalBitCount>_equalBitArray.at(z)) equalBitCount=_equalBitArray.at(z);
+					}
+					Common.log("pause");
+				}
+
+				// обрабатываем только уникальные строки картинки
+				// из полученной строки зачитываем только уникальные биты из последовательности в equalBitCount бит
+				if (!imageArrayRow.equals(imageArrayTmp))
+				{ // add to image array only unique rows
+					int _curBitInByte=7-(removeFirstBitInRows%8);
+					int _curByteInRow=removeFirstBitInRows/8;
+					int _outByte=0;
+					int _outBitInByte=7;
+					boolean _outByteIsWrite = false;
+					ArrayOfBytes _outRowTmp=new ArrayOfBytes();
+					int writeBitCounter=equalBitCount;
+
+					// для каждого бита строки
+					for(int z=removeFirstBitInRows; z<imageArrayTmp.length()*8;z++)
+					{
+						// если текущий бит первый в последовательности
+						if (writeBitCounter==equalBitCount)
+						{
+							writeBitCounter=1;
+							_outByteIsWrite = false;
+							int _curBitResult=0;
+							// получаем значение текущего бита
+							if ((imageArrayTmp.at(_curByteInRow) & 1<<_curBitInByte)>0) _curBitResult = 1;
+
+							// сохраняем значение текущего бита
+							_outByte |= (_curBitResult<<_outBitInByte);
+
+							// отрабатываем переход к следующему байту исходящего массива
+							if (_outBitInByte==0)
+							{
+								_outBitInByte=7;
+								_outRowTmp.append(_outByte);
+								_outByte=0;
+								_outByteIsWrite = true;
+							}
+							else _outBitInByte--;
+						}else writeBitCounter++;
+
+						// отрабатываем переход к следующему байту входящего массива
+						if (_curBitInByte==0)
+						{
+							_curBitInByte=7;
+							_curByteInRow++;
+						}
+						else _curBitInByte--;
+
+					}
+					// если в исходящий массив не дозаписан последний байт - дозаписываем
+					if (!_outByteIsWrite) _outRowTmp.append(_outByte);
+
+					// сохраняем ширину новой строки
+					imageWidthInBytesLittle=_outRowTmp.length();
+
+					// добавляем новую строку в массив картинки
+					imageArray.append(_outRowTmp);
+					imageArrayRow.clear();
+					imageArrayRow.append(imageArrayTmp);
+					equalRowsCount=0;
+				}
+				else equalRowsCount++;
+			}
+		}
+
+		if (error==0)
+		{
+			int max=0;
+			commandStr.append(0x02);
+			commandStr.append("PONE");
+			commandStr.append(id());
+			commandStr.append("2A");
+			commandStr.append(Integer.toString(imageArray.length()));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(imageWidthInBytesLittle));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(equalBitCount+max));
+			//commandStr.append(Integer.toString(1));//equalBitCount+max));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(equalRowsCount+max));
+			//commandStr.append(Integer.toString(1));//equalRowsCount+max));
+			commandStr.append(0x1C);
+			commandStr.append(Integer.toString(0));
+			commandStr.append(0x1C);
+			commandStr.append(0x03);
+
+			if (writePort(CRC(commandStr)))
+			{
+				for(int i=0;i<100; i++)
+				{
+					if (readPort(getStr))
+					{
+						if (getStr.at(0)==_bACK.at(0)) break;
+					}
+					if (i==99) error=NO_RESPONSE_FR;
+				}
+			}
+			else error=ERROR_SEND;
+		}
+
+
+
+		if (error==0)
+		{
+			commandStr.clear();
+			getStr.clear();
+
+			commandStr.append(imageArray);
+
+			if (writePort(commandStr))
+			{
+
+				// int count=0;
+				// while(!testConnect())
+				// {
+				// 	if (count>20)
+				// 	{
+				// 		error=NO_RESPONSE_FR;
+				// 		break;
+				// 	}
+				// 	count++;
+				// }
+
+
+				try
+				{
+					Common.log("Pause "+2000+" ms ...");
+					Thread.sleep(2000);
+				} catch (InterruptedException ie) {}
+
+			}
+			else error=ERROR_SEND;
+		}
+		if (error==0)
+		{
+			error=getResponse(getStr);
+		}
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
+    public int printBarCode(int width, int height, String codeType, String codeText) throws FrException
 	{
 		if (_writeLog) Common.log("printBarCode");
 		int error=0;
@@ -1341,7 +1882,7 @@ public class SP extends FR
 		String kkmType="";
 		String kkmVersion="";
 
-		int printFast=-1;
+		int printFast=0;
 
 		try
 		{
@@ -1356,7 +1897,7 @@ public class SP extends FR
 
 
 		int imageWidth=0;
-		int imageHeight=200;
+		int imageHeight=320;
 
 		switch(kkmType)
 		{
@@ -1369,8 +1910,15 @@ public class SP extends FR
 			case "СП402ФР-К":
 				imageWidth=448;
 				break;
+			case "СП402":
+				imageWidth=576;
+				break;
 			case "СП402-Ф":
-				imageWidth=448;
+			    switch (kkmVersion)
+                {
+                    case "462": imageWidth = imageHeight; break;
+                    default: imageWidth = 576; break;
+                }
 				break;
 			case "СП601-К":
 				imageWidth=576;
@@ -1429,7 +1977,10 @@ public class SP extends FR
 			if (error==0) error=printText("");
 		}
 		else if (printFast==0){
-        	if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+//        	if (error==0) error=printImage(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+// 			if (error==0) error=printImageScaleWithout(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+//			if (error==0) error=printImageScaleHeight(QrCode.getQrImage(codeText, imageWidth, imageHeight));
+			if (error==0) error=printImageScaleWidthAndHeight(QrCode.getQrImage(codeText, imageWidth, imageHeight));
 		}
 		else {
 			// do nothing
@@ -1457,6 +2008,15 @@ public class SP extends FR
 		}
 
 		if (error==0) error=transaction(CRC(commandStr), getStr);
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
+	public int printLogotype() throws FrException
+	{
+		if (_writeLog) Common.log("printLogotype");
+		int error=0;
+
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
 	}
@@ -1516,8 +2076,8 @@ public class SP extends FR
 		if (error==0) {
 			if (writePort(bmpFileArray)) {
 				try {
-					Common.log("Pause "+1000+" ms ...");
-					Thread.sleep(1000);
+					Common.log("Pause "+10000+" ms ...");
+					Thread.sleep(10000);
 				} catch (InterruptedException ie) {}
 
 			}

@@ -229,22 +229,27 @@ abstract class FR
 			else result=false;
 
 			return result;
-		}		
+		}
 
-		public void set(int i, int setByte)
+        public void fill(int size, int value)
+        {
+            this.clear();
+            for(int i= 0;i<size;i++) this.append(value);
+        }
+        public void set(int i, int setByte)
 		{
 			if (i<this.length())
 			{
 				bytesArray[i]=(byte)setByte;
 			}
 		}		
-		public void set(int i, byte setByte)
-		{
-			if (i<this.length())
-			{
-				bytesArray[i]=(byte)setByte;
-			}
-		}		
+//		public void set(int i, byte setByte)
+//		{
+//			if (i<this.length())
+//			{
+//				bytesArray[i]=(byte)setByte;
+//			}
+//		}
 
 		public ArrayOfBytes mid(int startByte, int length)
 		{
@@ -479,6 +484,7 @@ abstract class FR
 
 	abstract public int eraseLogotype() throws FrException;
 	abstract public int loadLogotype(String filePath) throws FrException;
+	abstract public int printLogotype() throws FrException;
 
 	abstract public int receiptSale() throws FrException;
 

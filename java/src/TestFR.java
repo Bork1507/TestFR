@@ -282,7 +282,7 @@ public class TestFR {
 
 				String path = "";
 
-				for (int i = 2; i < 3; i++) {
+				for (int i = 3; i < 3; i++) {
 					if (i == 0) {
 						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 269х050_.bmp";
 					} else if (i == 1) {
@@ -307,21 +307,35 @@ public class TestFR {
 				// Choose logo for next test.
 				switch(1){
 					case 0:
-						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 269х050_.bmp";
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP801_Logo_ServPlus_koordinats 576х200.bmp";
 						break;
 					case 1:
 						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х107.bmp"; // AXIOHM
-						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х080.bmp"; // CW1000
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP801_Logo_ServPlus_koordinats 288х200.bmp"; // CW1000
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/Chess-1_64X32.bmp";
+						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/Chess_64X08.bmp";
 						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP601_Logo_ServPlus_koordinats 551x079.bmp"; // IBM
 						break;
 					case 2:
 						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 288х126.bmp"; // AXIOHM
-						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP101_Logo_ServPlus_koordinats 282х100.bmp"; // CW1000
+						path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP601_Logo_ServPlus_koordinats 576x152.bmp"; // CW1000
 						//path = "/home/bork/VirtualBoxFolder/Projects/Fiscal/SP601_Logo_ServPlus_koordinats 576x167.bmp"; // IBM
 						break;
 				}
 				_fr.eraseLogotype();
 				_fr.loadLogotype(path);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ie) {}
+				_fr.printLogotype();
+				_fr.printText("");
+				_fr.printText("");
+				_fr.printText("");
+				_fr.printText("");
+				_fr.printText("");
+				_fr.printText("");
+				_fr.printText("");
+				_fr.printText("");
 			}
 
 			if (_programProperties.getProperty("TEST_TASK", "NO").equals("YES")) {
@@ -444,8 +458,12 @@ public class TestFR {
 							_fr.init();
 						} catch (FrException frEx) {
 						}
-
 						Common.log(_fr.getKkmType() + " " + _fr.getKkmVersion());
+
+//						_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
+//						_fr.printQrCode("http://check.egais.ru?id=4c74ab86-f8e1-4a70-84b3-5230619a2bb7&amp;dt=1504161154&amp;cn=030000143587  http://check.egais.ru?id=4c74ab86-f8e1-4a70-84b3-5230619a2bb7&amp;");
+//						_fr.closeDocument("");
+
 						for (int i = 0; i < Integer.parseInt(_param1); i++) {
 							try {
 								try {
@@ -454,20 +472,23 @@ public class TestFR {
 								} catch (InterruptedException ie) {
 								}
 
+for(int k=0; k<3; k++)
+{
 
 								_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "");
 								//_fr.openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "0", "Иванова", "");
 
+								for(int j=0; j<60; j++)
+								{
+									_resSet = _statmt.executeQuery("SELECT * FROM testitems");
+									while (_resSet.next()) {
+										String article = _resSet.getString("Article");
+										String itemname = _resSet.getString("ItemName");
+										String cost = _resSet.getString("Cost");
+										String weight = _resSet.getString("Weight");
 
-								_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-
-								while (_resSet.next()) {
-									String article = _resSet.getString("Article");
-									String itemname = _resSet.getString("ItemName");
-									String cost = _resSet.getString("Cost");
-									String weight = _resSet.getString("Weight");
-
-									_fr.addItem(itemname, article, weight, cost, "0", "1");
+										_fr.addItem(itemname, article, weight, cost, "0", "1");
+									}
 								}
 
 								_fr.printText("   ");
@@ -477,11 +498,12 @@ public class TestFR {
 
 								_fr.total();
 
-								String egaisUrl = egaisEx.executeChequeExchange();
-								_fr.printQrCode(egaisUrl);
-								Common.log(egaisUrl);
+								//String egaisUrl = egaisEx.executeChequeExchange();
+								//String egaisUrl = "http://check.egais.ru?id=4c74ab86-f8e1-4a70-84b3-5230619a2bb7&amp;dt=1504161154&amp;cn=030000143587  http://check.egais.ru?id=4c74ab86-f8e1-4a70-84b3-5230619a2bb7&amp;";
+								//_fr.printQrCode(egaisUrl);
+								//Common.log(egaisUrl);
 
-								_fr.pay(FR.PAY_TYPE_0, "500.00", "");
+								_fr.pay(FR.PAY_TYPE_0, "50000.00", "");
 								_fr.closeDocument("");
 
 
@@ -514,9 +536,9 @@ public class TestFR {
 									_fr.total();
 									_fr.pay(FR.PAY_TYPE_0, "500.00", "");
 									_fr.closeDocument("");
-
-									_fr.xReport("Иванова");
+									//_fr.xReport("Иванова");
 								}
+}
 							} catch (FrException frEx) {
 								Common.log(frEx.toString());
 								try {
@@ -524,16 +546,17 @@ public class TestFR {
 									System.in.read();
 								} catch (IOException e) {
 								}
+								_fr.cancelDocument();
 							}
 						}
-						_fr.zReport("Петрова");
+						//_fr.zReport("Петрова");
 
-						String lastShift = _fr.getLastShiftInFiscalMemory();
-						_fr.printEklzReportFullByDate(new Date(), new Date());// Report is very big sometimes
-						_fr.printEklzReportShortByDate(new Date(), new Date());
-						_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
-						_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
-						_fr.printEklzReportControlTape(Integer.valueOf(lastShift));
+//						String lastShift = _fr.getLastShiftInFiscalMemory();
+//						_fr.printEklzReportFullByDate(new Date(), new Date());// Report is very big sometimes
+//						_fr.printEklzReportShortByDate(new Date(), new Date());
+//						_fr.printEklzReportFullByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
+//						_fr.printEklzReportShortByShift(Integer.valueOf(lastShift), Integer.valueOf(lastShift));
+//						_fr.printEklzReportControlTape(Integer.valueOf(lastShift));
 					} catch (FrException frEx) {
 						Common.log(frEx.toString());
 						try {
@@ -541,6 +564,7 @@ public class TestFR {
 							System.in.read();
 						} catch (IOException e) {
 						}
+						_fr.cancelDocument();
 					}
 				}
 				_resSet.close();

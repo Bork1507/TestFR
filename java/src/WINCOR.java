@@ -1023,6 +1023,15 @@ public class WINCOR extends FR{
 		return error;
 	}
 
+	public int printLogotype() throws FrException
+	{
+		if (_writeLog) Common.log("printLogotype");
+		int error=0;
+
+		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
+	}
+
 	public int loadLogotype(String filePath) throws FrException
 	{
 		if (_writeLog) Common.log("loadLogotype");
