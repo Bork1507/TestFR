@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class CW1000 extends FR
+public class CW1000 extends PRINTER
 {
 	private SerialPort _serialPort;
 //	private int _id=0x20;
@@ -66,87 +66,6 @@ public class CW1000 extends FR
 //	            break;
 //	        case 1:
 //	            str="Ошибка 01h - Функция невыполнима при данном статусе ККМ";
-//	            break;
-//	        case 2:
-//	            str="Ошибка 02h - В команде указан неверный номер функции";
-//	            break;
-//	        case 3:
-//	            str="Ошибка 03h - В команде указано неверное, больше чем максимально возможное или несоответствующее типу данных значение";
-//	            break;
-//	        case 4:
-//	            str="Ошибка 04h - Переполнение буфера коммуникационного порта";
-//	            break;
-//	        case 5:
-//	            str="Ошибка 05h - Таймаут при передаче байта информации";
-//	            break;
-//	        case 6:
-//	            str="Ошибка 06h - В команде указан неверный пароль";
-//	            break;
-//	        case 7:
-//	            str="Ошибка 07h - Ошибка контрольной суммы в команде";
-//	            break;
-//	        case 8:
-//	            str="Ошибка 08h - Конец бумаги";
-//	            break;
-//	        case 9:
-//	            str="Ошибка 09h - Принтер не готов";
-//	            break;
-//	        case 10:
-//	            str="Ошибка 0Ah - Текущая смена больше 24 часов";
-//	            break;
-//	        case 11:
-//	            str="Ошибка 0Bh - Разница во времени, ККМ и указанной в команде установки времени, больше 8 минут";
-//	            break;
-//	        case 12:
-//	            str="Ошибка 0Ch - Время последнего документа больше нового времени более чем на один час (с учетом летнего/зимнего перехода)";
-//	            break;
-//	        case 13:
-//	            str="Ошибка 0Dh - Не был задан заголовок документа, что делает невозможным формирование фискального документа.";
-//	            break;
-//	        case 14:
-//	            str="Ошибка 0Eh - Отрицательный результат";
-//	            break;
-//	        case 15:
-//	            str="Ошибка 0Fh - Дисплей покупателя не готов";
-//	            break;
-//	        case 32:
-//	            str="Ошибка 20h - Фатальная ошибка ККМ";
-//	            break;
-//	        case 33:
-//	            str="Ошибка 21h - Нет свободного места в фискальной памяти ККМ";
-//	            break;
-//	        case 65:
-//	            str="Ошибка 41h - Некорректный формат или параметр команды";
-//	            break;
-//	        case 66:
-//	            str="Ошибка 42h - Некорректное состояние ЭКЛЗ";
-//	            break;
-//	        case 67:
-//	            str="Ошибка 43h - Авария  ЭКЛЗ";
-//	            break;
-//	        case 68:
-//	            str="Ошибка 44h - Авария  КС  (Криптографического сопроцессора) в составе ЭКЛЗ";
-//	            break;
-//	        case 69:
-//	            str="Ошибка 45h - Исчерпан временной ресурс использования ЭКЛЗ";
-//	            break;
-//	        case 70:
-//	            str="Ошибка 46h - ЭКЛЗ  переполнена";
-//	            break;
-//	        case 71:
-//	            str="Ошибка 47h - Неверные дата или время";
-//	            break;
-//	        case 72:
-//	            str="Ошибка 48h - Нет запрошенных данных";
-//	            break;
-//	        case 73:
-//	            str="Ошибка 49h - Переполнение (отрицательный итог документа, слишком много отделов для клиента)";
-//	            break;
-//	        case 74:
-//	            str="Ошибка 4Ah - Нет ответа от ЭКЛЗ";
-//	            break;
-//	        case 75:
-//	            str="Ошибка 4Bh - Ошибка при обмене данными с ЭКЛЗ";
 //	            break;
 	        default:
 	            str=FR.getErrorDetails(error);
@@ -500,34 +419,6 @@ public class CW1000 extends FR
 	    return result;
 	}
 
-	public String getKkmParameter(int rowNumber, int columnNumber) throws FrException
-	{
-		if (_writeLog) Common.log("getKkmParameter");
-		int error=0;
-		String result="";
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-
-		return result;
-	}
-
-	public int setKkmParameter(int rowNumber, int columnNumber, String value) throws FrException {
-		if (_writeLog) Common.log("setKkmParameter");
-		int error=0;
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-
-		return error;
-	}
-
-
-
 	public String getCurrentStatus() throws FrException
 	{
 	    if (_writeLog) Common.log("getCurrentStatus");
@@ -561,18 +452,6 @@ public class CW1000 extends FR
 	    return result;
 	}
 
-	public String getLastShiftInFiscalMemory() throws FrException
-	{
-	    if (_writeLog) Common.log("getLastShiftInFiscalMemory");
-	    int error=0;
-		String result="";
-
-
-	    if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-
-	    return result;
-	}
-
 	public int init() throws FrException
 	{
 		if (_writeLog) Common.log("init");
@@ -581,37 +460,6 @@ public class CW1000 extends FR
 
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-
-	}
-
-	public int openDocument(String docType, String depType, String operName, String docNumber) throws FrException
-	{
-		if (_writeLog) Common.log("openDocument");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		switch (docType) 
-		{
-			case "RECEIPT_TYPE_NON_FISCAL_DOCUMENT" :
-				docType="1";
-				break;
-			case "RECEIPT_TYPE_SALE" :
-				docType="2";
-				break;
-			case "RECEIPT_TYPE_RETURN_SALE" :
-				docType="3";
-				break;
-			default:
-				docType="0";
-				break;
-		}
-
-		if (error == 0) error = printLogotype();
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
@@ -650,177 +498,6 @@ public class CW1000 extends FR
 		return error;
 	}
 
-
-	public int addItem(String itemName, String articul, String qantity, String cost, String depType, String taxType) throws FrException
-	{
-		if (_writeLog) Common.log("addItem");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-
-	}
-
-	public int addCashInCashOutSum(String itemName, String sum) throws FrException
-	{
-		if (_writeLog) Common.log("addCashInCashOutSum");
-		int error=0;
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-	public int total() throws FrException
-	{
-		if (_writeLog) Common.log("total");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-	public int pay(String payType, String sum, String text) throws FrException
-	{
-		if (_writeLog) Common.log("pay");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		switch (payType) 
-		{
-			case "CASH_0" :
-				payType="0";
-				break;
-			case "CASH_1" :
-				payType="1";
-				break;
-			case "CASH_2" :
-				payType="2";
-				break;
-			case "CASH_3" :
-				payType="3";
-				break;
-			case "CASH_4" :
-				payType="4";
-				break;
-			case "CASH_5" :
-				payType="5";
-				break;
-			case "CASH_6" :
-				payType="6";
-				break;
-			case "CASH_7" :
-				payType="7";
-				break;
-			case "CASH_8" :
-				payType="8";
-				break;
-			case "CASH_9" :
-				payType="9";
-				break;
-			case "CASH_10":
-				payType="10";
-				break;
-			case "CASH_11":
-				payType="11";
-				break;
-			case "CASH_12":
-				payType="12";
-				break;
-			case "CASH_13":
-				payType="13";
-				break;
-			case "CASH_14":
-				payType="14";
-				break;
-			case "CASH_15":
-				payType="15";
-				break;
-			default: 
-				payType="0";
-				break;
-		}
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-	public int cancelDocument() throws FrException
-	{
-		if (_writeLog) Common.log("cancelDocument");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-
-	}
-
-	public int closeDocument(String text) throws FrException
-	{
-		if (_writeLog) Common.log("closeDocument");
-		int error=0;
-
-		if (error==0) error = printText("");
-		if (error==0) error = printText("");
-		if (error==0) error = printText("");
-		if (error==0) error = printText("");
-
-		ArrayOfBytes cut=new ArrayOfBytes();
-		ArrayOfBytes getStr=new ArrayOfBytes();
-
-		cut.append(0x1D);
-		cut.append(0x56);
-		cut.append(0x01);
-
-		if (error==0) error=transaction(cut, getStr);
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-
-	public int xReport(String text) throws FrException
-	{
-		if (_writeLog) Common.log("xReport");
-		int error=0;
-
-		if (error == 0) error = openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "", "", "");
-		if (error == 0) error = printText("");
-		if (error == 0) error = printText("");
-		if (error == 0) error = printText("Operator "+text);
-		if (error == 0) error = printText("                 X-REPORT");
-		if (error == 0) error = closeDocument("0");
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-	public int zReport(String text) throws FrException
-	{
-		if (_writeLog) Common.log("zReport");
-		int error=0;
-
-		if (error == 0) error = openDocument(FR.RECEIPT_TYPE_NON_FISCAL_DOCUMENT, "", "", "");
-		if (error == 0) error = printText("");
-		if (error == 0) error = printText("");
-		if (error == 0) error = printText("Operator "+text);
-		if (error == 0) error = printText("                 Z-REPORT");
-		if (error == 0) error = closeDocument("0");
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
 	public int printImage(BufferedImage image) throws FrException
 	{
 		if (_writeLog) Common.log("printImage");
@@ -833,6 +510,410 @@ public class CW1000 extends FR
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;		
+	}
+
+	public int printImageFromFile(String filePath) throws FrException
+	{
+		if (_writeLog) Common.log("loadLogotype");
+		int error=0;
+
+
+		int imageWidth = 0;
+		int imageHeight = 0;
+
+		BufferedImage image;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+		{
+			image = ImageIO.read(new File(filePath));
+			ImageIO.write(image, "bmp", baos);
+			baos.flush();
+			baos.close();
+
+			imageWidth = image.getWidth();
+			imageHeight = image.getHeight();
+
+		}
+		catch (IOException ex)
+		{
+			ex.printStackTrace();
+			error=ANY_LOGICAL_ERROR;
+		}
+
+
+		byte[] bmpArray = baos.toByteArray();
+		int startByteOfImageData=bmpArray[10]; // see to https://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
+
+		ArrayOfBytes bmpArrayToPrinter=new ArrayOfBytes();
+		bmpArrayToPrinter.append(0x1C);
+		bmpArrayToPrinter.append(0x71);
+		bmpArrayToPrinter.append(0x01);
+//        bmpArrayToPrinter.append(imageWidth/8);
+//        bmpArrayToPrinter.append(0);
+//        bmpArrayToPrinter.append(imageHeight/8);
+//        bmpArrayToPrinter.append(0);
+//        bmpArrayToPrinter.append(imageHeight/8);
+//        bmpArrayToPrinter.append(0);
+//        bmpArrayToPrinter.append(imageWidth/8);
+//        bmpArrayToPrinter.append(0);
+
+
+
+
+
+//        for(int byteOfWidth=0; byteOfWidth<imageWidth/8; byteOfWidth++)
+//        {
+//            for(int currentBitInByteOfWidth=0; currentBitInByteOfWidth<8; currentBitInByteOfWidth++)
+//            {
+//                int currentBitInByteOfHeight=0;
+//                String byteOfImageForPrinter = "";
+//                for (int bitOfHeight=imageHeight-1; bitOfHeight>=0; bitOfHeight--)
+//                {
+//                    int currentByte = byteOfWidth+(bitOfHeight*(imageWidth/8)) + startByteOfImageData;
+//
+//                    System.out.println(Integer.toBinaryString(bmpArray[currentByte])+" << "+currentBitInByteOfWidth+" == "+Integer.toBinaryString(bmpArray[currentByte] << currentBitInByteOfWidth)+" & 128 == "+Integer.toBinaryString((bmpArray[currentByte] << currentBitInByteOfWidth) & 128));
+//                    if (((bmpArray[currentByte] << currentBitInByteOfWidth) & 128) == 128) byteOfImageForPrinter = byteOfImageForPrinter + "1";
+//                    else byteOfImageForPrinter = byteOfImageForPrinter + "0";
+//
+//                    currentBitInByteOfHeight++;
+//                    if (currentBitInByteOfHeight==8)
+//                    {
+//                        //bmpArrayToPrinter.append(bmpArray[currentByte]);
+//                        bmpArrayToPrinter.append(~Integer.valueOf(byteOfImageForPrinter, 2));
+//                        byteOfImageForPrinter = "";
+//                        currentBitInByteOfHeight = 0;
+//                    }
+//                }
+//            }
+//        }
+
+
+//        //for(int byteOfWidth=imageWidth/8-1; byteOfWidth>=0; byteOfWidth--)
+//        for(int byteOfWidth=0; byteOfWidth<imageWidth/8; byteOfWidth++)
+//        {
+//            for(int currentBitInByteOfWidth=0; currentBitInByteOfWidth<8; currentBitInByteOfWidth++)
+//            {
+//                String byteOfImageForPrinter = "";
+//
+////                for (int byteOfHeight=0; byteOfHeight<imageHeight/8; byteOfHeight++)
+//                for (int byteOfHeight=imageHeight/8-1; byteOfHeight>=0; byteOfHeight--)
+//                {
+//
+//                    for (int bitOfCurrentByte=0; bitOfCurrentByte<8; bitOfCurrentByte++)
+//                    //for (int bitOfCurrentByte=7; bitOfCurrentByte>-1; bitOfCurrentByte--)
+//                    {
+//                        int currentByte = byteOfWidth+((byteOfHeight*8+bitOfCurrentByte)*(imageWidth/8)) + startByteOfImageData;
+//                        System.out.println(Integer.toBinaryString(bmpArray[currentByte]) + " << " + currentBitInByteOfWidth + " == " + Integer.toBinaryString(bmpArray[currentByte] << currentBitInByteOfWidth) + " & 128 == " + Integer.toBinaryString((bmpArray[currentByte] << currentBitInByteOfWidth) & 128));
+//                        if (((bmpArray[currentByte] << currentBitInByteOfWidth) & 128) == 128)
+//                            byteOfImageForPrinter = "1" + byteOfImageForPrinter;
+//                        else byteOfImageForPrinter = "0" + byteOfImageForPrinter;
+//                    }
+//
+//                        //bmpArrayToPrinter.append(bmpArray[currentByte]);
+//                    bmpArrayToPrinter.append(~Integer.valueOf(byteOfImageForPrinter, 2));
+//                    byteOfImageForPrinter = "";
+//
+//                }
+//            }
+//        }
+
+//		bmpArrayToPrinter.append(5);
+//		bmpArrayToPrinter.append(0);
+//		bmpArrayToPrinter.append(10);
+//		bmpArrayToPrinter.append(0);
+
+		int realImageWidth = (imageWidth/8);
+		if (((imageWidth/8)%4)>0) realImageWidth = ((realImageWidth/4)*4+4);
+		int realImageHeight = imageHeight;
+		if ((realImageHeight%8)>0) realImageHeight = realImageHeight+(8-(realImageHeight%8));
+		bmpArrayToPrinter.append(realImageWidth);
+		bmpArrayToPrinter.append(0);
+		bmpArrayToPrinter.append(realImageHeight/8);
+		bmpArrayToPrinter.append(0);
+
+//        bmpArrayToPrinter.append(imageWidth/8);
+//        bmpArrayToPrinter.append(0);
+//        bmpArrayToPrinter.append(imageHeight/8);
+//        bmpArrayToPrinter.append(0);
+
+
+
+
+//		for(int currentRow=0; currentRow<imageHeight; currentRow++)
+//		{
+//			if (currentRow/8 == imageHeight/8) break;
+//
+//			for (int currentByteOfWidth = 0; currentByteOfWidth < realyImageWidth; currentByteOfWidth++)
+//			{
+//				int currentByte = startByteOfImageData+((currentRow*realyImageWidth)+currentByteOfWidth);
+//				bmpArrayToPrinter.append(bmpArray[currentByte]);
+//			}
+//		}
+
+//		for (int currentByteOfWidth = 0; currentByteOfWidth < realyImageWidth; currentByteOfWidth++)
+//		{
+//			for(int currentRow=0; currentRow<imageHeight; currentRow++)
+//			{
+//				if (currentRow/8 == imageHeight/8) break;
+//
+//				int currentByte = startByteOfImageData+((currentRow*realyImageWidth)+currentByteOfWidth);
+//				bmpArrayToPrinter.append(bmpArray[currentByte]);
+//			}
+//
+//		}
+
+
+
+//        for(int byteOfWidth=0; byteOfWidth<realyImageWidth; byteOfWidth++)
+//        {
+//            for(int currentBitInByteOfWidth=0; currentBitInByteOfWidth<8; currentBitInByteOfWidth++)
+//            {
+//                String byteOfImageForPrinter = "";
+//
+//                for (int byteOfHeight=imageHeight/8-1; byteOfHeight>=0; byteOfHeight--)
+//                {
+//
+//                    for (int bitOfCurrentByte=0; bitOfCurrentByte<8; bitOfCurrentByte++)
+//                    {
+//                        int currentByte = byteOfWidth+((byteOfHeight*8+bitOfCurrentByte)*(realyImageWidth)) + startByteOfImageData;
+//                        System.out.println(Integer.toBinaryString(bmpArray[currentByte]) + " << " + currentBitInByteOfWidth + " == " + Integer.toBinaryString(bmpArray[currentByte] << currentBitInByteOfWidth) + " & 128 == " + Integer.toBinaryString((bmpArray[currentByte] << currentBitInByteOfWidth) & 128));
+//                        if (((bmpArray[currentByte] << currentBitInByteOfWidth) & 128) == 128)
+//                            byteOfImageForPrinter = "1" + byteOfImageForPrinter;
+//                        else byteOfImageForPrinter = "0" + byteOfImageForPrinter;
+//                    }
+//
+//                    bmpArrayToPrinter.append(Integer.valueOf(byteOfImageForPrinter, 2));
+//                    byteOfImageForPrinter = "";
+//                }
+//            }
+//        }
+
+//        for(int byteOfWidth=0; byteOfWidth<realImageWidth; byteOfWidth++)
+//        {
+//            for(int currentBitInByteOfWidth=0; currentBitInByteOfWidth<8; currentBitInByteOfWidth++)
+//            {
+//                int currentBitInByteOfHeight=0;
+//                String byteOfImageForPrinter = "";
+//                for (int bitOfHeight=imageHeight-1; bitOfHeight>=0; bitOfHeight--)
+//                {
+//                    int currentByte = byteOfWidth+(bitOfHeight*(realImageWidth)) + startByteOfImageData;
+//
+//                    System.out.println(Integer.toBinaryString(bmpArray[currentByte])+" << "+currentBitInByteOfWidth+" == "+Integer.toBinaryString(bmpArray[currentByte] << currentBitInByteOfWidth)+" & 128 == "+Integer.toBinaryString((bmpArray[currentByte] << currentBitInByteOfWidth) & 128));
+//                    if (((bmpArray[currentByte] << currentBitInByteOfWidth) & 128) == 128) byteOfImageForPrinter = byteOfImageForPrinter + "1";
+//                    else byteOfImageForPrinter = byteOfImageForPrinter + "0";
+//
+//                    currentBitInByteOfHeight++;
+//                    if (currentBitInByteOfHeight==8)
+//                    {
+//                        bmpArrayToPrinter.append(Integer.valueOf(byteOfImageForPrinter, 2));
+//                        byteOfImageForPrinter = "";
+//                        currentBitInByteOfHeight = 0;
+//                    }
+//                }
+//            }
+//        }
+
+		for(int byteOfWidth=0; byteOfWidth<realImageWidth; byteOfWidth++)
+		{
+			for(int currentBitInByteOfWidth=0; currentBitInByteOfWidth<8; currentBitInByteOfWidth++)
+			{
+				int currentBitInByteOfHeight=0;
+				String byteOfImageForPrinter = "";
+				for (int bitOfHeight=realImageHeight-1; bitOfHeight>=0; bitOfHeight--)
+				{
+					if (bitOfHeight<imageHeight)
+					{
+						int currentByte = byteOfWidth + (bitOfHeight * (realImageWidth)) + startByteOfImageData;
+
+						System.out.println(Integer.toBinaryString(bmpArray[currentByte]) + " << " + currentBitInByteOfWidth + " == " + Integer.toBinaryString(bmpArray[currentByte] << currentBitInByteOfWidth) + " & 128 == " + Integer.toBinaryString((bmpArray[currentByte] << currentBitInByteOfWidth) & 128));
+						if (((bmpArray[currentByte] << currentBitInByteOfWidth) & 128) == 128)
+							byteOfImageForPrinter = byteOfImageForPrinter + "1";
+						else byteOfImageForPrinter = byteOfImageForPrinter + "0";
+					}
+					else byteOfImageForPrinter = byteOfImageForPrinter + "0";
+
+					currentBitInByteOfHeight++;
+					if (currentBitInByteOfHeight == 8) {
+						bmpArrayToPrinter.append(Integer.valueOf(byteOfImageForPrinter, 2));
+						byteOfImageForPrinter = "";
+						currentBitInByteOfHeight = 0;
+					}
+
+				}
+			}
+		}
+
+
+		ArrayOfBytes send0A=new ArrayOfBytes();
+		send0A.append(0x0A);
+
+		ArrayOfBytes printLogo=new ArrayOfBytes();
+		printLogo.append(0x1c);
+		printLogo.append(0x70);
+		printLogo.append(0x01);
+		printLogo.append(0x01);
+
+		ArrayOfBytes cut=new ArrayOfBytes();
+		cut.append(0x1D);
+		cut.append(0x56);
+		cut.append(0x01);
+
+
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+
+
+		writePort(bmpArrayToPrinter);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+
+
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+
+		writePort(printLogo);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(send0A);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+		writePort(cut);
+		try {int w=200; Common.log("Pause "+w+" ms ..."); Thread.sleep(w);} catch (InterruptedException ie) {}
+
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//        ArrayOfBytes bmpFileArray=new ArrayOfBytes();
+//        ArrayOfBytes commandStr=new ArrayOfBytes();
+//        ArrayOfBytes getStr=new ArrayOfBytes();
+//
+//        long position=0;
+//
+//        try {
+//            RandomAccessFile bmpFile = new RandomAccessFile(new File(filePath), "r");
+//
+//            position = bmpFile.length();
+//
+//            for (int i=0; i<position; i++) {
+//
+//                if (i==0) {
+//                    bmpFile.seek(i);
+//                    if (bmpFile.readByte()!=0x1b) bmpFileArray.append(0x1b);
+//                }
+//                bmpFile.seek(i);
+//                bmpFileArray.append(bmpFile.readByte());
+//            }
+//        }
+//        catch (FileNotFoundException e) {
+//            error = FILE_NOT_FOUND;
+//        }
+//        catch (IOException e) {}
+//
+//
+//        if (error==0) {
+//            commandStr.append(0x02);
+//            commandStr.append("PONE");
+//            commandStr.append(id());
+//            commandStr.append("E2");
+//            commandStr.append(String.valueOf(bmpFileArray.length()));
+//            commandStr.append(0x1C);
+//            commandStr.append(0x03);
+//
+//            if (writePort(CRC(commandStr))) {
+//                for(int i=0;i<100; i++) {
+//                    if (readPort(getStr)) {
+//                        if (getStr.at(0)==_bACK.at(0)) break;
+//                    }
+//                    if (i==99) error=NO_RESPONSE_FR;
+//                }
+//            }
+//            else error=ERROR_SEND;
+//        }
+//
+//        if (error==0) {
+//            if (writePort(bmpFileArray)) {
+//                try {
+//                    Common.log("Pause "+1000+" ms ...");
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException ie) {}
+//
+//            }
+//            else error=ERROR_SEND;
+//        }
+//        if (error==0) {
+//            error=getResponse(getStr);
+//        }
+//
+//        if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
+		return error;
 	}
 
 	public int printBarCode(int width, int height, String codeType, String codeText) throws FrException
@@ -876,8 +957,6 @@ public class CW1000 extends FR
 		return error; // Example: printBarCode(2, 40, "Code 39", "1234567890");
 
 	}
-
-
 
 	public int printQrCodeFast(String codeText) throws FrException
 	{
@@ -1020,77 +1099,6 @@ public class CW1000 extends FR
 
 		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
 		return error;
-	}
-
-	public int receiptSale() throws FrException{
-		if (_writeLog) Common.log("ReceiptSale");
-		int error=0;
-
-		if (error==0) error=openDocument("2", "0", "Test", "0");
-		if (error==0) error=addItem("тест", "1234567", "1.000", "123.45", "0", "");
-		if (error==0) error=total();
-		if (error==0) error=pay("0", "1000.00", "");
-		if (error==0) error=closeDocument("");
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-	public int printEklzReportFullByDate(Date from, Date to) throws FrException{
-		if (_writeLog) Common.log("printEklzReportFullByDate");
-		int error=0;
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-
-	public int printEklzReportShortByDate(Date from, Date to) throws FrException{
-		if (_writeLog) Common.log("printEklzReportShortByDate");
-		int error=0;
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-	public int printEklzReportFullByShift(int from, int to) throws FrException{
-		if (_writeLog) Common.log("printEklzReportFullByShift");
-		int error=0;
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-	public int printEklzReportShortByShift(int from, int to) throws FrException{
-		if (_writeLog) Common.log("printEklzReportShortByShift");
-		int error=0;
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-	public int printEklzReportControlTape(int shift) throws FrException{
-		if (_writeLog) Common.log("printEklzReportControlTape");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-	public int testJNIfunctions(String text) throws FrException{
-		int error=0;
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-	}
-	public int fiscal54Fz() throws FrException{
-		if (_writeLog) Common.log("fiscal54");
-		int error=0;
-
-		ArrayOfBytes getStr=new ArrayOfBytes();
-		ArrayOfBytes commandStr=new ArrayOfBytes();
-
-		if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
-		return error;
-
 	}
 }
 

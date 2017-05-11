@@ -426,7 +426,6 @@ public class SPDRV extends FR
                 break;
         }
 
-        //if (error==0) error=_spNativeObject.nativeOpenDocument(Integer.getInteger(docType), Integer.getInteger(depType), operName, Integer.getInteger(docNumber));
         if (error==0) error=_spNativeObject.nativeOpenDocument(Integer.valueOf(docType), Integer.valueOf(depType), operName, Integer.valueOf(docNumber));
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
@@ -799,12 +798,30 @@ public class SPDRV extends FR
         int error=0;
 
         //if (error == 0) error = _spNativeObject.nativeInstall(curDate(), curTime(), "123456789012");
-        if (error == 0) error = _spNativeObject.nativeInstallEx(curDate(), curTime(), "0053R0136763");
+        //if (error == 0) error = _spNativeObject.nativeInstallEx(curDate(), curTime(), "0053R0136763");
 
-        //        String result = "";
-//        String quantity = "";
+        int resultInt = 0;
+        String result = "";
+        String quantity = "";
+
+        if (error == 0) error = _spNativeObject.nativeInit();
+
+        resultInt = _spNativeObject.nativeGetPrinterStatus();
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log("Result = " + Integer.toString(resultInt));
+
+        //if (error==0) error=_spNativeObject.nativePrintJournal(text);
+
+        if (error==0) error=_spNativeObject.nativePrintZCopy(1, 1);
+        if (error==0) error=_spNativeObject.nativePrintZCopy(2, 1);
+        if (error==0) error=_spNativeObject.nativePrintZCopy(9, 0);
+        if (error==0) error=_spNativeObject.nativePrintZCopy(0, 0);
+        if (error==0) error=_spNativeObject.nativePrintZCopy(3, 0);
+
+
 //
-//        //if (error==0) error=_spNativeObject.nativeJournalPrint(text);
+//        if (error==0) error=_spNativeObject.nativeJournalPrint(text);
 //        if (error == 0) result = _spNativeObject.nativeJournalRead(1, 0); // получить номер текущей контрольной ленты;
 //        if (error == 0) error = _spNativeObject.nativeGetResultCode();
 //        Common.log("Error = " + error);

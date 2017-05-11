@@ -793,14 +793,40 @@ public class SPOLE extends FR
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;
     }
-    public int testJNIfunctions(String text) throws FrException{
+    public int testJNIfunctions(String text) throws FrException
+    {
         int error=0;
 
+        //if (error == 0) error = _spNativeObject.nativeInstall(curDate(), curTime(), "123456789012");
+        //if (error == 0) error = _spNativeObject.nativeInstallEx(curDate(), curTime(), "1234567890123");
+
+        int resultInt = 0;
         String result = "";
         String quantity = "";
 
-        //if (error == 0) error = _spNativeObject.nativeInstall(curDate(), curTime(), "123456789012");
-        if (error == 0) error = _spNativeObject.nativeInstallEx(curDate(), curTime(), "1234567890123");
+        if (error==0) error=_spNativeObject.nativeInit(curDate(), curTime());
+        Common.log("Init Error = " + error);
+
+        resultInt = _spNativeObject.nativeGetPrinterStatus();
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("Error = " + error);
+        Common.log("Result = " + resultInt);
+//        if (error==0) error=_spNativeObject.nativePrintJournal(text);
+
+//        if (error==0) error=_spNativeObject.nativeZCopy(1, 1);
+//        if (error==0) error=_spNativeObject.nativeZCopy(2, 5);
+//        if (error==0) error=_spNativeObject.nativeZCopy(9, 0);
+//        if (error==0) error=_spNativeObject.nativeZCopy(0, 0);
+//        if (error==0) error=_spNativeObject.nativeZCopy(3, 0);
+
+        if (error==0) error=_spNativeObject.nativeZCopyClear();
+        if (error==0) error=_spNativeObject.nativeZCopyPrintRegistration();
+        if (error==0) error=_spNativeObject.nativeZCopyPrintAll();
+        if (error==0) error=_spNativeObject.nativeZCopyPrintByOrderNumber(1);
+        if (error==0) error=_spNativeObject.nativeZCopyPrintByShiftNumber(8);
+
+
+        Common.log("Error = " + error);
 
 //        if (error == 0) result = _spNativeObject.nativeJournalRead(1, 0); // получить номер текущей контрольной ленты;
 //        if (error == 0) error = _spNativeObject.nativeGetResultCode();

@@ -796,65 +796,87 @@ public class SPOLE1C extends FR
     public int testJNIfunctions(String text) throws FrException{
         int error=0;
 
+        int resultInt = 0;
         String result = "";
         String quantity = "";
 
-        //if (error==0) error=_spNativeObject.nativeJournalPrint(text);
-        if (error == 0) result = _spNativeObject.nativeJournalRead(1, 0); // получить номер текущей контрольной ленты;
-        if (error == 0) error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log(result);
-        if (error == 0) quantity = _spNativeObject.nativeJournalRead(2, 0); // получить количество записей в текущей контрольной ленте;
-        if (error == 0) error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log(quantity);
-        if (error == 0) result = _spNativeObject.nativeJournalRead(4, 2); //поиск чека в контрольной ленте по порядковому номеру чека (положение в контрольной ленте);
-        if (error == 0) error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log(result);
-        result = _spNativeObject.nativeJournalRead(5, 218); //поиск чека в контрольной ленте по номеру чека;
+        resultInt = _spNativeObject.nativeGetPrinterStatus();
         error = _spNativeObject.nativeGetResultCode();
         Common.log("Error = " + error);
-        Common.log(result);
-        for (int i = 0; i < Integer.parseInt(quantity); i++)
-        {       result = _spNativeObject.nativeJournalRead(8, i); //запрос записи из контрольной ленты по номеру записи (получение шестнадцатеричного представления записи).
-            error = _spNativeObject.nativeGetResultCode();
-            Common.log("Error = " + error);
-            Common.log(result);
-        }
+        Common.log("ResultInt = " + resultInt);
+        //if (error==0) error=_spNativeObject.nativePrintJournal(text);
 
-        int nResult = 0;
-        Common.log("nativeGetJournalNumber");
-        nResult = _spNativeObject.nativeGetJournalNumber(); //return JournalNumber
-        error = _spNativeObject.nativeGetResultCode();
+//        if (error==0) error=_spNativeObject.nativeZCopy(0, 0);
+        if (error==0) error=_spNativeObject.nativeZCopy(1, 1);
+        if (error==0) error=_spNativeObject.nativeZCopy(2, 11);
+        if (error==0) error=_spNativeObject.nativeZCopy(9, 0);
+        if (error==0) error=_spNativeObject.nativeZCopy(3, 0);
+
+//        if (error==0) error=_spNativeObject.nativeZCopyClear();
+        if (error==0) error=_spNativeObject.nativeZCopyPrintRegistration();
+        if (error==0) error=_spNativeObject.nativeZCopyPrintAll();
+        if (error==0) error=_spNativeObject.nativeZCopyPrintByOrderNumber(1);
+        if (error==0) error=_spNativeObject.nativeZCopyPrintByShiftNumber(14);
+
+
         Common.log("Error = " + error);
-        Common.log(String.valueOf(nResult));
 
-        Common.log("nativeGetJournalRecordCount");
-        nResult = _spNativeObject.nativeGetJournalRecordCount(); //return JournalRecordCount
-        error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log(String.valueOf(nResult));
 
-        Common.log("nativeGetJournalRecord");
-        result = _spNativeObject.nativeGetJournalRecord(35);
-        error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log(result);
-
-        Common.log("nativeGetJournalReceiptByIndex");
-        nResult = _spNativeObject.nativeGetJournalReceiptByIndex(4); //return JournalRecordNumber
-        error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log(String.valueOf(nResult));
-
-        Common.log("nativeGetJournalReceiptByNumber");
-        nResult = _spNativeObject.nativeGetJournalReceiptByNumber(328); //return JournalRecordNumber
-        error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log(String.valueOf(nResult));
-
-        if (error==0) error=_spNativeObject.nativeJournalPrint(text);
+//        if (error == 0) result = _spNativeObject.nativeJournalRead(1, 0); // получить номер текущей контрольной ленты;
+//        if (error == 0) error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(result);
+//        if (error == 0) quantity = _spNativeObject.nativeJournalRead(2, 0); // получить количество записей в текущей контрольной ленте;
+//        if (error == 0) error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(quantity);
+//        if (error == 0) result = _spNativeObject.nativeJournalRead(4, 2); //поиск чека в контрольной ленте по порядковому номеру чека (положение в контрольной ленте);
+//        if (error == 0) error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(result);
+//        result = _spNativeObject.nativeJournalRead(5, 218); //поиск чека в контрольной ленте по номеру чека;
+//        error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(result);
+//        for (int i = 0; i < Integer.parseInt(quantity); i++)
+//        {       result = _spNativeObject.nativeJournalRead(8, i); //запрос записи из контрольной ленты по номеру записи (получение шестнадцатеричного представления записи).
+//            error = _spNativeObject.nativeGetResultCode();
+//            Common.log("Error = " + error);
+//            Common.log(result);
+//        }
+//
+//        int nResult = 0;
+//        Common.log("nativeGetJournalNumber");
+//        nResult = _spNativeObject.nativeGetJournalNumber(); //return JournalNumber
+//        error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(String.valueOf(nResult));
+//
+//        Common.log("nativeGetJournalRecordCount");
+//        nResult = _spNativeObject.nativeGetJournalRecordCount(); //return JournalRecordCount
+//        error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(String.valueOf(nResult));
+//
+//        Common.log("nativeGetJournalRecord");
+//        result = _spNativeObject.nativeGetJournalRecord(35);
+//        error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(result);
+//
+//        Common.log("nativeGetJournalReceiptByIndex");
+//        nResult = _spNativeObject.nativeGetJournalReceiptByIndex(4); //return JournalRecordNumber
+//        error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(String.valueOf(nResult));
+//
+//        Common.log("nativeGetJournalReceiptByNumber");
+//        nResult = _spNativeObject.nativeGetJournalReceiptByNumber(328); //return JournalRecordNumber
+//        error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log(String.valueOf(nResult));
+//
+//        if (error==0) error=_spNativeObject.nativeJournalPrint(text);
 
         if (error!=0) throw new FrException(Integer.toString(error), getErrorDetails(error));
         return error;

@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
 
 
 
-public class SKNO  extends FR
+public class SKNO  extends PosDevice
 {
     private SerialPort _serialPort;
     private int _id=0x20;
@@ -183,89 +183,8 @@ public class SKNO  extends FR
 //            case 1:
 //                str="Ошибка 01h - Функция невыполнима при данном статусе ККМ";
 //                break;
-//            case 2:
-//                str="Ошибка 02h - В команде указан неверный номер функции";
-//                break;
-//            case 3:
-//                str="Ошибка 03h - В команде указано неверное, больше чем максимально возможное или несоответствующее типу данных значение";
-//                break;
-//            case 4:
-//                str="Ошибка 04h - Переполнение буфера коммуникационного порта";
-//                break;
-//            case 5:
-//                str="Ошибка 05h - Таймаут при передаче байта информации";
-//                break;
-//            case 6:
-//                str="Ошибка 06h - В команде указан неверный пароль";
-//                break;
-//            case 7:
-//                str="Ошибка 07h - Ошибка контрольной суммы в команде";
-//                break;
-//            case 8:
-//                str="Ошибка 08h - Конец бумаги";
-//                break;
-//            case 9:
-//                str="Ошибка 09h - Принтер не готов";
-//                break;
-//            case 10:
-//                str="Ошибка 0Ah - Текущая смена больше 24 часов";
-//                break;
-//            case 11:
-//                str="Ошибка 0Bh - Разница во времени, ККМ и указанной в команде установки времени, больше 8 минут";
-//                break;
-//            case 12:
-//                str="Ошибка 0Ch - Время последнего документа больше нового времени более чем на один час (с учетом летнего/зимнего перехода)";
-//                break;
-//            case 13:
-//                str="Ошибка 0Dh - Не был задан заголовок документа, что делает невозможным формирование фискального документа.";
-//                break;
-//            case 14:
-//                str="Ошибка 0Eh - Отрицательный результат";
-//                break;
-//            case 15:
-//                str="Ошибка 0Fh - Дисплей покупателя не готов";
-//                break;
-//            case 32:
-//                str="Ошибка 20h - Фатальная ошибка ККМ";
-//                break;
-//            case 33:
-//                str="Ошибка 21h - Нет свободного места в фискальной памяти ККМ";
-//                break;
-//            case 65:
-//                str="Ошибка 41h - Некорректный формат или параметр команды";
-//                break;
-//            case 66:
-//                str="Ошибка 42h - Некорректное состояние ЭКЛЗ";
-//                break;
-//            case 67:
-//                str="Ошибка 43h - Авария  ЭКЛЗ";
-//                break;
-//            case 68:
-//                str="Ошибка 44h - Авария  КС  (Криптографического сопроцессора) в составе ЭКЛЗ";
-//                break;
-//            case 69:
-//                str="Ошибка 45h - Исчерпан временной ресурс использования ЭКЛЗ";
-//                break;
-//            case 70:
-//                str="Ошибка 46h - ЭКЛЗ  переполнена";
-//                break;
-//            case 71:
-//                str="Ошибка 47h - Неверные дата или время";
-//                break;
-//            case 72:
-//                str="Ошибка 48h - Нет запрошенных данных";
-//                break;
-//            case 73:
-//                str="Ошибка 49h - Переполнение (отрицательный итог документа, слишком много отделов для клиента)";
-//                break;
-//            case 74:
-//                str="Ошибка 4Ah - Нет ответа от ЭКЛЗ";
-//                break;
-//            case 75:
-//                str="Ошибка 4Bh - Ошибка при обмене данными с ЭКЛЗ";
-//                break;
             default:
-                str=FR.getErrorDetails(error);
+                str=PosDevice.getErrorDetails(error);
                 break;
         }
         return str;
@@ -729,8 +648,8 @@ public class SKNO  extends FR
 //        commandStr.append(0x18);
 //        commandStr.append(0x5e);
 
-        packageStr.append(rightJustified(_serialNumKkt, '0', 13));
-        packageStr.append(rightJustified(_modelKkt, '0', 20), "CP1251");
+        packageStr.append(Common.rightJustified(_serialNumKkt, '0', 13));
+        packageStr.append(Common.rightJustified(_modelKkt, '0', 20), "CP1251");
         packageStr.append(intToByteArray(Integer.valueOf(_innKkt)).rightJustified((char)0x00, 4));
 
         commandStr.append(_baSTX);
@@ -761,11 +680,11 @@ public class SKNO  extends FR
 
         packageStr.append(0x00);
         packageStr.append(intToByteArray(Integer.valueOf(_regNumKkt)).rightJustified((char)0x00, 4));
-        packageStr.append(leftJustified("Оператор ЦТО", ' ', 16), "CP1251");
+        packageStr.append(Common.leftJustified("Оператор ЦТО", ' ', 16), "CP1251");
         packageStr.append(intToByteArray(1234).rightJustified((char)0x00, 4));
         packageStr.append(curDateAsArray());
         packageStr.append(curTimeAsArray());
-        packageStr.append(rightJustified("BYN", '0', 3), "CP1251");
+        packageStr.append(Common.rightJustified("BYN", '0', 3), "CP1251");
         packageStr.append(0x00);// GTIN
         packageStr.append(0x00);
         packageStr.append(0x00);

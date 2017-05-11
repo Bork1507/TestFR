@@ -480,6 +480,22 @@ JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeJournalPrint (JNIEnv *jenv, jobject
 
     return error;
 }
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintJournal (JNIEnv *jenv, jobject jobj, jstring operatorName){
+    long error = 0;
+    SPFR_OPERATOR_NAME nm;
+    strcpy(nm.s, "Привет");
+    //strcpy(nm.s, jenv->GetStringUTFChars(operatorName, JNI_FALSE));
+
+    typedef USHORT (WINAPI *SPFR_PrintJournal)(HANDLE, SPFR_OPERATOR_NAME *);
+    SPFR_PrintJournal pfnSPFR_PrintJournal;
+    pfnSPFR_PrintJournal=(SPFR_PrintJournal)GetProcAddress(hsp101fr,"SPFR_PrintJournal");
+    error = (*pfnSPFR_PrintJournal)(comport_fr, &nm);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
 JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeJournalRead (JNIEnv *jenv, jobject jobj, jint operation, jint parameter){
     long error = 0;
     SPFR_STRING sParam;
@@ -504,6 +520,40 @@ JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeJournalRead (JNIEnv *jenv, jobje
 
     return outJournalText;
 }
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeGetPrinterStatus (JNIEnv *jenv, jobject jobj){
+    long error = 0;
+    ULONG printerStatus=0;
+
+    typedef USHORT (WINAPI *SPFR_GetPrinterStatus)(HANDLE, ULONG*);
+    SPFR_GetPrinterStatus pfnSPFR_GetPrinterStatus;
+    pfnSPFR_GetPrinterStatus=(SPFR_GetPrinterStatus)GetProcAddress(hsp101fr,"SPFR_GetPrinterStatus");
+    error=(*pfnSPFR_GetPrinterStatus)(comport_fr, &printerStatus);
+
+    if (error == 0)
+    {
+        g_error = 0;
+    }
+    else
+    {
+        g_error = error;
+    }
+
+    return printerStatus;
+}
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintZCopy (JNIEnv *jenv, jobject jobj, jint operation, jint parameter){
+    long error = 0;
+
+    typedef USHORT (WINAPI *SPFR_ZCopy)(HANDLE, USHORT, ULONG);
+    SPFR_ZCopy pfnSPFR_ZCopy;
+    pfnSPFR_ZCopy=(SPFR_ZCopy)GetProcAddress(hsp101fr,"SPFR_ZCopy");
+    error = (*pfnSPFR_ZCopy)(comport_fr, operation, parameter);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+
 JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeClosePort (JNIEnv *jenv, jobject jobj){
     long error = 0;
 

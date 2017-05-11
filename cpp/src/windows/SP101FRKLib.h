@@ -138,6 +138,14 @@ public:
     virtual HRESULT _stdcall GetJournalReceiptByNumber( /*[in]*/ unsigned long ReceiptNumber,  /*[out]*/ short * RecordNumber,  /*[out, retval]*/ short * Result ) = 0;
     virtual HRESULT _stdcall GetRegNumberEx( /*[out]*/ BSTR * SerialNumberEx, /*[out, retval]*/ short * Result ) = 0;
     virtual HRESULT _stdcall InstallEx(/*[in]*/ DATE NewDateTime, /*[in]*/ BSTR SerialNumber, /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall PrintJournal( /*[in]*/ BSTR OperatorName, /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall GetPrinterStatus(/*[out]*/ long * PrinterStatus, /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopy( /*[in]*/ short Operation,  /*[in]*/ unsigned long Parameter, /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyClear(/*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintRegistration(/*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintAll(/*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintByOrderNumber(/*[in]*/ short OrderNumber, /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintByShiftNumber(/*[in]*/ short ShiftNumber, /*[out, retval]*/ short * Result ) = 0;
 
     short _stdcall Connect(unsigned char PortNumber)
     {
@@ -221,6 +229,12 @@ public:
       (this->JournalPrint(OperatorName, (short*)&Result));
       return Result;
     }
+    short _stdcall PrintJournal(BSTR OperatorName)
+    {
+      short Result;
+      (this->PrintJournal(OperatorName, (short*)&Result));
+      return Result;
+    }
     short _stdcall JournalRead(short Operation, unsigned long Parameter, BSTR * Data)
     {
       short Result;
@@ -257,7 +271,48 @@ public:
       (this->GetJournalReceiptByNumber(ReceiptNumber, RecordNumber, (short*)&Result));
       return Result;
     }
-
+    short _stdcall GetPrinterStatus(long * PrinterStatus)
+    {
+      short Result;
+      (this->GetPrinterStatus(PrinterStatus, (short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopy(short Operation, unsigned long Parameter)
+    {
+      short Result;
+      (this->ZCopy(Operation, Parameter, (short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyClear(void)
+    {
+      short Result;
+      (this->ZCopyClear((short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintRegistration(void)
+    {
+      short Result;
+      (this->ZCopyPrintRegistration((short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintAll(void)
+    {
+      short Result;
+      (this->ZCopyPrintAll((short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintByOrderNumber(short OrderNumber)
+    {
+      short Result;
+      (this->ZCopyPrintByOrderNumber(OrderNumber, (short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintByShiftNumber(short ShiftNumber)
+    {
+      short Result;
+      (this->ZCopyPrintByShiftNumber(ShiftNumber, (short*)&Result));
+      return Result;
+    }
 
 
 };
@@ -448,8 +503,25 @@ interface SPOleFR_1C  : public IDispatch
     virtual HRESULT _stdcall JournalNumber( /*[out, retval]*/ short * Value ) = 0;
     virtual HRESULT _stdcall JournalRecordCount( /*[out, retval]*/ short * Value ) = 0;
     virtual HRESULT _stdcall JournalRecordNumber( /*[out, retval]*/ short * Value ) = 0;
-    virtual HRESULT _stdcall GetRegNumberEx( /*[out, retval]*/ short * Result );
-    virtual HRESULT _stdcall SerialNumberEx( /*[out, retval]*/ BSTR * Value );
+    virtual HRESULT _stdcall GetRegNumberEx( /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall SerialNumberEx( /*[out, retval]*/ BSTR * Value ) = 0;
+
+
+    virtual HRESULT _stdcall PrintJournal( /*[in]*/ BSTR OperatorName, /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall GetPrinterStatus( /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall PrinterStatus( /*[out, retval]*/ long * Value ) = 0;
+    virtual HRESULT _stdcall ZCopy( /*[in]*/ short Operation,  /*[in]*/ unsigned long Parameter,  /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyClear( /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintRegistration( /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintAll( /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintByOrderNumber( /*[in]*/ short OrderNumber,  /*[out, retval]*/ short * Result ) = 0;
+    virtual HRESULT _stdcall ZCopyPrintByShiftNumber( /*[in]*/ short ShiftNumber,  /*[out, retval]*/ short * Result ) = 0;
+
+
+
+
+
+
 
     short _stdcall Connect(unsigned char PortNumber)
     {
@@ -509,6 +581,12 @@ interface SPOleFR_1C  : public IDispatch
     {
       short Result;
       (this->JournalPrint(OperatorName, (short*)&Result));
+      return Result;
+    }
+    short _stdcall PrintJournal(BSTR OperatorName)
+    {
+      short Result;
+      (this->PrintJournal(OperatorName, (short*)&Result));
       return Result;
     }
     short _stdcall JournalRead(short Operation, unsigned long Parameter)
@@ -582,6 +660,54 @@ interface SPOleFR_1C  : public IDispatch
       BSTR Value = 0;
       (this->SerialNumberEx((BSTR*)&Value));
       return Value;
+    }
+    short _stdcall GetPrinterStatus(void)
+    {
+      short Result;
+      (this->GetPrinterStatus((short*)&Result));
+      return Result;
+    }
+    long _stdcall PrinterStatus(void)
+    {
+      long Value = 0;
+      (this->PrinterStatus(&Value));
+      return Value;
+    }
+    short _stdcall ZCopy(short Operation, unsigned long Parameter)
+    {
+      short Result;
+      (this->ZCopy(Operation, Parameter, (short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyClear(void)
+    {
+      short Result;
+      (this->ZCopyClear((short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintRegistration(void)
+    {
+      short Result;
+      (this->ZCopyPrintRegistration((short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintAll(void)
+    {
+      short Result;
+      (this->ZCopyPrintAll((short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintByOrderNumber(short OrderNumber)
+    {
+      short Result;
+      (this->ZCopyPrintByOrderNumber(OrderNumber, (short*)&Result));
+      return Result;
+    }
+    short _stdcall ZCopyPrintByShiftNumber(short ShiftNumber)
+    {
+      short Result;
+      (this->ZCopyPrintByShiftNumber(ShiftNumber, (short*)&Result));
+      return Result;
     }
 
 };

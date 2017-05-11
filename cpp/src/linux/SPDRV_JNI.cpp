@@ -182,6 +182,12 @@ JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintEklzReportControlTape (JNIEnv 
     return error;
 }
 
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeGetPrinterStatus (JNIEnv *jenv, jobject jobj){
+    long error = 0;
+
+    return error;
+}
+
 JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeClosePort (JNIEnv *jenv, jobject jobj){
     long error = 0;
 

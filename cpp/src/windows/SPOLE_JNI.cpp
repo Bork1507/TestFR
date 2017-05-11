@@ -159,6 +159,17 @@ JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeGetSerialNumber (JNIEnv *jenv, j
     return jenv->NewStringUTF(cResult);
 }
 
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeGetPrinterStatus (JNIEnv *jenv, jobject jobj){
+    short error = 0;
+    long result = 0;
+
+    if (error == 0) error=pOleFR->GetPrinterStatus(&result);
+
+    g_error = error;
+
+    return result;
+}
+
 JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeInit (JNIEnv *jenv, jobject jobj, jstring inputDate, jstring inputTime){
     long error = 0;
 
@@ -756,6 +767,28 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeJournalPrint (JNIEnv *jenv, jobject
     delete []pwText;
     return error;
 }
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativePrintJournal (JNIEnv *jenv, jobject jobj, jstring operatorName){
+    short error = 0;
+
+    const char *nativeOperatorName = jenv->GetStringUTFChars(operatorName, JNI_FALSE);
+    DWORD dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeOperatorName, -1, NULL, 0);
+    wchar_t *pwText;
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeOperatorName, -1, pwText, dwNum);
+
+    BSTR MyBstr = SysAllocString(pwText);
+
+    if (error == 0) error=pOleFR->PrintJournal(MyBstr);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    delete []pwText;
+    return error;
+}
 JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeJournalRead (JNIEnv *jenv, jobject jobj, jint operation, jint parameter){
     short error = 0;
     BSTR bstrResult;
@@ -965,7 +998,75 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeGetJournalReceiptByNumber (JNIEnv *
 //    return error;
 //}
 //
-JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeClosePort (JNIEnv *jenv, jobject jobj){
+
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopy (JNIEnv *jenv, jobject jobj, jint operation, jint parameter)
+{
+    short error = 0;
+
+    if (error == 0) error=pOleFR->ZCopy(operation, parameter);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyClear (JNIEnv *jenv, jobject jobj)
+{
+    short error = 0;
+
+    if (error == 0) error=pOleFR->ZCopyClear();
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintRegistration (JNIEnv *jenv, jobject jobj)
+{
+    short error = 0;
+
+    if (error == 0) error=pOleFR->ZCopyPrintRegistration();
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintAll (JNIEnv *jenv, jobject jobj)
+{
+    short error = 0;
+
+    if (error == 0) error=pOleFR->ZCopyPrintAll();
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintByOrderNumber (JNIEnv *jenv, jobject jobj, jint OrderNumber)
+{
+    short error = 0;
+
+    if (error == 0) error=pOleFR->ZCopyPrintByOrderNumber(OrderNumber);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintByShiftNumber (JNIEnv *jenv, jobject jobj, jint ShiftNumber)
+{
+    short error = 0;
+
+    if (error == 0) error=pOleFR->ZCopyPrintByShiftNumber(ShiftNumber);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeClosePort (JNIEnv *jenv, jobject jobj){
     long error = 0;
 
     //pOleFR->Disconnect(void);

@@ -554,6 +554,22 @@ SP101FR_API USHORT __stdcall SPFR_GetStatus(HANDLE             hFR,
                                             SPFR_STATUS*       sStatus,
                                             SPFR_REC_STATUS*   sReceiptStatus);
 
+//--------------------------------------------------------------------------------------//
+// SPFR_GetPrinterStatus
+//         Gets status bytes from FR
+// [in]
+//         hFr                  FR handle
+// [out]   
+//         PrinterStatus        printer status
+// [ret]   
+//         Error code
+//--------------------------------------------------------------------------------------//
+SP101FR_API USHORT __stdcall SPFR_GetPrinterStatus(HANDLE             hFR,
+												   ULONG*  pPrinterStatus);
+
+SP101FR_API USHORT __stdcall SPFR_ZCopy(HANDLE  hFR,
+										USHORT wOperation,
+										ULONG  wParameter);
 
 SP101FR_API USHORT __stdcall SPFR_GetPrinterVersion(HANDLE hFR, SPFR_STRING *psData);
 

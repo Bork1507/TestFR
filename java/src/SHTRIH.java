@@ -813,7 +813,7 @@ public class SHTRIH extends FR
         commandStr.append(0x0);
         commandStr.append(0x0);
         commandStr.append(0x02);
-        commandStr.append(leftJustified(text, (char)(0x00), 40), "cp1251");
+        commandStr.append(Common.leftJustified(text, (char)(0x00), 40), "cp1251");
 
 
         if (error==0) error=transaction(CRC(commandStr), getStr);
@@ -864,14 +864,14 @@ public class SHTRIH extends FR
 		commandStr.append(0x0);
 		commandStr.append(0x0);
 		commandStr.append(0x0);
-		commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(Integer.parseInt(qantity)), '0', 10))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(Integer.parseInt(cost)), '0', 10))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified(depType, '0', 2))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(leftJustified(itemName, (char)(0x00), 40), "cp1251");
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(Integer.parseInt(qantity)), '0', 10))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(Integer.parseInt(cost)), '0', 10))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(depType, '0', 2))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(Common.leftJustified(itemName, (char)(0x00), 40), "cp1251");
 
 
 
@@ -985,17 +985,17 @@ public class SHTRIH extends FR
 		commandStr.append(0x0);
 		commandStr.append(0x0);
 		commandStr.append(0x0);
-		commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(Integer.parseInt(pay1)), '0', 10))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(Integer.parseInt(pay2)), '0', 10))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(Integer.parseInt(pay3)), '0', 10))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(Integer.parseInt(pay4)), '0', 10))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(Integer.parseInt(pay1)), '0', 10))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(Integer.parseInt(pay2)), '0', 10))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(Integer.parseInt(pay3)), '0', 10))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(Integer.parseInt(pay4)), '0', 10))));
 		commandStr.append(0x0);
 		commandStr.append(0x0);	
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(turnString(getByteArrayFromString(rightJustified("0", '0', 2))));
-		commandStr.append(rightJustified(text, (char)(0x00), 40), "cp1251");
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(turnString(getByteArrayFromString(Common.rightJustified("0", '0', 2))));
+		commandStr.append(Common.rightJustified(text, (char)(0x00), 40), "cp1251");
 
 		
 
@@ -1264,7 +1264,7 @@ public class SHTRIH extends FR
                   commandStr.append(0x0);
                   commandStr.append(0x0);
                   commandStr.append(0x0);
-                  commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(packetOfImage), '0', 4))));
+                  commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(packetOfImage), '0', 4))));
                   commandStr.append(imageArray.mid(startByteOfPacketImage, imageWidthInBytes));
 
                   for (int i=commandStr.length();i<47;i++) commandStr.append(0x00);
@@ -1290,7 +1290,7 @@ public class SHTRIH extends FR
                   commandStr.append(0x0);
                   commandStr.append(0x01);
                   commandStr.append(0x0);
-                  commandStr.append(turnString(getByteArrayFromString(rightJustified(Integer.toHexString(imageHeight), '0', 4))));
+                  commandStr.append(turnString(getByteArrayFromString(Common.rightJustified(Integer.toHexString(imageHeight), '0', 4))));
 
                   error=transaction(CRC(commandStr), getStr);
             }

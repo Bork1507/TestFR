@@ -65,6 +65,14 @@ JNIEXPORT jstring JNICALL Java_SPDRV_1JNI_nativeGetSerialNumber
 
 /*
  * Class:     SPDRV_JNI
+ * Method:    nativeGetPrinterStatus
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeGetPrinterStatus
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPDRV_JNI
  * Method:    nativeGetLastShiftInFiscalMemory
  * Signature: ()Ljava/lang/String;
  */
@@ -209,6 +217,14 @@ JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativeJournalPrint
 
 /*
  * Class:     SPDRV_JNI
+ * Method:    nativePrintJournal
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintJournal
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     SPDRV_JNI
  * Method:    nativeJournalRead
  * Signature: (II)Ljava/lang/String;
  */
@@ -254,6 +270,14 @@ JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintEklzReportShortByShift
  */
 JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintEklzReportControlTape
   (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     SPDRV_JNI
+ * Method:    nativePrintZCopy
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_SPDRV_1JNI_nativePrintZCopy
+  (JNIEnv *, jobject, jint, jint);
 
 /*
  * Class:     SPDRV_JNI

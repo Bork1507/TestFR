@@ -29,6 +29,7 @@ public class SPOLE_JNI {
     public native String nativeGetKkmType();
     public native String nativeGetKkmVersion();
     public native String nativeGetSerialNumber();
+    public native int nativeGetPrinterStatus();
 
     public native String nativeGetLastShiftInFiscalMemory();
 
@@ -56,6 +57,7 @@ public class SPOLE_JNI {
     public native int nativeZreport(String operatorName);
 
     public native int nativeJournalPrint(String operatorName);
+    public native int nativePrintJournal(String operatorName);
     public native String nativeJournalRead(int operation, int parameter);
     public native int nativeGetJournalNumber(); //return JournalNumber
     public native int nativeGetJournalRecordCount(); //return JournalRecordCount
@@ -68,6 +70,13 @@ public class SPOLE_JNI {
     public native int nativePrintEklzReportFullByShift(int from, int to);
     public native int nativePrintEklzReportShortByShift(int from, int to);
     public native int nativePrintEklzReportControlTape(int shift);
+
+    public native int nativeZCopy(int operation, int parameter);
+    public native int nativeZCopyClear();
+    public native int nativeZCopyPrintRegistration();
+    public native int nativeZCopyPrintAll();
+    public native int nativeZCopyPrintByOrderNumber(int OrderNumber);
+    public native int nativeZCopyPrintByShiftNumber(int ShiftNumber);
 
     public native int nativeClosePort();
 

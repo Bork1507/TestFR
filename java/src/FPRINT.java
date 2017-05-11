@@ -660,7 +660,7 @@ public class FPRINT extends FR
             ArrayOfBytes getStr=new ArrayOfBytes();
             ArrayOfBytes commandStr=new ArrayOfBytes();
 
-            pass=rightJustified(pass, '0', 8);
+            pass=Common.rightJustified(pass, '0', 8);
 
 
             error=exitMode();
@@ -972,8 +972,8 @@ public class FPRINT extends FR
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
-		String qantityTMP=rightJustified(qantity.replace(".", "").replace(",", ""), '0', 10);
-		String costTMP=rightJustified(cost.replace(".", "").replace(",", ""), '0', 10);
+		String qantityTMP=Common.rightJustified(qantity.replace(".", "").replace(",", ""), '0', 10);
+		String costTMP=Common.rightJustified(cost.replace(".", "").replace(",", ""), '0', 10);
 
 
 		commandStr.append(0x00);
@@ -1019,7 +1019,7 @@ public class FPRINT extends FR
 		ArrayOfBytes getStr=new ArrayOfBytes();
 		ArrayOfBytes commandStr=new ArrayOfBytes();
 
-            String sumTMP=rightJustified(sum.replace(".", "").replace(",", ""), '0', 10);
+            String sumTMP=Common.rightJustified(sum.replace(".", "").replace(",", ""), '0', 10);
             int payTypeTMP=0;
 
 		String pay1="";

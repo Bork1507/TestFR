@@ -97,4 +97,25 @@ class Common
 
 		return cuttedString;
 	}
+
+	public static String rightJustified(String str, char ch, int length)
+	{
+		String out=str;
+		while (out.length()<length)
+		{
+			out=ch+out;
+		}
+		return out;
+	}
+
+	public static String leftJustified(String str, char ch, int length)
+	{
+		String out=str;
+		while (out.length()<length)
+		{
+			out+=ch;
+		}
+		return out;
+	}
+
 }

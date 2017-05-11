@@ -73,6 +73,14 @@ JNIEXPORT jstring JNICALL Java_SPOLE1C_1JNI_nativeGetSerialNumber
 
 /*
  * Class:     SPOLE1C_JNI
+ * Method:    nativeGetPrinterStatus
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeGetPrinterStatus
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE1C_JNI
  * Method:    nativeGetLastShiftInFiscalMemory
  * Signature: ()Ljava/lang/String;
  */
@@ -209,6 +217,14 @@ JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeJournalPrint
 
 /*
  * Class:     SPOLE1C_JNI
+ * Method:    nativePrintJournal
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativePrintJournal
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     SPOLE1C_JNI
  * Method:    nativeJournalRead
  * Signature: (II)Ljava/lang/String;
  */
@@ -293,6 +309,54 @@ JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativePrintEklzReportShortByShift
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativePrintEklzReportControlTape
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeZCopy
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeZCopy
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeZCopyClear
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeZCopyClear
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeZCopyPrintRegistration
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeZCopyPrintRegistration
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeZCopyPrintAll
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeZCopyPrintAll
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeZCopyPrintByOrderNumber
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeZCopyPrintByOrderNumber
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     SPOLE1C_JNI
+ * Method:    nativeZCopyPrintByShiftNumber
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE1C_1JNI_nativeZCopyPrintByShiftNumber
   (JNIEnv *, jobject, jint);
 
 /*

@@ -73,6 +73,14 @@ JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeGetSerialNumber
 
 /*
  * Class:     SPOLE_JNI
+ * Method:    nativeGetPrinterStatus
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeGetPrinterStatus
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE_JNI
  * Method:    nativeGetLastShiftInFiscalMemory
  * Signature: ()Ljava/lang/String;
  */
@@ -209,6 +217,14 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeJournalPrint
 
 /*
  * Class:     SPOLE_JNI
+ * Method:    nativePrintJournal
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativePrintJournal
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     SPOLE_JNI
  * Method:    nativeJournalRead
  * Signature: (II)Ljava/lang/String;
  */
@@ -293,6 +309,54 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativePrintEklzReportShortByShift
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativePrintEklzReportControlTape
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeZCopy
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopy
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeZCopyClear
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyClear
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeZCopyPrintRegistration
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintRegistration
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeZCopyPrintAll
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintAll
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeZCopyPrintByOrderNumber
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintByOrderNumber
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeZCopyPrintByShiftNumber
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZCopyPrintByShiftNumber
   (JNIEnv *, jobject, jint);
 
 /*
