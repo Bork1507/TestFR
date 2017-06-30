@@ -44,18 +44,22 @@ public class SPOLE_JNI {
 
     public native int nativePrintText(String text);
 
+    public native int nativeOpenReceipt(int receiptType, int sectionNumber, String operatorName, int receiptNumber);
     public native int nativeBuy(String itemName, String articul, String qantity, String cost, String depType, String taxType);
-    public native int nativeSale(String itemName, String articul, String qantity, String cost, String depType, String taxType);
+    public native String nativeAddItem3(String itemName, String articul, double qantity, String cost, int depType, int taxType, String ean);
     public native int nativeReturnSale(String itemName, String articul, String qantity, String cost, String depType, String taxType);
 
-    public native int nativeCheckSubTotal();
-    public native int nativeCloseCheck(String pay1, String pay2, String pay3, String pay4, String text);
+    public native String nativeSubTotal();
+    public native String nativePayment(int paymentType, String paymentSum);
+    public native int nativeCloseReceipt();
 
-    public native int nativeCancelCheck();
+    public native int nativeCancelReceipt();
 
     public native int nativeXreport(String operatorName);
     public native int nativeZreport(String operatorName);
 
+    public native int nativeOpenStornoReceipt(int sectionNumber, String operatorName, int receiptToStornoNumber, int receiptNumber);
+    public native int nativeAddStornoAmount(int paymentType, String amountToStorno);
     public native int nativeJournalPrint(String operatorName);
     public native int nativePrintJournal(String operatorName);
     public native String nativeJournalRead(int operation, int parameter);

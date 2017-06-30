@@ -492,6 +492,7 @@ public class TestFR {
 	{
 		PRINTER _printer=null;
 		if (testParams.device.equals("CW1000")) _printer=new CW1000();
+		else if (testParams.device.equals("AXIOHM")) _printer=new AXIOHM();
 		else return;
 
 		try {
@@ -502,6 +503,42 @@ public class TestFR {
 			Common.log(" ");
 			Common.log("!!!Start program!!!");
 
+			_printer.printText("CODE 39");
+			_printer.printText(" ");
+			_printer.printBarCode(2,40, "Code 39", "123456789012345678901");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printBarCode(2,40, "Code 39", "ABCDIFGHIJKLMNOPQRSTU");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printBarCode(2,40, "Code 39", "FGHIJKLMNOPQRSTUVWXYZ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+
+			_printer.printText("CODE 128");
+			_printer.printText(" ");
+			_printer.printBarCode(2,40, "Code 128", "123456789012345678901");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printBarCode(2,40, "Code 128", "ABCDIFGHIJKLMNOPQRSTU");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printBarCode(2,40, "Code 128", "FGHIJKLMNOPQRSTUVWXYZ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
+			_printer.printText(" ");
 			if (testParams.testTypes.loadLogotype)
 			{
 
@@ -573,6 +610,18 @@ public class TestFR {
 		SKNO _skno=null;
 		if (testParams.device.equals("SKNO")) _skno=new SKNO();
 		else return;
+
+		try {
+			_skno.openPort("COM10", "115200");
+			_skno.init();
+			_skno.openShift();
+			_skno.getUI();
+			_skno.closePort();
+		}
+		catch(FrException frEx)
+		{
+			Common.log(frEx.toString());
+		}
 	}
 
 

@@ -807,10 +807,10 @@ public class SPOLE extends FR
         if (error==0) error=_spNativeObject.nativeInit(curDate(), curTime());
         Common.log("Init Error = " + error);
 
-        resultInt = _spNativeObject.nativeGetPrinterStatus();
-        error = _spNativeObject.nativeGetResultCode();
-        Common.log("Error = " + error);
-        Common.log("Result = " + resultInt);
+//        resultInt = _spNativeObject.nativeGetPrinterStatus();
+//        error = _spNativeObject.nativeGetResultCode();
+//        Common.log("Error = " + error);
+//        Common.log("Result = " + resultInt);
 //        if (error==0) error=_spNativeObject.nativePrintJournal(text);
 
 //        if (error==0) error=_spNativeObject.nativeZCopy(1, 1);
@@ -819,14 +819,48 @@ public class SPOLE extends FR
 //        if (error==0) error=_spNativeObject.nativeZCopy(0, 0);
 //        if (error==0) error=_spNativeObject.nativeZCopy(3, 0);
 
-        if (error==0) error=_spNativeObject.nativeZCopyClear();
-        if (error==0) error=_spNativeObject.nativeZCopyPrintRegistration();
-        if (error==0) error=_spNativeObject.nativeZCopyPrintAll();
-        if (error==0) error=_spNativeObject.nativeZCopyPrintByOrderNumber(1);
-        if (error==0) error=_spNativeObject.nativeZCopyPrintByShiftNumber(8);
+//        if (error==0) error=_spNativeObject.nativeZCopyClear();
+//        if (error==0) error=_spNativeObject.nativeZCopyPrintRegistration();
+//        if (error==0) error=_spNativeObject.nativeZCopyPrintAll();
+//        if (error==0) error=_spNativeObject.nativeZCopyPrintByOrderNumber(1);
+//        if (error==0) error=_spNativeObject.nativeZCopyPrintByShiftNumber(8);
 
 
-        Common.log("Error = " + error);
+        if (error==0) error=_spNativeObject.nativeOpenReceipt(2, 1, "Иван Иванов", 0);
+        Common.log("OpenReceipt Error = " + error);
+
+        result=_spNativeObject.nativeAddItem3("Гитара семиструнная", "00001234", 2, "150.00", 1, 1, "0123456789012");
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("nativeAddItem3 Error = " + error);
+        Common.log("nativeAddItem3 Result = " + result);
+
+        result=_spNativeObject.nativeSubTotal();
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("nativeSubTotal Error = " + error);
+        Common.log("nativeSubTotal Result = " + result);
+
+
+        result=_spNativeObject.nativePayment(1, "300.00");
+        error = _spNativeObject.nativeGetResultCode();
+        Common.log("nativePayment Error = " + error);
+        Common.log("nativePayment Result = " + result);
+
+        error = _spNativeObject.nativeCloseReceipt();
+        Common.log("nativeCloseReceipt Error = " + error);
+
+
+        error=_spNativeObject.nativeOpenStornoReceipt(1, "Иван Иванов", 10, 0);
+        Common.log("nativeOpenStornoReceipt Error = " + error);
+
+        error=_spNativeObject.nativeAddStornoAmount(1, "300.00");
+        Common.log("nativeAddStornoAmount Error = " + error);
+
+        error = _spNativeObject.nativeCloseReceipt();
+        Common.log("nativeCloseReceipt Error = " + error);
+
+
+//        error = _spNativeObject.nativeCancelReceipt();
+//        Common.log("nativeCancelReceipt Error = " + error);
 
 //        if (error == 0) result = _spNativeObject.nativeJournalRead(1, 0); // получить номер текущей контрольной ленты;
 //        if (error == 0) error = _spNativeObject.nativeGetResultCode();

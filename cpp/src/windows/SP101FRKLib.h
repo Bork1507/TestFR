@@ -163,6 +163,36 @@ public:
       (this->Init(CheckDateTime, (short*)&Result));
       return Result;
     }
+    short _stdcall OpenReceipt(short ReceiptType,  short SectionNumber,  BSTR OperatorName,  unsigned long ReceiptNumber)
+    {
+      short Result;
+      (this->OpenReceipt(ReceiptType,  SectionNumber,  OperatorName,  ReceiptNumber, (short*)&Result));
+      return Result;
+    }
+    short _stdcall CloseReceipt(void)
+    {
+      short Result;
+      (this->CloseReceipt((short*)&Result));
+      return Result;
+    }
+    short _stdcall BreakReceipt(void)
+    {
+      short Result;
+      (this->BreakReceipt((short*)&Result));
+      return Result;
+    }
+    short _stdcall SubTotal(CURRENCY * ReceiptTotal)
+    {
+      short Result;
+      (this->SubTotal(ReceiptTotal, (short*)&Result));
+      return Result;
+    }
+    short _stdcall Payment(short PaymentType, CURRENCY PaymentTotal, CURRENCY * ReceiptTotal)
+    {
+      short Result;
+      (this->Payment(PaymentType, PaymentTotal, ReceiptTotal, (short*)&Result));
+      return Result;
+    }
     short _stdcall XReport(BSTR OperatorName)
     {
       short Result;
@@ -221,6 +251,24 @@ public:
     {
       short Result;
       (this->GetVersion((short*)Version, (short*)&Result));
+      return Result;
+    }
+    short _stdcall AddArticleEx3(BSTR ArticleName, BSTR ArticleCode, double ArticleQuantity, CURRENCY ArticleTotal, short Department, short TaxNumber, BSTR EAN, CURRENCY * ReceiptTotal)
+    {
+      short Result;
+      (this->AddArticleEx3(ArticleName, ArticleCode, ArticleQuantity, ArticleTotal, Department, TaxNumber, EAN, ReceiptTotal, (short*)&Result));
+      return Result;
+    }
+    short _stdcall OpenStornoReceipt(short SectionNumber, BSTR OperatorName, long ReceiptToStornoNumber, long ReceiptNumber)
+    {
+      short Result;
+      (this->OpenStornoReceipt(SectionNumber, OperatorName, ReceiptToStornoNumber, ReceiptNumber, (short*)&Result));
+      return Result;
+    }
+    short _stdcall AddStornoAmount(short PaymentType, CURRENCY dAmountToStorno)
+    {
+      short Result;
+      (this->AddStornoAmount(PaymentType, dAmountToStorno, (short*)&Result));
       return Result;
     }
     short _stdcall JournalPrint(BSTR OperatorName)

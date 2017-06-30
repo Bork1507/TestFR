@@ -560,44 +560,270 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeInstallEx (JNIEnv *jenv, jobject jo
 //    return error;
 //}
 //
-//JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeSale (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
-//    long error = 0;
-//
-//    //CURRENCY priceCur=static_cast<CURRENCY>(24234563800);
-//    CURRENCY priceCur;
-//    priceCur.Lo=atoi(jenv->GetStringUTFChars(cost, JNI_FALSE));
-//    priceCur.Hi=0;
-//
-//    const char *nativeStringTime = jenv->GetStringUTFChars(itemName, JNI_FALSE);
-//    DWORD dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeStringTime, -1, NULL, 0);
-//    wchar_t *pwText;
-//    pwText = new wchar_t[dwNum];
-//    if(!pwText) {
-//        delete []pwText;
-//    }
-//    MultiByteToWideChar(CP_UTF8, 0, nativeStringTime, -1, pwText, dwNum);
-//
-//    BSTR MyBstr = SysAllocString(pwText);
-//
-//    if (error == 0) error=pDrvFR->set_Password(30);
-//    if (error == 0) error=pDrvFR->set_Quantity(atof(jenv->GetStringUTFChars(qantity, JNI_FALSE)));
-//    if (error == 0) error=pDrvFR->set_Price(priceCur);
-//    if (error == 0) error=pDrvFR->set_Department(atoi(jenv->GetStringUTFChars(depType, JNI_FALSE)));
-//    if (error == 0) error=pDrvFR->set_Tax1(0);
-//    if (error == 0) error=pDrvFR->set_Tax2(0);
-//    if (error == 0) error=pDrvFR->set_Tax3(0);
-//    if (error == 0) error=pDrvFR->set_Tax4(0);
-//    if (error == 0) error=pDrvFR->set_StringForPrinting(MyBstr);
-//
-//
-//
-//    if (error == 0) error=pDrvFR->Sale();
-//    //cout << "error Sale - " << error << endl;
-//
-//
-//    delete []pwText;
-//    return error;
-//}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeOpenReceipt (JNIEnv *jenv, jobject jobj, jint receiptType, jint sectionNumber, jstring operatorName, jint receiptNumber){
+
+    short error = 0;
+    const char *nativeOperatorName = jenv->GetStringUTFChars(operatorName, JNI_FALSE);
+    DWORD dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeOperatorName, -1, NULL, 0);
+    wchar_t *pwText;
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeOperatorName, -1, pwText, dwNum);
+
+    BSTR MyBstr = SysAllocString(pwText);
+
+    if (error == 0) error=pOleFR->OpenReceipt(receiptType, sectionNumber, MyBstr, receiptNumber);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+
+JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeAddItem3 (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jdouble qantity, jstring cost, jint depType, jint taxType, jstring ean){
+
+    short error = 0;
+    DWORD dwNum;
+    wchar_t *pwText;
+
+    const char *nativeItemName = jenv->GetStringUTFChars(itemName, JNI_FALSE);
+    dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeItemName, -1, NULL, 0);
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeItemName, -1, pwText, dwNum);
+    BSTR bstrItemName = SysAllocString(pwText);
+    delete []pwText;
+
+    const char *nativeArticul = jenv->GetStringUTFChars(articul, JNI_FALSE);
+    dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeArticul, -1, NULL, 0);
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeArticul, -1, pwText, dwNum);
+    BSTR bstrArticul = SysAllocString(pwText);
+    delete []pwText;
+
+    char costArr[30];
+    const char *costPtr=jenv->GetStringUTFChars(cost, JNI_FALSE);
+    int costPtrLength=strlen(costPtr);
+    int i=0;
+    for(;i<costPtrLength;costPtr++)
+    {
+        if (*costPtr == 0) break;
+        else if (*costPtr == '.') continue;
+        else if (*costPtr == ',') continue;
+        else costArr[i++]=*costPtr;
+
+
+    }
+    if(i<28)
+    {
+        costArr[i++]=0x30;
+        costArr[i++]=0x30;
+        costArr[i++]=0;
+    }
+    CURRENCY priceCur;
+    priceCur.Lo=atoi(costArr);
+    priceCur.Hi=0;
+
+    const char *nativeEan = jenv->GetStringUTFChars(ean, JNI_FALSE);
+    dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeEan, -1, NULL, 0);
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeEan, -1, pwText, dwNum);
+    BSTR bstrEan = SysAllocString(pwText);
+    delete []pwText;
+
+    CURRENCY receiptTotal;
+
+    if (error == 0) error=pOleFR->AddArticleEx3(bstrItemName, bstrArticul, qantity, priceCur, depType, taxType, bstrEan, &receiptTotal);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+
+    char resultStr[30];
+    itoa(receiptTotal.Lo, resultStr, 10);
+    int resultStrLength=strlen(resultStr);
+    if (resultStrLength>4)
+    {
+        resultStr[resultStrLength-2]=resultStr[resultStrLength-3];
+        resultStr[resultStrLength-3]=resultStr[resultStrLength-4];
+        resultStr[resultStrLength-4]='.';
+        resultStr[resultStrLength-1]=0;
+    }
+    //cout << "receiptTotalRecordNumber - " << resultStr << endl;
+    //WideCharToMultiByte(CP_UTF8, 0, bstrResult, -1, cResult, 100, NULL, NULL);
+    return jenv->NewStringUTF(resultStr);
+}
+JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeSubTotal (JNIEnv *jenv, jobject jobj){
+
+    short error = 0;
+
+    CURRENCY receiptTotal;
+
+    if (error == 0) error=pOleFR->SubTotal(&receiptTotal);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+
+    char resultStr[30];
+    itoa(receiptTotal.Lo, resultStr, 10);
+    int resultStrLength=strlen(resultStr);
+    if (resultStrLength>4)
+    {
+        resultStr[resultStrLength-2]=resultStr[resultStrLength-3];
+        resultStr[resultStrLength-3]=resultStr[resultStrLength-4];
+        resultStr[resultStrLength-4]='.';
+        resultStr[resultStrLength-1]=0;
+    }
+    //cout << "receiptTotalRecordNumber - " << resultStr << endl;
+    //WideCharToMultiByte(CP_UTF8, 0, bstrResult, -1, cResult, 100, NULL, NULL);
+    return jenv->NewStringUTF(resultStr);
+}
+JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativePayment (JNIEnv *jenv, jobject jobj, jint paymentType, jstring paymentSum){
+
+    short error = 0;
+    DWORD dwNum;
+    wchar_t *pwText;
+
+    char paymentSumArr[30];
+    const char *paymentSumPtr=jenv->GetStringUTFChars(paymentSum, JNI_FALSE);
+    int paymentSumPtrLength=strlen(paymentSumPtr);
+    int i=0;
+    for(;i<paymentSumPtrLength;paymentSumPtr++)
+    {
+        if (*paymentSumPtr == 0) break;
+        else if (*paymentSumPtr == '.') continue;
+        else if (*paymentSumPtr == ',') continue;
+        else paymentSumArr[i++]=*paymentSumPtr;
+
+
+    }
+    if(i<28)
+    {
+        paymentSumArr[i++]=0x30;
+        paymentSumArr[i++]=0x30;
+        paymentSumArr[i++]=0;
+    }
+    CURRENCY paymentSumCur;
+    paymentSumCur.Lo=atoi(paymentSumArr);
+    paymentSumCur.Hi=0;
+
+    CURRENCY receiptTotal;
+
+    if (error == 0) error=pOleFR->Payment(paymentType, paymentSumCur, &receiptTotal);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+
+    char resultStr[30];
+    itoa(receiptTotal.Lo, resultStr, 10);
+    int resultStrLength=strlen(resultStr);
+    if (resultStrLength>4)
+    {
+        resultStr[resultStrLength-2]=resultStr[resultStrLength-3];
+        resultStr[resultStrLength-3]=resultStr[resultStrLength-4];
+        resultStr[resultStrLength-4]='.';
+        resultStr[resultStrLength-1]=0;
+    }
+    //cout << "receiptTotalRecordNumber - " << resultStr << endl;
+    //WideCharToMultiByte(CP_UTF8, 0, bstrResult, -1, cResult, 100, NULL, NULL);
+    return jenv->NewStringUTF(resultStr);
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeCloseReceipt (JNIEnv *jenv, jobject jobj){
+
+    short error = 0;
+
+    if (error == 0) error=pOleFR->CloseReceipt();
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeOpenStornoReceipt (JNIEnv *jenv, jobject jobj, jint sectionNumber, jstring operatorName, jint receiptToStornoNumber, jint receiptNumber){
+
+    short error = 0;
+    const char *nativeOperatorName = jenv->GetStringUTFChars(operatorName, JNI_FALSE);
+    DWORD dwNum = MultiByteToWideChar(CP_UTF8, 0, nativeOperatorName, -1, NULL, 0);
+    wchar_t *pwText;
+    pwText = new wchar_t[dwNum];
+    if(!pwText) {
+        delete []pwText;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, nativeOperatorName, -1, pwText, dwNum);
+
+    BSTR MyBstr = SysAllocString(pwText);
+
+    if (error == 0) error=pOleFR->OpenStornoReceipt(sectionNumber, MyBstr, receiptToStornoNumber, receiptNumber);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeAddStornoAmount (JNIEnv *jenv, jobject jobj, jint paymentType, jstring amountToStorno){
+
+    short error = 0;
+
+    char amountToStornoArr[30];
+    const char *amountToStornoPtr=jenv->GetStringUTFChars(amountToStorno, JNI_FALSE);
+    int amountToStornoPtrLength=strlen(amountToStornoPtr);
+    int i=0;
+    for(;i<amountToStornoPtrLength;amountToStornoPtr++)
+    {
+        if (*amountToStornoPtr == 0) break;
+        else if (*amountToStornoPtr == '.') continue;
+        else if (*amountToStornoPtr == ',') continue;
+        else amountToStornoArr[i++]=*amountToStornoPtr;
+    }
+    if(i<28)
+    {
+        amountToStornoArr[i++]=0x30;
+        amountToStornoArr[i++]=0x30;
+        amountToStornoArr[i++]=0;
+    }
+    CURRENCY amountToStornoCur;
+    amountToStornoCur.Lo=atoi(amountToStornoArr);
+    amountToStornoCur.Hi=0;
+
+    if (error == 0) error=pOleFR->AddStornoAmount(paymentType, amountToStornoCur);
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
+
+
 //
 //JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_nativeReturnSale (JNIEnv *jenv, jobject jobj, jstring itemName, jstring articul, jstring qantity, jstring cost, jstring depType, jstring taxType){
 //    long error = 0;
@@ -692,14 +918,16 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeInstallEx (JNIEnv *jenv, jobject jo
 //    return error;
 //}
 //
-//JNIEXPORT jint JNICALL Java_SHTRIHDRV_1JNI_CancelCheck (JNIEnv *jenv, jobject jobj){
-//    long error = 0;
-//
-//    error=pDrvFR->CancelCheck();
-//    //cout << "error CancelCheck - " << error << endl;
-//
-//    return error;
-//}
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeCancelReceipt (JNIEnv *jenv, jobject jobj){
+    short error = 0;
+
+    error=pOleFR->BreakReceipt();
+
+    if (error == 0) g_error = 0;
+    else g_error = error;
+
+    return error;
+}
 JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeXreport (JNIEnv *jenv, jobject jobj, jstring operatorName){
     short error = 0;
 
@@ -801,7 +1029,7 @@ JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeJournalRead (JNIEnv *jenv, jobje
     else g_error = error;
 
     WideCharToMultiByte(CP_UTF8, 0, bstrResult, -1, cResult, 100, NULL, NULL);
-    return jenv->NewStringUTF(cResult);;
+    return jenv->NewStringUTF(cResult);
 }
 
 JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeGetJournalNumber (JNIEnv *jenv, jobject jobj){
@@ -839,7 +1067,7 @@ JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeGetJournalRecord (JNIEnv *jenv, 
     else g_error = error;
 
     WideCharToMultiByte(CP_UTF8, 0, bstrResult, -1, cResult, 100, NULL, NULL);
-    return jenv->NewStringUTF(cResult);;
+    return jenv->NewStringUTF(cResult);
 }
 JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeGetJournalReceiptByIndex (JNIEnv *jenv, jobject jobj, jint ReceiptIndex){
     short error = 0;

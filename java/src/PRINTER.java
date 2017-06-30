@@ -39,6 +39,7 @@ abstract class PRINTER extends PosDevice
 
     abstract public int printTextEx(String text, int mask) throws FrException;
 
+    abstract public int printBarCode(int width, int height, String codeType, String codeText) throws FrException;
     abstract public int printQrCode(String url) throws FrException;
 
     abstract public int eraseLogotype() throws FrException;

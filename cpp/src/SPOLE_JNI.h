@@ -145,6 +145,14 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativePrintText
 
 /*
  * Class:     SPOLE_JNI
+ * Method:    nativeOpenReceipt
+ * Signature: (IILjava/lang/String;I)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeOpenReceipt
+  (JNIEnv *, jobject, jint, jint, jstring, jint);
+
+/*
+ * Class:     SPOLE_JNI
  * Method:    nativeBuy
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
  */
@@ -153,11 +161,11 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeBuy
 
 /*
  * Class:     SPOLE_JNI
- * Method:    nativeSale
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ * Method:    nativeAddItem3
+ * Signature: (Ljava/lang/String;Ljava/lang/String;DLjava/lang/String;IILjava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeSale
-  (JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring, jstring);
+JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeAddItem3
+  (JNIEnv *, jobject, jstring, jstring, jdouble, jstring, jint, jint, jstring);
 
 /*
  * Class:     SPOLE_JNI
@@ -169,26 +177,34 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeReturnSale
 
 /*
  * Class:     SPOLE_JNI
- * Method:    nativeCheckSubTotal
- * Signature: ()I
+ * Method:    nativeSubTotal
+ * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeCheckSubTotal
+JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativeSubTotal
   (JNIEnv *, jobject);
 
 /*
  * Class:     SPOLE_JNI
- * Method:    nativeCloseCheck
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ * Method:    nativePayment
+ * Signature: (ILjava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeCloseCheck
-  (JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring);
+JNIEXPORT jstring JNICALL Java_SPOLE_1JNI_nativePayment
+  (JNIEnv *, jobject, jint, jstring);
 
 /*
  * Class:     SPOLE_JNI
- * Method:    nativeCancelCheck
+ * Method:    nativeCloseReceipt
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeCancelCheck
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeCloseReceipt
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeCancelReceipt
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeCancelReceipt
   (JNIEnv *, jobject);
 
 /*
@@ -206,6 +222,22 @@ JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeXreport
  */
 JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeZreport
   (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeOpenStornoReceipt
+ * Signature: (ILjava/lang/String;II)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeOpenStornoReceipt
+  (JNIEnv *, jobject, jint, jstring, jint, jint);
+
+/*
+ * Class:     SPOLE_JNI
+ * Method:    nativeAddStornoAmount
+ * Signature: (ILjava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_SPOLE_1JNI_nativeAddStornoAmount
+  (JNIEnv *, jobject, jint, jstring);
 
 /*
  * Class:     SPOLE_JNI

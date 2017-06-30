@@ -514,7 +514,7 @@ public class CW1000 extends PRINTER
 
 	public int printImageFromFile(String filePath) throws FrException
 	{
-		if (_writeLog) Common.log("loadLogotype");
+		if (_writeLog) Common.log("printImageFromFile");
 		int error=0;
 
 
@@ -996,7 +996,7 @@ public class CW1000 extends PRINTER
 
 	public int printLogotype() throws FrException
 	{
-		if (_writeLog) Common.log("eraseLogotype");
+		if (_writeLog) Common.log("printLogotype");
 		int error=0;
 
 		ArrayOfBytes commandStr=new ArrayOfBytes();
