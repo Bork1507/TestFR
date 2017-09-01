@@ -75,6 +75,7 @@ public class TestFR {
 
 		FR _fr=null;
 		if (testParams.device.equals("SP")) _fr=new SP();
+		else if (testParams.device.equals("SP54")) _fr=new SP54();
 		else if (testParams.device.equals("SHTRIH")) _fr=new SHTRIH();
 		else if (testParams.device.equals("FPRINT")) _fr=new FPRINT();
 		else if (testParams.device.equals("PYRITE")) _fr=new PYRITE();
@@ -262,15 +263,17 @@ public class TestFR {
 						_fr.closeDocument("");
 
 						_fr.openDocument(FR.RECEIPT_TYPE_SALE, "0", "Иванова", "1");
-						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
-						while (_resSet.next()) {
-							String article = _resSet.getString("Article");
-							String itemname = _resSet.getString("ItemName");
-							String cost = _resSet.getString("Cost");
-							String weight = _resSet.getString("Weight");
+						for (int i=1;i<600;++i) _fr.addItem("Тест"+String.valueOf(i), "123456", "1", "10.10", "0", "1");
 
-							_fr.addItem(itemname, article, weight, cost, "0", "1");
-						}
+//						_resSet = _statmt.executeQuery("SELECT * FROM testitems");
+//						while (_resSet.next()) {
+//							String article = _resSet.getString("Article");
+//							String itemname = _resSet.getString("ItemName");
+//							String cost = _resSet.getString("Cost");
+//							String weight = _resSet.getString("Weight");
+//
+//							_fr.addItem(itemname, article, weight, cost, "0", "1");
+//						}
 						_fr.printText("Текст");
 						_fr.total();
 						_fr.pay(FR.PAY_TYPE_0, "500.00", "");
